@@ -1,0 +1,26 @@
+node_modules/
+.next/
+.env
+.env.*
+!.env.example
+*.tsbuildinfo
+coverage/
+*.log
+.local-mail/
+
+.nexo/
+*.private.pem
+
+.backups/
+*.dump
+
+.worker/
+.releases/
+
+.next-dev-smoke/
+
+.next-team-check/
+.next-ui-check/
+
+# Notas de trabajo locales del asistente
+/HANDOFF.md

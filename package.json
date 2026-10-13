@@ -1,0 +1,47 @@
+{
+  "name": "nexo",
+  "version": "0.19.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/dev-local.mjs",
+    "build": "next build",
+    "start": "next start --hostname 127.0.0.1",
+    "typecheck": "tsc --noEmit",
+    "db:migrate": "tsx --env-file=.env scripts/migrate.ts",
+    "company:create": "tsx --env-file=.env scripts/create-company.ts",
+    "commercial:record": "tsx --env-file=.env scripts/commercial.ts record",
+    "company:onboard": "tsx --env-file=.env scripts/commercial.ts onboard new",
+    "orders:expire": "tsx --env-file=.env scripts/expire-orders.ts",
+    "orders:worker": "tsx --env-file=.env scripts/expire-orders.ts --watch",
+    "payments:simulate": "tsx --env-file=.env scripts/simulate-payment.ts",
+    "mail:local": "tsx --env-file=.env scripts/local-mail.ts",
+    "test": "tsx --test tests/*.test.ts",
+    "license": "tsx scripts/license.ts",
+    "db:permissions": "tsx --env-file=.env scripts/database-permissions.ts",
+    "doctor": "tsx scripts/doctor.ts",
+    "backup": "tsx scripts/backup.ts",
+    "build:worker": "node scripts/build-worker.mjs",
+    "release": "npm run build && npm run build:worker && node scripts/package-release.mjs",
+    "dev:web": "next dev --hostname 127.0.0.1"
+  },
+  "dependencies": {
+    "next": "^16.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "pg": "^8.16.0",
+    "zod": "^4.0.0",
+    "sharp": "0.35.5"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/pg": "^8.15.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.9.0",
+    "tsx": "^4.20.0"
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  }
+}

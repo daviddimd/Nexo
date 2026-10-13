@@ -1,0 +1,8 @@
+'use client';
+import {useState,type FormEvent} from 'react';
+import Modal from './panel/modal';
+export default function AccountPassword(){
+ const [open,setOpen]=useState(false),[busy,setBusy]=useState(false),[notice,setNotice]=useState('');
+ async function save(e:FormEvent<HTMLFormElement>){e.preventDefault();if(busy)return;const f=new FormData(e.currentTarget);if(f.get('password')!==f.get('confirmation')){setNotice('Las contraseñas no coinciden');return;}setBusy(true);setNotice('');try{const response=await fetch('/api/auth/password',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({currentPassword:f.get('current'),newPassword:f.get('password')})});const data=await response.json();if(!response.ok)throw Error(data.error?.message??'No se pudo cambiar');window.location.replace('/');}catch(error){setNotice((error as Error).message);setBusy(false);}}
+ return <><button className="secondary" onClick={()=>{setNotice('');setOpen(true);}}>Cambiar contraseña</button>{open&&<Modal title="Cambiar mi contraseña" busy={busy} onClose={()=>setOpen(false)}><p role="status">{notice}</p><p>Al guardar se cerrarán tus sesiones para que vuelvas a acceder con la nueva contraseña.</p><form onSubmit={save}><fieldset disabled={busy}><label>Contraseña actual<input name="current" type="password" required autoComplete="current-password"/></label><label>Nueva contraseña<input name="password" type="password" required minLength={12} maxLength={128} autoComplete="new-password"/></label><label>Confirmar nueva contraseña<input name="confirmation" type="password" required minLength={12} maxLength={128} autoComplete="new-password"/></label><button>Guardar contraseña</button></fieldset></form></Modal>}</>;
+}
