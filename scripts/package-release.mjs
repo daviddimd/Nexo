@@ -6,7 +6,7 @@ import {existsSync} from 'node:fs';
 const root=resolve('.releases'),id=randomUUID(),temporary=join(root,`.tmp-${id}`);
 try{
   const {version}=JSON.parse(await readFile('package.json','utf8'));
-  if(!/^\d+\.\d+\.\d+$/.test(version))throw new Error('Invalid version');
+  if(!/^\d+\.\d+\.\d+(?:-beta\.[1-9]\d*)?$/.test(version))throw new Error('Invalid version');
   await mkdir(root,{recursive:true});await mkdir(temporary);
   await cp('.next/standalone',temporary,{recursive:true,dereference:true});
   await cp('.next/static',join(temporary,'.next/static'),{recursive:true});

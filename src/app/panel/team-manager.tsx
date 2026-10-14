@@ -1,6 +1,9 @@
 'use client';
+import {IconButton} from '../action-icon';
 import {useEffect,useRef,useState,type FormEvent} from 'react';
 import Modal from './modal';
+import RowActions from './row-actions';
+import styles from './panel.module.css';
 import type {ManagedLocation} from './catalog-manager';
 
 type Account={id:string;name:string;email:string;role:'OWNER'|'AGENT'|'CUSTOMER';active:boolean;locationIds:string[]};
@@ -37,15 +40,14 @@ export default function TeamManager({viewerId,locations,busy,setBusy,request}:Pr
       setNotice(e.status?e.message:'Se perdió la respuesta. Cierra esta ventana y actualiza el listado antes de repetir el cambio.');
     }finally{saving.current=false;setBusy(false);}
   }
-  return <section><div className="section-heading"><h2>Equipo y accesos</h2><button disabled={busy} onClick={()=>edit(null)}>Nuevo agente</button></div>
+  return <section><div className="section-heading"><h2>Equipo y accesos</h2><div className={styles.teamToolbar}><IconButton icon="refresh" label="Actualizar equipo" disabled={busy} onClick={()=>refresh()}/><button disabled={busy} onClick={()=>edit(null)}>Nuevo agente</button></div></div>
     <p>Administra las cuentas de tu empresa y las ubicaciones en las que puede operar cada agente.</p>
     <p role="status" aria-live="polite">{notice}</p>
-    <button disabled={busy} onClick={()=>refresh()}>Actualizar</button>
-    <div className="table-scroll"><table><thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Ubicaciones</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>
-      {accounts.map(account=><tr key={account.id}><td>{account.name}{account.id===viewerId&&<small> · Tú</small>}</td><td>{account.email}</td><td>{roleNames[account.role]}</td><td>{account.role==='OWNER'?'Todas':account.role==='CUSTOMER'?'Sin acceso al panel':account.locationIds.map(id=>locations.find(l=>l.id===id)?.name??'Ubicación no disponible').join(', ')||'Sin asignar'}</td><td>{account.active?'Activa':'Inactiva'}</td><td><button disabled={busy} aria-label={`Editar cuenta de ${account.name}`} onClick={()=>edit(account)}>Editar</button>{account.id!==viewerId&&<button disabled={busy} aria-label={`Restablecer contraseña de ${account.name}`} onClick={()=>edit(account,'password')}>Contraseña</button>}</td></tr>)}
+    <div className="table-scroll"><table className={styles.teamTable}><thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Ubicaciones</th><th>Estado</th><th className={styles.rowMenuCell}><span className={styles.srOnly}>Opciones de cuenta</span></th></tr></thead><tbody>
+      {accounts.map(account=><tr key={account.id}><td>{account.name}{account.id===viewerId&&<small> · Tú</small>}</td><td>{account.email}</td><td>{roleNames[account.role]}</td><td>{account.role==='OWNER'?'Todas':account.role==='CUSTOMER'?'Sin acceso al panel':account.locationIds.map(id=>locations.find(l=>l.id===id)?.name??'Ubicación no disponible').join(', ')||'Sin asignar'}</td><td>{account.active?'Activa':'Inactiva'}</td><td className={styles.rowMenuCell}><RowActions name={account.name} disabled={busy} onEdit={()=>edit(account)} onPassword={account.id!==viewerId?()=>edit(account,'password'):undefined}/></td></tr>)}
       {!accounts.length&&<tr><td colSpan={6}>{loaded?'No hay cuentas en esta página.':'Cargando cuentas…'}</td></tr>}
     </tbody></table></div>
-    <nav aria-label="Páginas del equipo"><button disabled={busy||page===0} onClick={()=>refresh(page-1)}>Anterior</button><span>Página {page+1}</span><button disabled={busy||accounts.length<25} onClick={()=>refresh(page+1)}>Siguiente</button></nav>
+    <nav aria-label="Páginas del equipo"><IconButton icon="previous" label="Página anterior" disabled={busy||page===0} onClick={()=>refresh(page-1)}/><span>Página {page+1}</span><IconButton icon="next" label="Página siguiente" disabled={busy||accounts.length<25} onClick={()=>refresh(page+1)}/></nav>
     {editor&&<Modal title={editor==='password'?`Restablecer contraseña · ${selected?.name}`:selected?`Editar cuenta · ${selected.name}`:'Crear agente'} busy={busy} onClose={()=>setEditor(null)}>
       <p role="status" aria-live="polite">{notice}</p>
       <form onSubmit={save}><fieldset disabled={busy||uncertain}>

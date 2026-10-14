@@ -1,11 +1,12 @@
 'use client';
-import {useRef,useState,type FormEvent} from 'react';
+import {IconButton} from '../action-icon';
+import {useRef,useState,type FormEvent,type ReactNode} from 'react';
 import Modal from './modal';
 export type ManagedProduct={id:string;sku:string;name:string;active:boolean;description:string;price_minor:string;image_url:string|null};
 export type ManagedLocation={id:string;name:string;active:boolean;kind:'WEB'|'STORE';shipping_enabled:boolean};
-type Props={role:string;view:'products'|'locations';products:ManagedProduct[];locations:ManagedLocation[];busy:boolean;group:number;
+type Props={filterControls?:ReactNode;role:string;view:'products'|'locations';products:ManagedProduct[];locations:ManagedLocation[];busy:boolean;group:number;
   request:(path:string,options?:RequestInit)=>Promise<unknown>;reload:()=>Promise<void>;setBusy:(value:boolean)=>void;changeGroup:(page:number)=>Promise<void>};
-export default function CatalogManager({role,view,products,locations,busy,group,request,reload,setBusy,changeGroup}:Props){
+export default function CatalogManager({filterControls,role,view,products,locations,busy,group,request,reload,setBusy,changeGroup}:Props){
   const [product,setProduct]=useState<ManagedProduct|null>(null),[location,setLocation]=useState<ManagedLocation|null>(null);
   const [revision,setRevision]=useState(0),[kind,setKind]=useState<'WEB'|'STORE'>('STORE'),[notice,setNotice]=useState('');
   const [editorOpen,setEditorOpen]=useState(false);
@@ -24,11 +25,11 @@ export default function CatalogManager({role,view,products,locations,busy,group,
   }
   return <>
     <p role="status" aria-live="polite">{notice}</p>
-    {view==='products'&&<section><h2>Productos</h2><p>Grupo {group+1}. Los precios se expresan en pesos chilenos enteros.</p>
+    {view==='products'&&<section><h2>Productos</h2><p>Grupo {group+1}. Los precios se expresan en pesos chilenos enteros.</p>{filterControls}
       <div style={{overflowX:'auto'}}><table><thead><tr><th>SKU</th><th>Nombre</th><th>Precio CLP</th><th>Estado</th><th>Acción</th></tr></thead><tbody>
         {products.map(p=><tr key={p.id}><td>{p.sku}</td><td>{p.name}</td><td>{p.price_minor}</td><td>{p.active?'Activo':'Inactivo'}</td><td><button disabled={busy} aria-label={`Editar ${p.name}`} onClick={()=>{setProduct(p);setNotice('');setEditorOpen(true);}}>Editar</button></td></tr>)}
-        {!products.length&&<tr><td colSpan={5}>Todavía no hay productos en este grupo.</td></tr>}</tbody></table></div>
-      <nav aria-label="Grupos del catálogo"><button disabled={busy||group===0} onClick={()=>changeGroup(group-1)}>Grupo anterior</button><button disabled={busy||products.length<100} onClick={()=>changeGroup(group+1)}>Grupo siguiente</button></nav>
+        {!products.length&&<tr><td colSpan={5}>No hay productos que coincidan con los filtros en esta página.</td></tr>}</tbody></table></div>
+      <nav aria-label="Grupos del catálogo"><IconButton icon="previous" label="Grupo anterior" disabled={busy||group===0} onClick={()=>changeGroup(group-1)}/><IconButton icon="next" label="Grupo siguiente" disabled={busy||products.length<100} onClick={()=>changeGroup(group+1)}/></nav>
       <button disabled={busy} onClick={()=>{setProduct(null);setRevision(r=>r+1);setNotice('');setEditorOpen(true);}}>Nuevo producto</button>
       {editorOpen&&<Modal title={product?`Editar ${product.sku}`:'Crear producto'} busy={busy} onClose={()=>setEditorOpen(false)}><p role="status" aria-live="polite">{notice}</p>
       <form key={`product-${product?.id??'new'}-${revision}`} onSubmit={e=>save(e,'products')}><fieldset disabled={busy}>

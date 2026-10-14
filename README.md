@@ -1,4 +1,4 @@
-# Nexo · versión funcional 0.19.0
+# Nexo · Primera beta · v0.20.0-beta.1
 
 Plataforma para pymes de tecnología: inventario por empresa/ubicación, pedidos, pagos simulados, posventa, cuentas, invitaciones y registro comercial de suscripción/licencia permanente. Una misma base para futura suscripción e instalación independiente. Cerradas etapas 1, 2, 3A, 3B, 4A, 4B1, 4B2, 4C1, 4C2A y 4C2B; no lista para producción.
 
@@ -8,7 +8,7 @@ Desde la carpeta nexo ejecutar `npm run dev`: prepara PostgreSQL local persisten
 
 ## Tecnología y preparación manual (base externa)
 
-Node.js 24+, TypeScript, Next.js/React, PostgreSQL y node-postgres. SQL explícito y migraciones versionadas. CSS simple para la página de estado; tienda y panel visual se construirán después.
+Node.js 24+, TypeScript, Next.js/React, PostgreSQL y node-postgres. SQL explícito y migraciones versionadas. Panel empresarial y catálogo web con React y CSS. Consulta las funciones y límites de esta beta en [docs/BETA.md](docs/BETA.md).
 
 1. `npm ci`.
 2. Crear una base PostgreSQL exclusiva de Nexo y un usuario propio. No usar bases de otros proyectos ni superusuario para ejecutar la aplicación.

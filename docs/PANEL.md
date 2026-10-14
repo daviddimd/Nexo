@@ -53,3 +53,17 @@ Typecheck/build aislada .next-team-check correctas; 16 pruebas accounts.test.ts 
 ShippingManager accesible desde Inicio y navegación con seccion=shipping, para OWNER/AGENT según ubicaciones asignadas. Lista25 con origen, estado, costo y vencimiento, sin direcciones en listado. Ver abre modal con destinatario/dirección/teléfono, productos y montos; REQUESTED permite aprobar con shippingMinor CLP y nota, o rechazar con motivo. Aprobación30min, no reserva ni cobro; solo checkout reserva. priced_items aprobado se prioriza sobre precios actuales para no alterar importes históricos. Backend result agrega itemDetails con nombres/SKU/precios actuales, preservando items original y permisos/contratos. Respuesta desconocida congela formularios; reintentar comprobación usa mismo id/action/body, replay existente del backend. Actualizar detalle permite conocer estado antes de nuevas decisiones.
 
 14 pruebas checkout.test.ts pass, incluyendo comprobación nueva de detalleactual24000 vs snapshotaprobado20000; permisos por empresa/asignación, noreserva al aprobar, stock vendido durantecotización rechaza checkout. Typecheck ya pasó y build aislada .next-team-check correcta. No se crearon cotizaciones artificiales en PrismaByte; listado vacío hasta solicitudescliente porAPI (checkoutvisual siguependiente). No navegadorinteractivo. PGtemporal55439 detenido, usuario3000/55440 conservados. Siguiente bloque empresarial: posventa (devoluciones físicas y reembolsos separados) y reportes.
+
+
+## Organización y filtros
+
+Acciones de actualizar, configuración, cerrar sesión y paginación usan IconButton SVG con aria-label/title, tamaño44px. Logo navega a Inicio sin enlace duplicado. Registro e historial tienen sección Movimientos y paginación independiente de existencias.
+
+Inventario filtra por nombre/SKU, ubicación autorizada y disponibilidad (todas, con stock, sin stock, bajo1–5). Cuando se eligen todas las ubicaciones, el producto debe cumplir en al menos una; la matriz muestra todas sus columnas. Sin stock incluye existencias físicas totalmente reservadas y combinaciones sin fila de stock. Productos filtra nombre/SKU y estado todos/activos/inactivos. Filtros aplicados en SQL antes de paginar; búsquedas literales sin comodines. Aplicar y limpiar reinician la página correspondiente. Catálogo filtrado tiene estado y paginación independientes de los productos que usan ventas y movimientos.
+
+Tipos/build correctos y5pruebas focalizadas pass, incluidas dos nuevas de filtros/paginación/aislamiento/reservas.
+
+
+## Configuración por categorías (vigente)
+
+SettingsWorkspace reúne Mi cuenta y seguridad, Empresa, Identidad visual, Reservas y Equipo y accesos. Navegación lateral izquierda, contenido derecho; en móvil categorías en fila desplazable. Todos acceden a su propia cuenta/contraseña (actual+nueva+confirmación), OWNER además a empresa/identidad/reservas/equipo. CompanyManager recibe category y muestra formulario inline, ya no modal; conserva APIs/validaciones/auditoría/errores. Equipo mantiene sus editores en ventanas dentro de su categoría. Categoría se guarda en query categoria; enlaceantiguo seccion=team abre SettingsWorkspace con categoría equipo para OWNER. Menúperfil reducido a Configuración y Cerrar sesión; contraseña y equipo se encuentran dentro de Configuración. DashboardNueva venta permaneceacciónazul juntoHola yfuera navprincipal. Tipos y build aislada correctos. No cambiosDB ni API ni pruebasnuevasbackendpara esta reorganizaciónvisual. Cambiossiguenlocales sinpushnuevo.

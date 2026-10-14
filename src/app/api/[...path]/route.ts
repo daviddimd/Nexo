@@ -1,10 +1,11 @@
 import {simulateCheckout} from '../../../server/demo-checkout';
 import {uploadProductImage,publicProductImage} from '../../../server/product-images';
 import {businessReport} from '../../../server/reports';
+import {dashboardSummary} from '../../../server/dashboard';
 import {database} from '../../../server/db';
 import {authenticate,login,digest,staff,owner} from '../../../server/auth';
 import {applyOperation} from '../../../server/inventory';
-import {publicCatalog,inventory,inventoryMatrix,history} from '../../../server/catalog';
+import {publicCatalog,inventory,inventoryMatrix,managedProducts,history} from '../../../server/catalog';
 import {createProduct,patchProduct,createLocation,patchLocation,createUser} from '../../../server/manage';
 import {body,rawJsonBody,sameOrigin,json,failure,pagination} from '../../../server/http';
 import {loginSchema,operationSchema,uuid} from '../../../server/schemas';
@@ -65,6 +66,7 @@ async function handle(request:Request,context:Context) {
       await pool.query('DELETE FROM sessions WHERE token_hash=$1 AND user_id=$2',[digest(sessionToken(request)!),actor.id]);
       return json({loggedOut:true},200,{'Set-Cookie':cookie('',0)});
     }
+    if(route==='dashboard'&&method==='GET')return json(await dashboardSummary(pool,actor));
     if(route==='reports'&&method==='GET')return json(await businessReport(pool,actor,Object.fromEntries(new URL(request.url).searchParams)));
     if(route==='auth/me'&&method==='GET')return json({user:actor});
     if(route==='licenses'&&method==='GET'){
@@ -143,16 +145,13 @@ async function handle(request:Request,context:Context) {
     }
     if(route==='settings/orders'&&method==='PATCH')return json(await updateOrderSettings(pool,actor,await body(request)));
     if(route==='inventory'&&method==='GET'){const p=pagination(new URL(request.url));return json(await inventory(pool,actor,p.limit,p.offset));}
-    if(route==='inventory/matrix'&&method==='GET'){const p=pagination(new URL(request.url));return json(await inventoryMatrix(pool,actor,p.limit,p.offset));}
+    if(route==='inventory/matrix'&&method==='GET'){const url=new URL(request.url),p=pagination(url);return json(await inventoryMatrix(pool,actor,p.limit,p.offset,{q:url.searchParams.get('q')??'',locationId:url.searchParams.get('locationId')??'',availability:url.searchParams.get('availability')??'all',sort:url.searchParams.get('sort')??'name_asc'}));}
     if(route==='inventory/movements'&&method==='GET'){const p=pagination(new URL(request.url));return json(await history(pool,actor,p.limit,p.offset));}
     if(route==='inventory/operations'&&method==='POST')return json(await applyOperation(pool,actor,request.headers.get('idempotency-key')??'',operationSchema.parse(await body(request))));
     if(path.length===3&&path[0]==='products'&&path[2]==='image'&&method==='POST')return json(await uploadProductImage(pool,actor,uuid.parse(path[1]),request));
     if(route==='products'&&method==='POST')return json(await createProduct(pool,actor,await body(request)),201);
     if(path[0]==='products'&&path.length===2&&method==='PATCH')return json(await patchProduct(pool,actor,uuid.parse(path[1]),await body(request)));
-    if(route==='products'&&method==='GET') {
-      staff(actor);const {limit,offset}=pagination(new URL(request.url));
-      const {rows}=await pool.query('SELECT id,sku,name,description,price_minor::text,currency,image_url,active FROM products WHERE company_id=$1 ORDER BY name,id LIMIT $2 OFFSET $3',[actor.company_id,limit,offset]);return json({items:rows,limit,offset});
-    }
+    if(route==='products'&&method==='GET'){const url=new URL(request.url),p=pagination(url);return json(await managedProducts(pool,actor,p.limit,p.offset,{q:url.searchParams.get('q')??'',status:url.searchParams.get('status')??'all'}));}
     if(route==='locations'&&method==='POST')return json(await createLocation(pool,actor,await body(request)),201);
     if(path[0]==='locations'&&path.length===2&&method==='PATCH')return json(await patchLocation(pool,actor,uuid.parse(path[1]),await body(request)));
     if(route==='locations'&&method==='GET') {

@@ -1,4 +1,5 @@
 'use client';
+import {IconButton} from '../action-icon';
 import {useEffect,useRef,useState,type FormEvent} from 'react';
 import Modal from './modal';
 import type {ManagedLocation} from './catalog-manager';
@@ -31,14 +32,14 @@ export default function ShippingManager({locations,busy,setBusy,request}:Props){
   }
   const items=selected?.priced_items??selected?.itemDetails??[];
   const subtotal=items.reduce((sum,item)=>sum+BigInt(item.lineTotal),0n).toString();
-  return <section><div className="section-heading"><h2>Cotizaciones de envío</h2><button disabled={busy} onClick={()=>refresh()}>Actualizar</button></div>
+  return <section><div className="section-heading"><h2>Cotizaciones de envío</h2><IconButton icon="refresh" label="Actualizar" disabled={busy} onClick={()=>refresh()}/></div>
     <p>Revisa el destino y los productos antes de definir el costo del envío. Cotizar no reserva stock ni realiza cobros.</p><p role="status" aria-live="polite">{notice}</p>
     <div className="table-scroll"><table><thead><tr><th>Solicitud / Fecha</th><th>Origen</th><th>Estado</th><th>Envío</th><th>Vigencia</th><th>Detalle</th></tr></thead><tbody>
       {quotes.map(quote=><tr key={quote.id}><td>{quote.id.slice(0,8)}<br/>{new Date(quote.created_at).toLocaleString('es-CL')}</td><td>{locations.find(l=>l.id===quote.location_id)?.name??'Ubicación de origen'}</td><td>{labels[quote.status]}</td><td>{quote.shipping_minor===null?'Por cotizar':money(quote.shipping_minor)}</td><td>{quote.expires_at?new Date(quote.expires_at).toLocaleString('es-CL'):'—'}</td><td><button disabled={busy} aria-label={`Ver cotización ${quote.id.slice(0,8)}`} onClick={()=>open(quote.id)}>Ver</button></td></tr>)}
       {!quotes.length&&<tr><td colSpan={6}>{loaded?'No hay solicitudes de envío en esta página.':'Cargando solicitudes…'}</td></tr>}
-    </tbody></table></div><nav aria-label="Páginas de cotizaciones"><button disabled={busy||page===0} onClick={()=>refresh(page-1)}>Anterior</button><span>Página {page+1}</span><button disabled={busy||quotes.length<25} onClick={()=>refresh(page+1)}>Siguiente</button></nav>
+    </tbody></table></div><nav aria-label="Páginas de cotizaciones"><IconButton icon="previous" label="Página anterior" disabled={busy||page===0} onClick={()=>refresh(page-1)}/><span>Página {page+1}</span><IconButton icon="next" label="Página siguiente" disabled={busy||quotes.length<25} onClick={()=>refresh(page+1)}/></nav>
     {selected&&<Modal title={`Cotización ${selected.id.slice(0,8)}`} busy={busy} onClose={()=>{setSelected(null);setUncertain(false);pending.current=null;}}>
-      <p role="status" aria-live="polite">{notice}</p><button disabled={busy} onClick={()=>open(selected.id)}>Actualizar detalle</button><p><strong>{labels[selected.status]}</strong> · {locations.find(l=>l.id===selected.location_id)?.name??'Origen seleccionado'}</p>
+      <p role="status" aria-live="polite">{notice}</p><IconButton icon="refresh" label="Actualizar detalle" disabled={busy} onClick={()=>open(selected.id)}/><p><strong>{labels[selected.status]}</strong> · {locations.find(l=>l.id===selected.location_id)?.name??'Origen seleccionado'}</p>
       {selected.address&&<><h3>Destino</h3><p>{selected.address.recipient}<br/>{selected.address.line1}<br/>{selected.address.commune}, {selected.address.region}, Chile{selected.address.postalCode&&<><br/>Código postal: {selected.address.postalCode}</>}</p><p>Teléfono: {selected.address.phone}</p></>}
       <h3>Productos</h3><ul>{items.map(item=><li key={item.productId}>{item.sku} · {item.name} × {item.quantity} — {money(item.lineTotal)}</li>)}</ul>
       <p>{selected.goods_minor===null?'Subtotal referencial actual':'Productos cotizados'}: <strong>{money(selected.goods_minor??subtotal)}</strong></p>
