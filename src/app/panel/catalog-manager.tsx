@@ -2,11 +2,14 @@
 import {IconButton} from '../action-icon';
 import {useRef,useState,type FormEvent,type ReactNode} from 'react';
 import Modal from './modal';
-export type ManagedProduct={id:string;sku:string;name:string;active:boolean;description:string;price_minor:string;image_url:string|null};
+import ProductClassification from './product-classification';
+import CategoryManager from './category-manager';
+import type {Category,Specifications} from '../../catalog/taxonomy';
+export type ManagedProduct={id:string;sku:string;name:string;active:boolean;description:string;price_minor:string;image_url:string|null;category_id?:string|null;category_name?:string|null;specifications?:Specifications};
 export type ManagedLocation={id:string;name:string;active:boolean;kind:'WEB'|'STORE';shipping_enabled:boolean};
-type Props={filterControls?:ReactNode;role:string;view:'products'|'locations';products:ManagedProduct[];locations:ManagedLocation[];busy:boolean;group:number;
+type Props={categories:Category[];filterControls?:ReactNode;role:string;view:'products'|'locations';products:ManagedProduct[];locations:ManagedLocation[];busy:boolean;group:number;
   request:(path:string,options?:RequestInit)=>Promise<unknown>;reload:()=>Promise<void>;setBusy:(value:boolean)=>void;changeGroup:(page:number)=>Promise<void>};
-export default function CatalogManager({filterControls,role,view,products,locations,busy,group,request,reload,setBusy,changeGroup}:Props){
+export default function CatalogManager({categories,filterControls,role,view,products,locations,busy,group,request,reload,setBusy,changeGroup}:Props){
   const [product,setProduct]=useState<ManagedProduct|null>(null),[location,setLocation]=useState<ManagedLocation|null>(null);
   const [revision,setRevision]=useState(0),[kind,setKind]=useState<'WEB'|'STORE'>('STORE'),[notice,setNotice]=useState('');
   const [editorOpen,setEditorOpen]=useState(false);
@@ -14,7 +17,10 @@ export default function CatalogManager({filterControls,role,view,products,locati
   async function save(event:FormEvent<HTMLFormElement>,entity:'products'|'locations'){
     event.preventDefault();if(submitting.current)return;submitting.current=true;setBusy(true);setNotice('');
     const data=new FormData(event.currentTarget),selected=entity==='products'?product:location;
-    const payload=entity==='products'?{sku:data.get('sku'),name:data.get('name'),description:data.get('description'),priceMinor:Number(data.get('price')),...(data.has('removeImage')?{imageUrl:null}:String(data.get('image')??'').trim()?{imageUrl:String(data.get('image')).trim()}:product?.image_url?.startsWith('/')?{}:{imageUrl:null}),...(product?{active:data.has('active')}:{})}:
+    const category=categories.find(c=>c.id===data.get('categoryId'));
+    const specifications:Specifications={};
+    for(const field of category?.fields??[]){const value=String(data.get(`spec_${field.key}`)??'').trim();if(value!=='')specifications[field.key]=field.type==='number'?Number(value):field.type==='boolean'?value==='true':value;}
+    const payload=entity==='products'?{categoryId:category?.id??null,specifications,sku:data.get('sku'),name:data.get('name'),description:data.get('description'),priceMinor:Number(data.get('price')),...(data.has('removeImage')?{imageUrl:null}:String(data.get('image')??'').trim()?{imageUrl:String(data.get('image')).trim()}:product?.image_url?.startsWith('/')?{}:{imageUrl:null}),...(product?{active:data.has('active')}:{})}:
       owner?{name:data.get('name'),...(location?{active:data.has('active')}:{kind}),...(kind==='STORE'?{shippingEnabled:data.has('shipping')}:{})}:{shippingEnabled:data.has('shipping')};
     try{
       await request(`${entity}${selected?`/${selected.id}`:''}`,{method:selected?'PATCH':'POST',body:JSON.stringify(payload)});
@@ -25,10 +31,10 @@ export default function CatalogManager({filterControls,role,view,products,locati
   }
   return <>
     <p role="status" aria-live="polite">{notice}</p>
-    {view==='products'&&<section><h2>Productos</h2><p>Grupo {group+1}. Los precios se expresan en pesos chilenos enteros.</p>{filterControls}
-      <div style={{overflowX:'auto'}}><table><thead><tr><th>SKU</th><th>Nombre</th><th>Precio CLP</th><th>Estado</th><th>Acción</th></tr></thead><tbody>
-        {products.map(p=><tr key={p.id}><td>{p.sku}</td><td>{p.name}</td><td>{p.price_minor}</td><td>{p.active?'Activo':'Inactivo'}</td><td><button disabled={busy} aria-label={`Editar ${p.name}`} onClick={()=>{setProduct(p);setNotice('');setEditorOpen(true);}}>Editar</button></td></tr>)}
-        {!products.length&&<tr><td colSpan={5}>No hay productos que coincidan con los filtros en esta página.</td></tr>}</tbody></table></div>
+    {view==='products'&&<section><div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:16}}><h2>Productos</h2>{owner&&<CategoryManager categories={categories} busy={busy} setBusy={setBusy} request={request} reload={reload}/>}</div><p>Grupo {group+1}. Los precios se expresan en pesos chilenos enteros.</p>{filterControls}
+      <div style={{overflowX:'auto'}}><table><thead><tr><th>SKU</th><th>Nombre</th><th>Categoría</th><th>Precio CLP</th><th>Estado</th><th>Acción</th></tr></thead><tbody>
+        {products.map(p=><tr key={p.id}><td>{p.sku}</td><td>{p.name}</td><td>{categories.find(c=>c.id===p.category_id)?.path??'Sin categoría'}</td><td>{p.price_minor}</td><td>{p.active?'Activo':'Inactivo'}</td><td><button disabled={busy} aria-label={`Editar ${p.name}`} onClick={()=>{setProduct(p);setNotice('');setEditorOpen(true);}}>Editar</button></td></tr>)}
+        {!products.length&&<tr><td colSpan={6}>No hay productos que coincidan con los filtros en esta página.</td></tr>}</tbody></table></div>
       <nav aria-label="Grupos del catálogo"><IconButton icon="previous" label="Grupo anterior" disabled={busy||group===0} onClick={()=>changeGroup(group-1)}/><IconButton icon="next" label="Grupo siguiente" disabled={busy||products.length<100} onClick={()=>changeGroup(group+1)}/></nav>
       <button disabled={busy} onClick={()=>{setProduct(null);setRevision(r=>r+1);setNotice('');setEditorOpen(true);}}>Nuevo producto</button>
       {editorOpen&&<Modal title={product?`Editar ${product.sku}`:'Crear producto'} busy={busy} onClose={()=>setEditorOpen(false)}><p role="status" aria-live="polite">{notice}</p>
@@ -36,6 +42,7 @@ export default function CatalogManager({filterControls,role,view,products,locati
         <label>SKU<input name="sku" required maxLength={200} defaultValue={product?.sku??''}/></label>
         <label>Nombre del producto<input name="name" required maxLength={200} defaultValue={product?.name??''}/></label>
         <label>Precio CLP<input name="price" type="number" required min={0} max={1e12} step={1} defaultValue={product?.price_minor??''}/></label>
+        <ProductClassification categories={categories} categoryId={product?.category_id} specifications={product?.specifications}/>
         <label>Descripción<textarea name="description" maxLength={5000} defaultValue={product?.description??''}/></label>
         <label>URL de imagen HTTPS<input name="image" type="url" pattern="https://.*" defaultValue={product?.image_url?.startsWith('/')?'':product?.image_url??''}/></label>
         {product&&<><label>Subir imagen (PNG, JPEG o WebP, hasta 2 MB)<input type="file" accept="image/png,image/jpeg,image/webp" onChange={async e=>{const file=e.target.files?.[0];if(!file)return;if(file.size>2097152){setNotice('Máximo 2 MB');return;}setBusy(true);try{const uploaded=await request(`products/${product.id}/image`,{method:'POST',headers:{'content-type':file.type},body:file}) as {image_url:string};setProduct(current=>current?{...current,image_url:uploaded.image_url}:current);setNotice('Imagen cargada.');await reload();}catch(error){setNotice((error as Error).message);}finally{setBusy(false);}}}/></label><label><input name="removeImage" type="checkbox"/> Quitar imagen al guardar</label></>}

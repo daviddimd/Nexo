@@ -1,9 +1,12 @@
 'use client';
+import type {Category} from '../../catalog/taxonomy';
 import {IconButton} from '../action-icon';
 import ProfileMenu from '../profile-menu';
 import DashboardHome from './dashboard-home';
 import LoginScreen from './login-screen';
-import ProductSearch from './product-search';
+import InventoryBrowser from './inventory-browser';
+import {emptyInventoryFilters,type InventoryFilters} from '../../catalog/inventory-filters';
+import PanelNavigation from './panel-navigation';
 import {useEffect,useRef,useState,type FormEvent} from 'react';
 import styles from './panel.module.css';
 import CatalogManager,{type ManagedProduct,type ManagedLocation} from './catalog-manager';
@@ -25,7 +28,8 @@ export default function Panel(){
   const [stock,setStock]=useState<Stock[]>([]),[movements,setMovements]=useState<Movement[]>([]),[products,setProducts]=useState<Product[]>([]),[locations,setLocations]=useState<Location[]>([]);
   const [page,setPage]=useState(0),[productPage,setProductPage]=useState(0),[movementPage,setMovementPage]=useState(0),[kind,setKind]=useState('RECEIPT');
   const [view,setView]=useState<'home'|'inventory'|'products'|'locations'|'sales'|'orders'|'team'|'settings'|'shipping'|'reports'|'movements'>('home');
-  const [inventoryFilters,setInventoryFilters]=useState({q:'',locationId:'',availability:'all',sort:'name_asc'}),[productFilters,setProductFilters]=useState({q:'',status:'all'});
+  const [inventoryFilters,setInventoryFilters]=useState<InventoryFilters>({...emptyInventoryFilters}),[productFilters,setProductFilters]=useState({q:'',status:'all',categoryId:''});
+  const [categories,setCategories]=useState<Category[]>([]);
   const [catalogProducts,setCatalogProducts]=useState<Product[]>([]),[catalogPage,setCatalogPage]=useState(0);
   const stockLocations=locations.filter(l=>!inventoryFilters.locationId||l.id===inventoryFilters.locationId);
   const [companyHint,setCompanyHint]=useState('');
@@ -37,7 +41,8 @@ export default function Panel(){
     setView(section);const url=new URL(window.location.href);url.searchParams.set('seccion',section);url.searchParams.delete('categoria');window.history.replaceState(null,'',url);
   }
   async function load(p=page,pp=productPage,mp=movementPage,cp=catalogPage,inf=inventoryFilters,pf=productFilters){
-    const [s,m,pr,l,filtered]=await Promise.all([api(`inventory/matrix?limit=50&offset=${p*50}&${new URLSearchParams(inf)}`),api(`inventory/movements?limit=50&offset=${mp*50}`),api(`products?limit=100&offset=${pp*100}`),api('locations'),api(`products?limit=100&offset=${cp*100}&${new URLSearchParams(pf)}`)]);
+    const [s,m,pr,l,filtered,categoriesResult]=await Promise.all([api(`inventory/matrix?limit=50&offset=${p*50}&${new URLSearchParams(inf)}`),api(`inventory/movements?limit=50&offset=${mp*50}`),api(`products?limit=100&offset=${pp*100}`),api('locations'),api(`products?limit=100&offset=${cp*100}&${new URLSearchParams(pf)}`),api('categories')]);
+    setCategories(categoriesResult.items);
     setStockProductCount(s.productCount);setCatalogProducts(filtered.items);setCatalogPage(cp);
     setStock(s.items);setMovements(m.items);setProducts(pr.items);setLocations(l.items);setPage(p);setProductPage(pp);setMovementPage(mp);
   }
@@ -53,11 +58,12 @@ export default function Panel(){
     setBusy(true);setMessage('');try{
       if(kind==='inventory'){const next=values as typeof inventoryFilters;await load(0,productPage,movementPage,catalogPage,next,productFilters);setInventoryFilters(next);}
       else{const next=values as typeof productFilters;await load(page,productPage,movementPage,0,inventoryFilters,next);setProductFilters(next);}
-    }catch(error){setMessage((error as Error).message);}finally{setBusy(false);}
+      return true;
+    }catch(error){setMessage((error as Error).message);return false;}finally{setBusy(false);}
   }
   function filterForm(event:FormEvent<HTMLFormElement>,kind:'inventory'|'products'){
     event.preventDefault();const f=new FormData(event.currentTarget);
-    void filter(kind,kind==='inventory'?{q:String(f.get('q')??''),locationId:String(f.get('locationId')??''),availability:String(f.get('availability')??'all'),sort:String(f.get('sort')??'name_asc')}:{q:String(f.get('q')??''),status:String(f.get('status')??'all')});
+    void filter(kind,kind==='inventory'?{...inventoryFilters,q:String(f.get('q')??''),locationId:String(f.get('locationId')??''),availability:String(f.get('availability')??'all'),sort:String(f.get('sort')??'name_asc')}:{q:String(f.get('q')??''),status:String(f.get('status')??'all'),categoryId:String(f.get('categoryId')??'')});
   }
   async function movement(event:FormEvent<HTMLFormElement>){event.preventDefault();const form=event.currentTarget,f=new FormData(form);
     const body=JSON.stringify({kind,productId:f.get('product'),locationId:f.get('location'),quantity:Number(f.get('quantity')),reason:f.get('reason'),...(kind==='TRANSFER'?{destinationId:f.get('destination')}:{})});
@@ -71,15 +77,7 @@ export default function Panel(){
   return <main className={`${styles.panel} ${styles.workspace}`}>{view!=='home'&&<h1 className={styles.srOnly}>Panel de gestión</h1>}
     <header className={styles.workspaceHeader}>
       <a className="brand-link" href="/panel?seccion=home" aria-label="Nexo, inicio del panel">nexo<span className="brand-dot">.</span></a>
-      {user&&user.role!=='CUSTOMER'?        <nav className={styles.topNav} aria-label="Secciones del panel">
-          <button disabled={busy} aria-pressed={view==='inventory'} onClick={()=>navigate('inventory')}>Inventario</button>
-          <button disabled={busy} aria-pressed={view==='movements'} onClick={()=>navigate('movements')}>Movimientos</button>
-          <button disabled={busy} aria-pressed={view==='products'} onClick={()=>navigate('products')}>Productos</button>
-          <button disabled={busy} aria-pressed={view==='locations'} onClick={()=>navigate('locations')}>Ubicaciones</button>
-          <button disabled={busy} aria-pressed={view==='orders'} onClick={()=>navigate('orders')}>Pedidos</button>
-          <button disabled={busy} aria-pressed={view==='reports'} onClick={()=>navigate('reports')}>Reportes</button>
-          <button disabled={busy} aria-pressed={view==='shipping'} onClick={()=>navigate('shipping')}>Envíos</button>
-        </nav>:<span/>}
+      {user.role!=='CUSTOMER'?<PanelNavigation selected={view} disabled={busy} onNavigate={navigate}/>:<span/>}
       {user&&<ProfileMenu name={user.name} role={user.role} disabled={busy} onSettings={()=>navigate('settings')}/>}
     </header>
     {(checking||message)&&<p role="status" aria-live="polite">{checking?'Comprobando sesión…':message}</p>}
@@ -87,7 +85,7 @@ export default function Panel(){
       {user.role==='CUSTOMER'?<p>Este panel requiere una cuenta de agente o propietario.</p>:<>
         {view==='home'&&<DashboardHome name={user.name} navigate={navigate} request={api}/>}
 
-        {(view==='products'||view==='locations')&&<CatalogManager key={view} view={view} role={user.role} products={catalogProducts} locations={locations} busy={busy} group={catalogPage} request={api} reload={()=>refresh()} setBusy={setBusy} changeGroup={cp=>refresh(page,productPage,movementPage,cp)} filterControls={<form className={styles.filters} key={JSON.stringify(productFilters)} onSubmit={e=>filterForm(e,'products')}><fieldset disabled={busy}><label>Nombre o SKU<input name="q" maxLength={200} defaultValue={productFilters.q} placeholder="Buscar producto…"/></label><label>Estado<select name="status" defaultValue={productFilters.status}><option value="all">Todos</option><option value="active">Activos</option><option value="inactive">Inactivos</option></select></label><button>Filtrar</button><button type="button" onClick={()=>filter('products',{q:'',status:'all'})}>Limpiar</button></fieldset></form>}/>}
+        {(view==='products'||view==='locations')&&<CatalogManager categories={categories} key={view} view={view} role={user.role} products={catalogProducts} locations={locations} busy={busy} group={catalogPage} request={api} reload={()=>refresh()} setBusy={setBusy} changeGroup={cp=>refresh(page,productPage,movementPage,cp)} filterControls={<form className={styles.filters} key={JSON.stringify(productFilters)} onSubmit={e=>filterForm(e,'products')}><fieldset disabled={busy}><label>Nombre o SKU<input name="q" maxLength={200} defaultValue={productFilters.q} placeholder="Buscar producto…"/></label><label>Categoría<select name="categoryId" defaultValue={productFilters.categoryId}><option value="">Todas las categorías</option>{categories.map(c=><option key={c.id} value={c.id}>{c.path}</option>)}</select></label><label>Estado<select name="status" defaultValue={productFilters.status}><option value="all">Todos</option><option value="active">Activos</option><option value="inactive">Inactivos</option></select></label><button>Filtrar</button><button type="button" onClick={()=>filter('products',{q:'',status:'all',categoryId:''})}>Limpiar</button></fieldset></form>}/>}
         <SalesOrders role={user.role} view={view==='sales'||view==='orders'?view:null} products={products} locations={locations} group={productPage} busy={busy} setBusy={setBusy} request={api} reload={()=>refresh()} changeGroup={p=>refresh(page,p)}/>
         {view==='reports'&&<ReportsManager role={user.role} busy={busy} setBusy={setBusy} request={api}/>}
         {view==='shipping'&&<ShippingManager locations={locations} busy={busy} setBusy={setBusy} request={api}/>}
@@ -98,17 +96,12 @@ export default function Panel(){
           <details className={styles.inventoryHelp}><summary aria-label="Cómo leer el inventario" title="Cómo leer el inventario"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></svg></summary><div><strong>Stock disponible</strong><p>Las cifras descuentan las unidades reservadas, que se indican debajo.</p><p>Rojo: agotado. Ámbar: entre 1 y 5 unidades.</p><p>Al elegir todas las ubicaciones, un producto aparece si cumple el filtro en al menos una. El orden por stock suma las ubicaciones seleccionadas.</p></div></details>
           <IconButton icon="refresh" label="Actualizar inventario" onClick={()=>refresh()} disabled={busy}/>
         </div></div>
-        <form className={`${styles.filters} ${styles.inventoryToolbar}`} key={JSON.stringify(inventoryFilters)} onSubmit={e=>filterForm(e,'inventory')}><fieldset disabled={busy}>
-          <label className={styles.searchFilter}>Buscar producto<ProductSearch defaultValue={inventoryFilters.q} request={api} onSelect={(q,form)=>{const f=new FormData(form);void filter('inventory',{q,locationId:String(f.get('locationId')??''),availability:String(f.get('availability')??'all'),sort:String(f.get('sort')??'name_asc')});}}/></label>
-          <label>Ubicación<select name="locationId" defaultValue={inventoryFilters.locationId}><option value="">Todas las ubicaciones</option>{locations.map(l=><option key={l.id} value={l.id}>{l.name}</option>)}</select></label>
-          <label>Disponibilidad<select name="availability" defaultValue={inventoryFilters.availability}><option value="all">Todo el stock</option><option value="available">Con stock</option><option value="empty">Sin stock</option><option value="low">Stock bajo (1 a 5)</option></select></label>
-          <label>Ordenar por<select name="sort" defaultValue={inventoryFilters.sort}><option value="name_asc">Nombre: A–Z</option><option value="name_desc">Nombre: Z–A</option><option value="sku_asc">SKU: A–Z</option><option value="sku_desc">SKU: Z–A</option><option value="stock_asc">Stock: menor a mayor</option><option value="stock_desc">Stock: mayor a menor</option></select></label>
-          <div className={styles.filterActions}><button className={styles.applyFilters}>Aplicar</button><button type="button" className={styles.clearFilters} title="Limpiar filtros" aria-label="Limpiar filtros" onClick={()=>filter('inventory',{q:'',locationId:'',availability:'all',sort:'name_asc'})}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg></button></div>
-        </fieldset></form>
+        <InventoryBrowser filters={inventoryFilters} categories={categories} locations={locations} busy={busy} request={api} onApply={values=>filter('inventory',values)}>
         <div className={styles.scroll}><table className={styles.stockMatrix}><thead><tr><th scope="col">Producto</th>{stockLocations.map(l=><th scope="col" key={l.id}>{l.name.replace(/^Sucursal /,'')}</th>)}</tr></thead><tbody>
           {stockProducts.map(p=><tr key={p.product_id}><th scope="row">{p.product_name}<small>{p.sku}</small></th>{stockLocations.map(l=>{const s=stockCells.get(`${p.product_id}-${l.id}`);return <td key={l.id}><span className={`${styles.stockValue} ${s?.available===0?styles.stockValueEmpty:s&&s.available<=5?styles.stockValueLow:''}`} title={s?.available===0?'Agotado':s&&s.available<=5?'Stock bajo':undefined}>{s?.available??'—'}</span>{!!s?.reserved&&<small className={styles.reservedValue}>{s.reserved} reservadas</small>}</td>;})}</tr>)}
           {!stock.length&&<tr><td colSpan={stockLocations.length+1}>No hay productos que coincidan con estos filtros en esta página.</td></tr>}</tbody></table></div>
         <nav aria-label="Páginas de existencias"><IconButton icon="previous" label="Página anterior" disabled={busy||page===0} onClick={()=>refresh(page-1)}/><span>Página {page+1}</span><IconButton icon="next" label="Página siguiente" disabled={busy||stockProductCount<50} onClick={()=>refresh(page+1)}/></nav>
+        </InventoryBrowser>
         </>}
         {view==='movements'&&<>
         <div className={styles.bar}><h2>Movimientos de stock</h2><IconButton icon="refresh" label="Actualizar movimientos" onClick={()=>refresh()} disabled={busy}/></div>

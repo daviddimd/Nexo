@@ -1,3 +1,4 @@
+import {initializeTechnologyCategories} from './category-bootstrap';
 import { randomBytes, randomUUID, scrypt, timingSafeEqual, createHash } from 'node:crypto';
 import { promisify } from 'node:util';
 import type { Pool, PoolClient } from 'pg';
@@ -67,5 +68,6 @@ export async function createCompanyRecords(db:PoolClient,input:{slug:string;name
     const companyId=randomUUID(), userId=randomUUID();
     await db.query('INSERT INTO companies(id,slug,name) VALUES($1,$2,$3)',[companyId,input.slug,input.name]);
     await db.query(`INSERT INTO users(id,company_id,email,name,password_hash,role) VALUES($1,$2,$3,$4,$5,'OWNER')`,[userId,companyId,input.email.toLowerCase(),'Administrador',passwordHash]);
+    await initializeTechnologyCategories(db,companyId);
     return {companyId,userId};
 }

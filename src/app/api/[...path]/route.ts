@@ -1,3 +1,4 @@
+import {listCategories,createCategory,renameCategory} from '../../../server/categories';
 import {simulateCheckout} from '../../../server/demo-checkout';
 import {uploadProductImage,publicProductImage} from '../../../server/product-images';
 import {businessReport} from '../../../server/reports';
@@ -5,7 +6,7 @@ import {dashboardSummary} from '../../../server/dashboard';
 import {database} from '../../../server/db';
 import {authenticate,login,digest,staff,owner} from '../../../server/auth';
 import {applyOperation} from '../../../server/inventory';
-import {publicCatalog,inventory,inventoryMatrix,managedProducts,history} from '../../../server/catalog';
+import {publicCatalog,inventory,inventoryMatrix,managedProducts,inventoryFacets,history} from '../../../server/catalog';
 import {createProduct,patchProduct,createLocation,patchLocation,createUser} from '../../../server/manage';
 import {body,rawJsonBody,sameOrigin,json,failure,pagination} from '../../../server/http';
 import {loginSchema,operationSchema,uuid} from '../../../server/schemas';
@@ -145,13 +146,17 @@ async function handle(request:Request,context:Context) {
     }
     if(route==='settings/orders'&&method==='PATCH')return json(await updateOrderSettings(pool,actor,await body(request)));
     if(route==='inventory'&&method==='GET'){const p=pagination(new URL(request.url));return json(await inventory(pool,actor,p.limit,p.offset));}
-    if(route==='inventory/matrix'&&method==='GET'){const url=new URL(request.url),p=pagination(url);return json(await inventoryMatrix(pool,actor,p.limit,p.offset,{q:url.searchParams.get('q')??'',locationId:url.searchParams.get('locationId')??'',availability:url.searchParams.get('availability')??'all',sort:url.searchParams.get('sort')??'name_asc'}));}
+    if(route==='inventory/facets'&&method==='GET')return json(await inventoryFacets(pool,actor,new URL(request.url).searchParams.get('categoryId')??''));
+    if(route==='inventory/matrix'&&method==='GET'){const url=new URL(request.url),p=pagination(url);return json(await inventoryMatrix(pool,actor,p.limit,p.offset,{q:url.searchParams.get('q')??'',locationId:url.searchParams.get('locationId')??'',availability:url.searchParams.get('availability')??'all',sort:url.searchParams.get('sort')??'name_asc',categoryId:url.searchParams.get('categoryId')??'',priceMin:url.searchParams.get('priceMin')??'',priceMax:url.searchParams.get('priceMax')??'',specs:url.searchParams.get('specs')??'{}'}));}
     if(route==='inventory/movements'&&method==='GET'){const p=pagination(new URL(request.url));return json(await history(pool,actor,p.limit,p.offset));}
     if(route==='inventory/operations'&&method==='POST')return json(await applyOperation(pool,actor,request.headers.get('idempotency-key')??'',operationSchema.parse(await body(request))));
     if(path.length===3&&path[0]==='products'&&path[2]==='image'&&method==='POST')return json(await uploadProductImage(pool,actor,uuid.parse(path[1]),request));
+    if(route==='categories'&&method==='GET')return json(await listCategories(pool,actor));
+    if(route==='categories'&&method==='POST')return json(await createCategory(pool,actor,await body(request)),201);
+    if(path[0]==='categories'&&path.length===2&&method==='PATCH')return json(await renameCategory(pool,actor,uuid.parse(path[1]),await body(request)));
     if(route==='products'&&method==='POST')return json(await createProduct(pool,actor,await body(request)),201);
     if(path[0]==='products'&&path.length===2&&method==='PATCH')return json(await patchProduct(pool,actor,uuid.parse(path[1]),await body(request)));
-    if(route==='products'&&method==='GET'){const url=new URL(request.url),p=pagination(url);return json(await managedProducts(pool,actor,p.limit,p.offset,{q:url.searchParams.get('q')??'',status:url.searchParams.get('status')??'all'}));}
+    if(route==='products'&&method==='GET'){const url=new URL(request.url),p=pagination(url);return json(await managedProducts(pool,actor,p.limit,p.offset,{q:url.searchParams.get('q')??'',status:url.searchParams.get('status')??'all',categoryId:url.searchParams.get('categoryId')??''}));}
     if(route==='locations'&&method==='POST')return json(await createLocation(pool,actor,await body(request)),201);
     if(path[0]==='locations'&&path.length===2&&method==='PATCH')return json(await patchLocation(pool,actor,uuid.parse(path[1]),await body(request)));
     if(route==='locations'&&method==='GET') {

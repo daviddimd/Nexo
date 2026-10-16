@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start --hostname 127.0.0.1",
     "typecheck": "tsc --noEmit",
+    "demo:seed": "tsx scripts/seed-demo-catalog.ts",
     "db:migrate": "tsx --env-file=.env scripts/migrate.ts",
     "company:create": "tsx --env-file=.env scripts/create-company.ts",
     "commercial:record": "tsx --env-file=.env scripts/commercial.ts record",

@@ -3,7 +3,7 @@ import {pathToFileURL} from 'node:url';
 import {resolve} from 'node:path';
 import {transaction} from '../src/server/db';
 
-const tables=['companies','users','sessions','login_attempts','locations','agent_locations','products','stock','inventory_operations','stock_movements',
+const tables=['categories','companies','users','sessions','login_attempts','locations','agent_locations','products','stock','inventory_operations','stock_movements',
   'orders','order_items','order_events','shipping_quotes','shipping_quote_items','payment_intents','payment_captures','payment_events',
   'refunds','capture_resolutions','return_receipts','return_items','administrative_events','account_tokens','local_mail','account_rate_limits',
   'staff_invitations','commercial_revisions','installation_identity','license_imports','schema_migrations'];
@@ -48,10 +48,10 @@ export async function applyDatabasePermissions(pool:Pool,input:{schema:string;ru
     await grant('INSERT',tables.filter(t=>t!=='companies'&&!protectedTables.includes(t)),runtime);
     await grant('UPDATE,DELETE',tables.filter(t=>t!=='companies'&&!protectedTables.includes(t)&&!ledger.includes(t)),runtime);
     await grant('UPDATE',['companies'],runtime);
-    await grant('SELECT',['companies','users','commercial_revisions','installation_identity','license_imports'],operator);
-    await grant('INSERT',['companies','users','commercial_revisions','installation_identity','license_imports','administrative_events'],operator);
+    await grant('SELECT',['categories','companies','users','commercial_revisions','installation_identity','license_imports'],operator);
+    await grant('INSERT',['categories','companies','users','commercial_revisions','installation_identity','license_imports','administrative_events'],operator);
     // FOR UPDATE in shared company locks requires UPDATE privilege.
-    await grant('UPDATE',['companies'],operator);
+    await grant('UPDATE',['companies','categories'],operator);
     return {schema:input.schema,runtimeRole:input.runtimeRole,operatorRole:input.operatorRole};
   });
 }

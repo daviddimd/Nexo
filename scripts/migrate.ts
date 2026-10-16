@@ -1,3 +1,4 @@
+import {initializeTechnologyCategories} from '../src/server/category-bootstrap';
 import {readFile,readdir} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {createHash} from 'node:crypto';
@@ -13,6 +14,7 @@ export async function migrate(pool:Pool) {
       const previous=await db.query('SELECT checksum FROM schema_migrations WHERE name=$1',[name]);
       if(previous.rows[0]){if(previous.rows[0].checksum!==checksum)throw new Error(`Migration changed: ${name}`);continue;}
       await db.query(sql);await db.query('INSERT INTO schema_migrations(name,checksum) VALUES($1,$2)',[name,checksum]);
+      if(name==='011-product-taxonomy.sql'){for(const company of (await db.query('SELECT id FROM companies')).rows)await initializeTechnologyCategories(db,company.id);}
     }
   });
 }

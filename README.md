@@ -2,6 +2,10 @@
 
 Plataforma para pymes de tecnología: inventario por empresa/ubicación, pedidos, pagos simulados, posventa, cuentas, invitaciones y registro comercial de suscripción/licencia permanente. Una misma base para futura suscripción e instalación independiente. Cerradas etapas 1, 2, 3A, 3B, 4A, 4B1, 4B2, 4C1, 4C2A y 4C2B; no lista para producción.
 
+## Catálogo categorizado
+
+Categorías, subcategorías y fichas técnicas por tipo de producto; guía en [docs/TAXONOMY.md](docs/TAXONOMY.md). La semilla incluye 114 productos y cubre todas las categorías finales. Para agregar los que falten sin borrar datos: `npm run demo:seed -- --fill`. En PrismaByte se puede reemplazar la demostración explícitamente con `npm run demo:seed -- --replace` (crea respaldo antes de reiniciar su catálogo y operaciones).
+
 ## Arranque local recomendado
 
 Desde la carpeta nexo ejecutar `npm run dev`: prepara PostgreSQL local persistente, aplica migraciones y arranca web y worker. Abrir http://localhost:3000/panel. Ctrl+C detiene el entorno gestionado. Requiere PostgreSQL instalado y npm ci previamente. No copiar .env.example para este modo: se genera configuración local si falta. Guía en [docs/LOCAL-DEV.md](docs/LOCAL-DEV.md).
