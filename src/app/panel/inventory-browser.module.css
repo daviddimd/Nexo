@@ -10,3 +10,6 @@
 @media(max-width:760px){.expanded{grid-template-columns:minmax(0,1fr)}.layout .sidebar{padding:18px}.toolbar .sort{gap:8px;font-size:11px}.toolbar .sort select{width:180px}.prices{max-width:380px}}
 @media(max-width:400px){.toolbar .sort{align-items:flex-end;flex-direction:column;gap:4px}.toolbar .sort select{width:165px}.toolbar{gap:10px}}
 @media(prefers-reduced-motion:reduce){.toggle svg:last-child{transition:none}}
+
+.browser{display:flex;flex-direction:column;flex:1;min-height:0;min-width:0}.browser .toolbar{flex-shrink:0}.browser .layout{flex:1;min-height:0;grid-template-rows:minmax(0,1fr)}.browser .sidebar{max-height:100%;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}.browser .content{display:flex;flex-direction:column;min-height:0;height:100%;min-width:0}.browser .applied{flex-shrink:0}.content>nav{flex-shrink:0;margin:12px 0 0;font-size:12px}
+@media(max-width:760px){.browser .layout{position:relative}.browser .sidebar{position:absolute;inset:0 auto 0 0;width:min(340px,100%);z-index:8;box-shadow:8px 0 28px #132b4620}.browser .content{grid-column:1;grid-row:1}.browser .toolbar{margin-bottom:16px}}

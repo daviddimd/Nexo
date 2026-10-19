@@ -78,7 +78,7 @@ export async function inventoryMatrix(pool:Pool,actor:Actor,limit=50,offset=0,ra
 export async function history(pool: Pool,actor: Actor,limit=50,offset=0) {
   staff(actor);
   const {rows}=await pool.query(`SELECT m.id,m.operation_id,m.product_id,m.location_id,m.delta,m.on_hand_after,m.created_at,
-    o.kind,o.reason,o.actor_id,p.sku,l.name AS location_name
+    o.kind,o.reason,o.actor_id,p.sku,p.name AS product_name,l.name AS location_name
     FROM stock_movements m JOIN inventory_operations o ON o.company_id=m.company_id AND o.id=m.operation_id
     JOIN products p ON p.company_id=m.company_id AND p.id=m.product_id JOIN locations l ON l.company_id=m.company_id AND l.id=m.location_id
     WHERE m.company_id=$1 AND ($2='OWNER' OR EXISTS(SELECT 1 FROM agent_locations a WHERE a.company_id=m.company_id AND a.user_id=$3 AND a.location_id=m.location_id))

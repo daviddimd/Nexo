@@ -1,4 +1,5 @@
 'use client';
+import TechnologySignature from './technology-signature';
 import {useEffect,useState} from 'react';
 import styles from './access-landing.module.css';
 
@@ -30,6 +31,6 @@ export default function Home(){
    <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3 M16 5a3 3 0 0 1 0 6 M17 15a5 5 0 0 1 4 5"/></svg><div><h2>Accesos para tu equipo</h2><p>Define en qué sucursales puede trabajar cada agente.</p></div></div>
   </div>
   {setup&&<div className={styles.setup}><span>¿Es tu primera vez en Nexo?</span><a href="/configurar">Configurar mi empresa →</a></div>}
-  <footer className={styles.footer}><span>Impulsado con tecnología <strong>Nexo</strong></span>{store&&<a href={`/tienda?empresa=${encodeURIComponent(store.slug)}`}>Ver catálogo público →</a>}</footer>
+  <footer className={styles.footer}><span><TechnologySignature/></span>{store&&<a href={`/tienda?empresa=${encodeURIComponent(store.slug)}`}>Ver catálogo público →</a>}</footer>
  </main>;
 }

@@ -2,6 +2,8 @@
 import {IconButton} from '../action-icon';
 import {useEffect,useRef,useState,type FormEvent} from 'react';
 import Modal from './modal';
+import RowActions from './row-actions';
+import styles from './management-workspace.module.css';
 import type {ManagedLocation} from './catalog-manager';
 type Item={productId:string;name:string;sku:string;quantity:number;unitPrice:string;lineTotal:string};
 type Quote={id:string;status:'REQUESTED'|'APPROVED'|'REJECTED'|'USED'|'EXPIRED';location_id:string;shipping_minor:string|null;goods_minor:string|null;created_at:string;expires_at:string|null;note?:string|null;itemDetails?:Item[];priced_items?:Item[]|null;address?:{recipient:string;phone:string;line1:string;commune:string;region:string;country:string;postalCode?:string}};
@@ -32,22 +34,25 @@ export default function ShippingManager({locations,busy,setBusy,request}:Props){
   }
   const items=selected?.priced_items??selected?.itemDetails??[];
   const subtotal=items.reduce((sum,item)=>sum+BigInt(item.lineTotal),0n).toString();
-  return <section><div className="section-heading"><h2>Cotizaciones de envío</h2><IconButton icon="refresh" label="Actualizar" disabled={busy} onClick={()=>refresh()}/></div>
-    <p>Revisa el destino y los productos antes de definir el costo del envío. Cotizar no reserva stock ni realiza cobros.</p><p role="status" aria-live="polite">{notice}</p>
-    <div className="table-scroll"><table><thead><tr><th>Solicitud / Fecha</th><th>Origen</th><th>Estado</th><th>Envío</th><th>Vigencia</th><th>Detalle</th></tr></thead><tbody>
-      {quotes.map(quote=><tr key={quote.id}><td>{quote.id.slice(0,8)}<br/>{new Date(quote.created_at).toLocaleString('es-CL')}</td><td>{locations.find(l=>l.id===quote.location_id)?.name??'Ubicación de origen'}</td><td>{labels[quote.status]}</td><td>{quote.shipping_minor===null?'Por cotizar':money(quote.shipping_minor)}</td><td>{quote.expires_at?new Date(quote.expires_at).toLocaleString('es-CL'):'—'}</td><td><button disabled={busy} aria-label={`Ver cotización ${quote.id.slice(0,8)}`} onClick={()=>open(quote.id)}>Ver</button></td></tr>)}
-      {!quotes.length&&<tr><td colSpan={6}>{loaded?'No hay solicitudes de envío en esta página.':'Cargando solicitudes…'}</td></tr>}
-    </tbody></table></div><nav aria-label="Páginas de cotizaciones"><IconButton icon="previous" label="Página anterior" disabled={busy||page===0} onClick={()=>refresh(page-1)}/><span>Página {page+1}</span><IconButton icon="next" label="Página siguiente" disabled={busy||quotes.length<25} onClick={()=>refresh(page+1)}/></nav>
-    {selected&&<Modal title={`Cotización ${selected.id.slice(0,8)}`} busy={busy} onClose={()=>{setSelected(null);setUncertain(false);pending.current=null;}}>
-      <p role="status" aria-live="polite">{notice}</p><IconButton icon="refresh" label="Actualizar detalle" disabled={busy} onClick={()=>open(selected.id)}/><p><strong>{labels[selected.status]}</strong> · {locations.find(l=>l.id===selected.location_id)?.name??'Origen seleccionado'}</p>
+  return <div className={styles.workspace}>
+    <div className={styles.heading}><div><h2>Envíos</h2><p>Revisa las solicitudes y cotiza el envío antes del pago.</p></div><div className={styles.headingActions}><IconButton icon="refresh" label="Actualizar solicitudes de envío" disabled={busy} onClick={()=>refresh()}/></div></div>
+    {notice&&<p className={styles.notice} role="status" aria-live="polite">{notice}</p>}
+    <div className={styles.panel}><div className={styles.panelHeading}><h3>Cotizaciones de envío</h3><span>{quotes.length} {quotes.length===1?'solicitud':'solicitudes'} en esta página</span></div>
+    <div className={styles.tableScroll} tabIndex={0} role="region" aria-label="Solicitudes de envío" aria-busy={busy}><table className={styles.table}><thead><tr><th scope="col">Solicitud</th><th scope="col">Origen</th><th scope="col">Estado</th><th scope="col" className={styles.amount}>Costo de envío</th><th scope="col">Vigencia</th><th scope="col" className={styles.menuCell}><span className={styles.srOnly}>Opciones de cotización</span></th></tr></thead><tbody>
+      {quotes.map(quote=><tr key={quote.id}><td><span className={styles.record}>#{quote.id.slice(0,8)}</span><small>{new Date(quote.created_at).toLocaleString('es-CL',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</small></td><td><strong>{locations.find(l=>l.id===quote.location_id)?.name??'Ubicación de origen'}</strong></td><td><span className={`${styles.badge} ${quote.status==='REQUESTED'?styles.warning:quote.status==='APPROVED'?styles.positive:quote.status==='USED'?styles.info:styles.neutral}`}>{labels[quote.status]}</span></td><td className={styles.amount}>{quote.shipping_minor===null?<span className={styles.muted}>Por cotizar</span>:money(quote.shipping_minor)}</td><td><span className={styles.muted}>{quote.expires_at?new Date(quote.expires_at).toLocaleString('es-CL',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'—'}</span></td><td className={styles.menuCell}><RowActions name={`cotización ${quote.id.slice(0,8)}`} disabled={busy} editLabel={quote.status==='REQUESTED'?'Revisar solicitud':'Ver cotización'} onEdit={()=>void open(quote.id)}/></td></tr>)}
+      {!quotes.length&&<tr><td colSpan={6}><div className={styles.empty}><h3>{loaded?'Sin solicitudes en esta página':'Cargando solicitudes…'}</h3><p>Las solicitudes de envío de tus clientes aparecerán aquí para su revisión.</p></div></td></tr>}
+    </tbody></table></div><div className={styles.pagination}><span>Hasta 25 solicitudes por página</span><nav aria-label="Páginas de cotizaciones"><IconButton icon="previous" label="Solicitudes anteriores" disabled={busy||page===0} onClick={()=>refresh(page-1)}/><span>Página {page+1}</span><IconButton icon="next" label="Solicitudes siguientes" disabled={busy||quotes.length<25} onClick={()=>refresh(page+1)}/></nav></div></div>
+    <p className={styles.note}>Cotizar no reserva stock ni realiza cobros. Revisa el destino y los productos antes de aprobar.</p>
+    {selected&&<Modal title={`Cotización ${selected.id.slice(0,8)}`} busy={busy} onClose={()=>{setSelected(null);setUncertain(false);pending.current=null;}}><div className={styles.detail}>
+      <p role="status" aria-live="polite">{notice}</p><IconButton icon="refresh" label="Actualizar detalle" disabled={busy} onClick={()=>open(selected.id)}/><div className={styles.detailSummary}><div><span className={`${styles.badge} ${selected.status==='REQUESTED'?styles.warning:selected.status==='APPROVED'?styles.positive:styles.neutral}`}>{labels[selected.status]}</span><small>{locations.find(l=>l.id===selected.location_id)?.name??'Origen seleccionado'}</small></div>{selected.shipping_minor!==null&&<strong>{money(selected.shipping_minor)}</strong>}</div>
       {selected.address&&<><h3>Destino</h3><p>{selected.address.recipient}<br/>{selected.address.line1}<br/>{selected.address.commune}, {selected.address.region}, Chile{selected.address.postalCode&&<><br/>Código postal: {selected.address.postalCode}</>}</p><p>Teléfono: {selected.address.phone}</p></>}
       <h3>Productos</h3><ul>{items.map(item=><li key={item.productId}>{item.sku} · {item.name} × {item.quantity} — {money(item.lineTotal)}</li>)}</ul>
       <p>{selected.goods_minor===null?'Subtotal referencial actual':'Productos cotizados'}: <strong>{money(selected.goods_minor??subtotal)}</strong></p>
       {selected.shipping_minor!==null&&<p>Envío: {money(selected.shipping_minor)} · Total: <strong>{money((BigInt(selected.goods_minor??subtotal)+BigInt(selected.shipping_minor)).toString())}</strong></p>}
       {selected.note&&<p>Nota: {selected.note}</p>}{selected.expires_at&&<p>Vigencia: {new Date(selected.expires_at).toLocaleString('es-CL')}</p>}
       {selected.status==='REQUESTED'&&<><h3>Aprobar envío</h3><p>El precio de productos se fija al aprobar. La cotización aprobada dura 30 minutos; el stock se comprueba y reserva al crear el pedido.</p><form onSubmit={e=>submit(e,'approve')}><fieldset disabled={busy||uncertain}><label>Costo de envío en CLP<input name="amount" inputMode="numeric" pattern="(0|[1-9][0-9]{0,12})" type="text" required maxLength={13}/></label><label>Condiciones del envío<textarea name="note" minLength={3} maxLength={500} required/></label><label><input type="checkbox" required/> Confirmo el costo y la cobertura del envío.</label><button>Aprobar cotización</button></fieldset></form>
-        <h3>Rechazar solicitud</h3><form onSubmit={e=>submit(e,'reject')}><fieldset disabled={busy||uncertain}><label>Motivo<textarea name="reason" minLength={3} maxLength={500} required/></label><button>Rechazar solicitud</button></fieldset></form></>}
+        <details><summary>Rechazar solicitud</summary><form onSubmit={e=>submit(e,'reject')}><fieldset disabled={busy||uncertain}><label>Motivo<textarea name="reason" minLength={3} maxLength={500} required/></label><button>Rechazar solicitud</button></fieldset></form></details></>}
       {uncertain&&<button disabled={busy} onClick={send}>Reintentar comprobación</button>}
-    </Modal>}
-  </section>;
+    </div></Modal>}
+  </div>;
 }

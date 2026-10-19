@@ -1,3 +1,4 @@
+import {managedProductDetail,publicProductDetail} from '../../../server/product-detail';
 import {listCategories,createCategory,renameCategory} from '../../../server/categories';
 import {simulateCheckout} from '../../../server/demo-checkout';
 import {uploadProductImage,publicProductImage} from '../../../server/product-images';
@@ -51,6 +52,7 @@ async function handle(request:Request,context:Context) {
     if(path.length===3&&path[0]==='public'&&path[2]==='catalog'&&method==='GET') {
       const {limit,offset}=pagination(new URL(request.url));return json(await publicCatalog(pool,path[1],limit,offset));
     }
+    if(path.length===4&&path[0]==='public'&&path[2]==='products'&&method==='GET')return json(await publicProductDetail(pool,path[1],uuid.parse(path[3])));
     if(path.length===5&&path[0]==='public'&&path[2]==='products'&&path[4]==='image'&&method==='GET')return publicProductImage(pool,path[1],uuid.parse(path[3]));
     if(route==='auth/login'&&method==='POST') {
       const result=await login(pool,loginSchema.parse(await body(request)));
@@ -155,6 +157,7 @@ async function handle(request:Request,context:Context) {
     if(route==='categories'&&method==='POST')return json(await createCategory(pool,actor,await body(request)),201);
     if(path[0]==='categories'&&path.length===2&&method==='PATCH')return json(await renameCategory(pool,actor,uuid.parse(path[1]),await body(request)));
     if(route==='products'&&method==='POST')return json(await createProduct(pool,actor,await body(request)),201);
+    if(path[0]==='products'&&path.length===2&&method==='GET')return json(await managedProductDetail(pool,actor,uuid.parse(path[1])));
     if(path[0]==='products'&&path.length===2&&method==='PATCH')return json(await patchProduct(pool,actor,uuid.parse(path[1]),await body(request)));
     if(route==='products'&&method==='GET'){const url=new URL(request.url),p=pagination(url);return json(await managedProducts(pool,actor,p.limit,p.offset,{q:url.searchParams.get('q')??'',status:url.searchParams.get('status')??'all',categoryId:url.searchParams.get('categoryId')??''}));}
     if(route==='locations'&&method==='POST')return json(await createLocation(pool,actor,await body(request)),201);

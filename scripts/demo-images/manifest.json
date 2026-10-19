@@ -1,0 +1,761 @@
+{
+  "version": 1,
+  "description": "Fotografías de referencia para el catálogo local de demostración. Procedencia conservada por SKU.",
+  "products": {
+    "AMD-CPU-7800X3D": {
+      "file": "assets/fcefca7e9ab6b9edaadc.webp",
+      "sha256": "fcefca7e9ab6b9edaadc150ce22fb54b105595084ac62ad2b2af2ab3e4c84716",
+      "sourcePage": "https://www.amd.com/en/products/processors/desktops/ryzen/7000-series/amd-ryzen-7-7800x3d.html",
+      "sourceImage": "https://www.amd.com/content/dam/amd/en/images/products/processors/ryzen/2505503-ryzen-7-7800x3d-front.jpg"
+    },
+    "ASU-B550MA": {
+      "file": "assets/06717d7c8b3871fd7222.webp",
+      "sha256": "06717d7c8b3871fd72220130f8360b3dd9ea9ba49340d268aa1f2afd656848bb",
+      "sourcePage": "https://www.asus.com/motherboards-components/motherboards/prime/prime-b550m-a/",
+      "sourceImage": "https://www.asus.com/media/global/gallery/7qeml0vawtb9khfw_setting_xxx_0_90_end_2000.png"
+    },
+    "ASU-TUF-B550PLUS": {
+      "file": "assets/a7da1b0e1ccd07a01ec4.webp",
+      "sha256": "a7da1b0e1ccd07a01ec41b1cce47f7c4294380b8d69158a22d2329f26bde8eaa",
+      "sourcePage": "https://www.asus.com/motherboards-components/motherboards/tuf-gaming/tuf-gaming-b550-plus/",
+      "sourceImage": "https://dlcdnwebimgs.asus.com/gain/308e8189-5ea1-4ead-b5ef-2aa7b2c2692e/"
+    },
+    "ASU-DUAL-4060": {
+      "file": "assets/85585766054a699db42d.webp",
+      "sha256": "85585766054a699db42dd5b6f9006306705f3a2948709ae18b47d3765a7edfe1",
+      "sourcePage": "https://www.asus.com/motherboards-components/graphics-cards/dual/dual-rtx4060-8g/",
+      "sourceImage": "https://dlcdnwebimgs.asus.com/gain/2fb07dc1-3d85-4ea4-8ea4-99a0cdb38116/"
+    },
+    "ASU-DUAL-4070": {
+      "file": "assets/a7ab8d7377ac7efcdfe2.webp",
+      "sha256": "a7ab8d7377ac7efcdfe254437efbc599158960549e2914c59cfa51e6b47d8ca1",
+      "sourcePage": "https://www.asus.com/motherboards-components/graphics-cards/dual/dual-rtx4070-12g/",
+      "sourceImage": "https://dlcdnwebimgs.asus.com/gain/f0d63ff3-37cb-4a67-b472-176db55951ae/"
+    },
+    "DEE-MATREXX40": {
+      "file": "assets/8647ab9c6666163a6512.webp",
+      "sha256": "8647ab9c6666163a6512098cbd58bdb2d1ab1e113576639cc86eb7d48c65f0aa",
+      "sourcePage": "https://deepcool.com/products/Cases/Matrexx-40-Airflow-Micro-ATX-Case/2021/11876.shtml",
+      "sourceImage": "https://cdn.deepcool.com/public/ProductFile/DEEPCOOL/Cases/MATREXX_40/Gallery/800X800/01.jpg?auto=format,compress&q=90"
+    },
+    "DEE-AK620": {
+      "file": "assets/72f3bc9f8294f0728099.webp",
+      "sha256": "72f3bc9f8294f0728099cb6412debf441ce64e3c193a126d7093b5888b89ce53",
+      "sourcePage": "https://www.deepcool.com/products/Cooling/cpuaircoolers/AK620-High-Performance-CPU-Cooler/2021/13067.shtml",
+      "sourceImage": "https://cdn.deepcool.com/public/ProductFile/DEEPCOOL/Cooling/CPUAirCoolers/AK620/Gallery/800X800/01.jpg?auto=format,compress&q=90"
+    },
+    "LOG-G213": {
+      "file": "assets/fc88cd457a4eab7a6c0f.webp",
+      "sha256": "fc88cd457a4eab7a6c0fc2f26b3fcecba9e318524a4fd887688cf9bde1927291",
+      "sourcePage": "https://www.logitechg.com/en-us/shop/p/g213-rgb-gaming-keyboard",
+      "sourceImage": "https://resource.logitechg.com/c_fill,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/gaming/en/non-braid/g213-finch/g213-gallery-1-nb.png"
+    },
+    "LOG-MXKEYSS": {
+      "file": "assets/dc9c1f8d9d177ca1e99f.webp",
+      "sha256": "dc9c1f8d9d177ca1e99f764a0aa75eb426da4a40d39a35f2f391098993cf59e9",
+      "sourcePage": "https://www.logitech.com/en-us/shop/p/mx-keys-s",
+      "sourceImage": "https://resource.logitech.com/c_fill,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/logitech/en/products/keyboards/mx-keys-s/migration-assets-for-delorean-2025/gallery/mx-keys-s-top-view-graphite-us.png"
+    },
+    "LOG-G305": {
+      "file": "assets/f155e7083f46977b1c86.webp",
+      "sha256": "f155e7083f46977b1c86bba12df205fde9dc78f175107bea1df47a79246e254c",
+      "sourcePage": "https://www.logitechg.com/en-us/shop/p/g305-lightspeed-wireless-gaming-mouse",
+      "sourceImage": "https://resource.logitechg.com/c_fill,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/gaming/en/products/g305/2025-update/g305-lightspeed-mouse-top-angle-white-gallery-1.png"
+    },
+    "LOG-G435": {
+      "file": "assets/2f21c331918cf9cae1d3.webp",
+      "sha256": "2f21c331918cf9cae1d367be67ca9ec28a69f0ba0bd702a7fba4bc753e8f09cf",
+      "sourcePage": "https://www.logitechg.com/en-us/shop/p/g435-wireless-bluetooth-gaming-headset",
+      "sourceImage": "https://resource.logitechg.com/c_fill,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/gaming/en/products/g435/2025/gallery/g435-3qtr-front-left-angle-black-gallery-1.png"
+    },
+    "LOG-C270": {
+      "file": "assets/4631790a92dca4d98839.webp",
+      "sha256": "4631790a92dca4d988391d6af0a37bcdfa5bca4da180955023350a5565b33a2e",
+      "sourcePage": "https://www.logitech.com/en-us/shop/p/c270-hd-webcam",
+      "sourceImage": "https://resource.logitech.com/c_fill,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/products/logitech/webcams/c270-hd-webcam/gallery/c270-hd-webcam-1-0224.png"
+    },
+    "LOG-C922": {
+      "file": "assets/8817a5d4c2c745f82763.webp",
+      "sha256": "8817a5d4c2c745f82763ba8a49b9dcc7c55ac09809986fce76b48421fd8f0a4d",
+      "sourcePage": "https://www.logitech.com/en-us/shop/p/c922-pro-stream-webcam",
+      "sourceImage": "https://resource.logitech.com/c_fill,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/logitech/en/products/webcams/c922/gallery/c922-gallery-1.png"
+    },
+    "LOG-BRIO4K": {
+      "file": "assets/0f39035bfa7076146362.webp",
+      "sha256": "0f39035bfa70761463628e80001b00e2174b279806652e3bcb1c57a831a89ba9",
+      "sourcePage": "https://www.logitech.com/en-us/business/shop/p/brio-4k-hdr-webcam",
+      "sourceImage": "https://resource.logitech.com/c_fill,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/logitech/en/products/webcams/brio/gallery/brio-gallery-1.png"
+    },
+    "LOG-G240": {
+      "file": "assets/3a6ae542d8a909c53c41.webp",
+      "sha256": "3a6ae542d8a909c53c41d71b535ba2dedd938172d327f1a8b0100320d6b09498",
+      "sourcePage": "https://www.logitechg.com/en-gb/shop/p/g240-cloth-gaming-mouse-pad.943-000095",
+      "sourceImage": "https://resource.logitechg.com/c_fill,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/gaming/en/products/g240/g240-gallery-3-new.png"
+    },
+    "LOG-G440": {
+      "file": "assets/56c03acfad5876845f9f.webp",
+      "sha256": "56c03acfad5876845f9fb73820860392c9d3afd2ef830536c8ed40ba54f0fccb",
+      "sourcePage": "https://www.logitechg.com/en-us/shop/p/g440-hard-gaming-mouse-pad",
+      "sourceImage": "https://resource.logitechg.com/c_fill,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/gaming/en/products/g440/g440-gallery-2-new.png"
+    },
+    "LOG-G840": {
+      "file": "assets/5c43dd3c73161d801f14.webp",
+      "sha256": "5c43dd3c73161d801f14a4309dd2460afaa615b434fabdbc0a1a2562856ba199",
+      "sourcePage": "https://www.logitechg.com/en-us/shop/p/g840-cloth-xl-gaming-mouse-pad",
+      "sourceImage": "https://resource.logitechg.com/c_fill,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/gaming/en/products/g840/g840-gallery-1-new.png"
+    },
+    "TPL-UH400": {
+      "file": "assets/53bf783e9a81d88386b8.webp",
+      "sha256": "53bf783e9a81d88386b8af662500c0e3fac3ea7b3a51459492d680b357af3e01",
+      "sourcePage": "https://www.tp-link.com/us/home-networking/usb-hub/uh400/",
+      "sourceImage": "https://static.tp-link.com/UH400(UN)2.0-PT3－960x720_1479037345917k.jpg"
+    },
+    "TPL-UH700": {
+      "file": "assets/4a9a52a6985132c40d09.webp",
+      "sha256": "4a9a52a6985132c40d09f0a3950cdd2b1d03ef60651b807b13b7153b0bbf12c3",
+      "sourcePage": "https://www.tp-link.com/us/home-networking/usb-hub/uh700/",
+      "sourceImage": "https://static.tp-link.com/UH700_UN_2.0_01_large_1537408325767z.jpg"
+    },
+    "TPL-AX10": {
+      "file": "assets/090e1bc16cc13c6d07bf.webp",
+      "sha256": "090e1bc16cc13c6d07bfea718116a8d93d725da07944348e76952e7051966b5c",
+      "sourcePage": "https://www.tp-link.com/us/home-networking/wifi-router/archer-ax10/",
+      "sourceImage": "https://static.tp-link.com/upload/image-line/1_large_20240529030144h.jpg"
+    },
+    "TPL-AX55": {
+      "file": "assets/b497de0abeceed69afee.webp",
+      "sha256": "b497de0abeceed69afeeca0978a2a54048d815e373e13ef0a8b91fd9c8e359c3",
+      "sourcePage": "https://www.tp-link.com/us/home-networking/wifi-router/archer-ax55/",
+      "sourceImage": "https://static.tp-link.com/upload/image-line/Overview_Archer_AX55_01_large_20210816012555f.jpg"
+    },
+    "TPL-C6": {
+      "file": "assets/4a856561f2ab8f5eba0d.webp",
+      "sha256": "4a856561f2ab8f5eba0d500b1e9653f1a5ad930b3df8737f46bb8bb2a135abfe",
+      "sourcePage": "https://www.tp-link.com/us/home-networking/wifi-router/archer-c6/",
+      "sourceImage": "https://static.tp-link.com/Archer-C6-1_large_1533257570157x.jpg"
+    },
+    "TPL-SG108": {
+      "file": "assets/6b70b17ecbe51d6c9dc1.webp",
+      "sha256": "6b70b17ecbe51d6c9dc179958de22786de1130374db47139a096e958e34b949e",
+      "sourcePage": "https://www.tp-link.com/us/business-networking/soho-switch-unmanaged/tl-sg108/",
+      "sourceImage": "https://static.tp-link.com/upload/image-line/TL-SG108_UN_5.0_01_large_20231024111419x.jpg"
+    },
+    "TPL-SG1005P": {
+      "file": "assets/730adb60f48a4aa182f3.webp",
+      "sha256": "730adb60f48a4aa182f357678a71584ebaa351e167ea448e2bffef656d58eb28",
+      "sourcePage": "https://www.tp-link.com/us/business-networking/poe-switch/tl-sg1005p/",
+      "sourceImage": "https://static.tp-link.com/TL-SG1005P(UN)1.0-01_large_1504604752359w.jpg"
+    },
+    "TPL-TX3000E": {
+      "file": "assets/3e25bb8a4f3c0dd4c99e.webp",
+      "sha256": "3e25bb8a4f3c0dd4c99ecc1a3c4a9076426aed83c51195b8762aa140d625fb8e",
+      "sourcePage": "https://www.tp-link.com/us/home-networking/pci-adapter/archer-tx3000e/v2/",
+      "sourceImage": "https://static.tp-link.com/1_large_20220321072716s.jpg"
+    },
+    "APP-MBA-M1-8-256": {
+      "file": "assets/ae09624cc35b99137bd2.webp",
+      "sha256": "ae09624cc35b99137bd25a384c7d34dbffc2f0fef60e535345136e3214e10d21",
+      "sourcePage": "https://support.apple.com/en-us/111883",
+      "sourceImage": "https://cdsassets.apple.com/live/SZLF0YNV/images/sp/111883_macbookair.png"
+    },
+    "APP-MBA-M1-16-512": {
+      "file": "assets/ae09624cc35b99137bd2.webp",
+      "sha256": "ae09624cc35b99137bd25a384c7d34dbffc2f0fef60e535345136e3214e10d21",
+      "sourcePage": "https://support.apple.com/en-us/111883",
+      "sourceImage": "https://cdsassets.apple.com/live/SZLF0YNV/images/sp/111883_macbookair.png"
+    },
+    "APP-MBA-M2-8-256": {
+      "file": "assets/803a3d847ea0c56057ba.webp",
+      "sha256": "803a3d847ea0c56057bace6c15eeefeae038b028c0207815a187a96f432d42da",
+      "sourcePage": "https://support.apple.com/en-us/111867",
+      "sourceImage": "https://cdsassets.apple.com/live/SZLF0YNV/images/sp/111867_SP869-2022-macbook-air-m2-colors.png"
+    },
+    "APP-MBA-M2-16-512": {
+      "file": "assets/803a3d847ea0c56057ba.webp",
+      "sha256": "803a3d847ea0c56057bace6c15eeefeae038b028c0207815a187a96f432d42da",
+      "sourcePage": "https://support.apple.com/en-us/111867",
+      "sourceImage": "https://cdsassets.apple.com/live/SZLF0YNV/images/sp/111867_SP869-2022-macbook-air-m2-colors.png"
+    },
+    "APP-MINI-M2-8-256": {
+      "file": "assets/e8b6f82fa1fab1971031.webp",
+      "sha256": "e8b6f82fa1fab1971031e65f2de1efcdf700867a6e38b3831d1c2484a07ed677",
+      "sourcePage": "https://support.apple.com/en-us/111837",
+      "sourceImage": "https://cdsassets.apple.com/live/SZLF0YNV/images/sp/111837_mac-mini-2023-m2-pro.png"
+    },
+    "COR-CX650": {
+      "file": "assets/aa126b84dc931dfca6cd.webp",
+      "sha256": "aa126b84dc931dfca6cd5cbe1d10d26ac7000debf09406fdb13b909a04e3ddf7",
+      "sourcePage": "https://www.corsair.com/us/en/p/psu/cp-9020278-na/cx-series-cx650-650-watt-80-plus-bronze-atx-power-supply-cp-9020278-na",
+      "sourceImage": "https://assets.corsair.com/image/upload/c_scale%2Cq_auto%2Cw_1000/products/Power-Supply-Units/base-cx-series-2023-config/CX650/CX650_01.png"
+    },
+    "LOG-K120": {
+      "file": "assets/e2c3bb345c1668b1b7dd.webp",
+      "sha256": "e2c3bb345c1668b1b7dd9c11531c8c42ee450ddd59ae9180998d1c6c29efe17b",
+      "sourcePage": "https://www.logitech.com/en-us/shop/p/k120-usb-standard-computer",
+      "sourceImage": "https://resource.logitech.com/c_fill,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/logitech/en/products/keyboards/k120/gallery/k120-gallery-01-new.png"
+    },
+    "LOG-M185": {
+      "file": "assets/01fdfdece3615e0ab6a2.webp",
+      "sha256": "01fdfdece3615e0ab6a2f97c4e026ca37904a8a24c8ec542a77152dc6d02ecd5",
+      "sourcePage": "https://www.logitech.com/en-us/shop/p/m185-wireless-mouse",
+      "sourceImage": "https://resource.logitech.com/c_fill,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/logitech/en/products/mice/m185/gallery/2025-update-assets/m185-grey-top-angle-1.png"
+    },
+    "LOG-H390": {
+      "file": "assets/f3af146cefe74207d353.webp",
+      "sha256": "f3af146cefe74207d3533abe7e3b69975034f029d421a8d0fc410a1a8eb54e82",
+      "sourcePage": "https://www.logitech.com/en-us/shop/p/h390-usb-headset",
+      "sourceImage": "https://resource.logitech.com/c_fill,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/logitech/en/products/headsets/h390-usb-headset/gallery/h390-frontview-gallery-black.png"
+    },
+    "TPL-SG105": {
+      "file": "assets/37383815aec251cf1666.webp",
+      "sha256": "37383815aec251cf16661a2937c16083116bd92915ee202c0306162fee5dc9f5",
+      "sourcePage": "https://www.tp-link.com/us/business-networking/unmanaged-switch/tl-sg105/",
+      "sourceImage": "https://static.tp-link.com/TL-SG105(UN)6_1_large_1594122055766z.jpg"
+    },
+    "KIN-A400-240": {
+      "file": "assets/56f9366dfbb2f2a554ad.webp",
+      "sha256": "56f9366dfbb2f2a554ade32942d3026b423ce29196c1259ce669be42381770e7",
+      "sourcePage": "https://www.solotodo.cl/products/33674-kingston-ssdnow-a400-240-gb-sa400s37240g",
+      "sourceImage": "https://media.solotodo.com/media/products/596745_picture_1490303275.jpg",
+      "referenceModel": "Kingston SSDNow A400 240 GB (SA400S37/240G)"
+    },
+    "KIN-A400-480": {
+      "file": "assets/56f9366dfbb2f2a554ad.webp",
+      "sha256": "56f9366dfbb2f2a554ade32942d3026b423ce29196c1259ce669be42381770e7",
+      "sourcePage": "https://www.solotodo.cl/products/33675-kingston-ssdnow-a400-480-gb-sa400s37480g",
+      "sourceImage": "https://media.solotodo.com/media/products/596745_picture_1490303275.jpg",
+      "referenceModel": "Kingston SSDNow A400 480 GB (SA400S37/480G)"
+    },
+    "KIN-A400-960": {
+      "file": "assets/56f9366dfbb2f2a554ad.webp",
+      "sha256": "56f9366dfbb2f2a554ade32942d3026b423ce29196c1259ce669be42381770e7",
+      "sourcePage": "https://www.solotodo.cl/products/43025-kingston-ssdnow-a400-960-gb-sa400s37960g",
+      "sourceImage": "https://media.solotodo.com/media/products/596745_picture_1490303275.jpg",
+      "referenceModel": "Kingston SSDNow A400 960 GB (SA400S37/960G)"
+    },
+    "KIN-KC600-256": {
+      "file": "assets/c95097c22b4243af031e.webp",
+      "sha256": "c95097c22b4243af031eed7b180fcba02797aa8a6f73163404d644d2ae50c3e8",
+      "sourcePage": "https://www.solotodo.cl/products/68884-kingston-kc600-256-gb-skc600256g",
+      "sourceImage": "https://media.solotodo.com/media/products/1016617_picture_1574193167.jpg",
+      "referenceModel": "Kingston KC600 256 GB (SKC600/256G)"
+    },
+    "KIN-KC600-1024": {
+      "file": "assets/c95097c22b4243af031e.webp",
+      "sha256": "c95097c22b4243af031eed7b180fcba02797aa8a6f73163404d644d2ae50c3e8",
+      "sourcePage": "https://www.solotodo.cl/products/69857-kingston-kc600-1-tb-skc6001024g",
+      "sourceImage": "https://media.solotodo.com/media/products/1016617_picture_1574193167.jpg",
+      "referenceModel": "Kingston KC600 1 TB (SKC600/1024G)"
+    },
+    "KIN-KC600-2048": {
+      "file": "assets/c95097c22b4243af031e.webp",
+      "sha256": "c95097c22b4243af031eed7b180fcba02797aa8a6f73163404d644d2ae50c3e8",
+      "sourcePage": "https://www.solotodo.cl/products/74574-kingston-kc600-2-tb-skc6002048g",
+      "sourceImage": "https://media.solotodo.com/media/products/1016617_picture_1574193167.jpg",
+      "referenceModel": "Kingston KC600 2 TB (SKC600/2048G)"
+    },
+    "KIN-NV3-4000": {
+      "file": "assets/136ed7352a82d6f673ce.webp",
+      "sha256": "136ed7352a82d6f673ce5ebc4b970365904a02af8d3e40c5a2e34b6f549dc235",
+      "sourcePage": "https://www.solotodo.cl/products/257282-kingston-nv3-4-tb-snv3s4000g",
+      "sourceImage": "https://media.solotodo.com/media/products/1975691_picture_1730867509.jpg",
+      "referenceModel": "Kingston NV3 4 TB (SNV3S/4000G)"
+    },
+    "SAM-990PRO-1000": {
+      "file": "assets/677843c87c8979b1c122.webp",
+      "sha256": "677843c87c8979b1c12238f958080f9ab41ef1541328696cef8f17e40801dbb7",
+      "sourcePage": "https://www.solotodo.cl/products/157430-samsung-990-pro-1-tb-mz-v9p1t0bw",
+      "sourceImage": "https://media.solotodo.com/media/products/1676790_picture_1669977363.jpg",
+      "referenceModel": "Samsung 990 Pro 1 TB (MZ-V9P1T0BW)"
+    },
+    "SAM-990PRO-2000": {
+      "file": "assets/c7c04da06598d6b83de8.webp",
+      "sha256": "c7c04da06598d6b83de817a888d568e54e5cf707f7bb23dc1b8711c6c2ce5b8d",
+      "sourcePage": "https://www.solotodo.cl/products/158336-samsung-990-pro-2-tb-mz-v9p2t0bw",
+      "sourceImage": "https://media.solotodo.com/media/products/1682072_picture_1671099017.webp",
+      "referenceModel": "Samsung 990 Pro 2 TB (MZ-V9P2T0BW)"
+    },
+    "WD-BLUE-1000": {
+      "file": "assets/a99a0fbe97d9c0815134.webp",
+      "sha256": "a99a0fbe97d9c0815134d85bea8085939b0f466c0e7c6a40ddeabaad035002d9",
+      "sourcePage": "https://www.solotodo.cl/products/6476-western-digital-blue-1-tb-wd10ezex",
+      "sourceImage": "https://media.solotodo.com/media/products/239581_picture_1615211050.jpg",
+      "referenceModel": "Western Digital Blue 1 TB (WD10EZEX)"
+    },
+    "WD-BLUE-2000": {
+      "file": "assets/219858340ab350801a10.webp",
+      "sha256": "219858340ab350801a10528456ae845f3ec1ce5f5ac0ce271f58ae7ecb1cc880",
+      "sourcePage": "https://www.solotodo.cl/products/208855-western-digital-blue-2-tb-wd20ezbx",
+      "sourceImage": "https://media.solotodo.com/media/products/1764574_picture_1684907266.jpg",
+      "referenceModel": "Western Digital Blue 2 TB (WD20EZBX)"
+    },
+    "WD-BLUE-4000": {
+      "file": "assets/ca390c3ebb619f8684fa.webp",
+      "sha256": "ca390c3ebb619f8684fa9f5af5647e40d08a01c81334c780af41bb76ec446d7a",
+      "sourcePage": "https://www.solotodo.cl/products/83261-western-digital-blue-4-tb-wd40ezaz",
+      "sourceImage": "https://media.solotodo.com/media/products/942214_picture_1560786485.jpg",
+      "referenceModel": "Western Digital Blue 4 TB (WD40EZAZ)"
+    },
+    "KIN-FURY-DDR4-8": {
+      "file": "assets/d11d56de7da65430d52e.webp",
+      "sha256": "d11d56de7da65430d52eb767c62542ac175a16838da22e2c5b92493533105e6d",
+      "sourcePage": "https://www.solotodo.cl/products/117945-kingston-fury-beast-kf432c16bb8-1-x-8-gb-dimm-ddr4-3200",
+      "sourceImage": "https://media.solotodo.com/media/products/1437078_picture_1628627252.jpg",
+      "referenceModel": "Kingston Fury Beast KF432C16BB/8 (1 x 8 GB | DIMM DDR4-3200)"
+    },
+    "KIN-FURY-DDR4-32": {
+      "file": "assets/e5793d2e2fc610aa3bb9.webp",
+      "sha256": "e5793d2e2fc610aa3bb9810fe01ad62a5c44752444cfc0f42f7b5b38228bcc61",
+      "sourcePage": "https://www.solotodo.cl/products/145858-kingston-fury-beast-kf432c16bb32-1-x-32gb-dimm-ddr4-3200",
+      "sourceImage": "https://media.solotodo.com/media/products/1473181_picture_1633952073.jpg",
+      "referenceModel": "Kingston Fury Beast KF432C16BB/32 (1 x 32GB | DIMM DDR4-3200)"
+    },
+    "KIN-FURY-DDR5-16": {
+      "file": "assets/801600ff9d0bf5088f38.webp",
+      "sha256": "801600ff9d0bf5088f38c71efd7de71e97e46592ebee429b7f47453d01d8708d",
+      "sourcePage": "https://www.solotodo.cl/products/206515-kingston-fury-beast-kf560c36bbe-16-1-x-16-gb-dimm-ddr5-6000",
+      "sourceImage": "https://media.solotodo.com/media/products/1708197_picture_1674619924.jpg",
+      "referenceModel": "Kingston Fury Beast KF560C36BBE-16 (1 x 16 GB | DIMM DDR5-6000)"
+    },
+    "KIN-FURY-DDR5-64": {
+      "file": "assets/8fa5b2c34ebf69c02bf1.webp",
+      "sha256": "8fa5b2c34ebf69c02bf11e0f52ec5d8c16aa6b0d5c95773d3baa185d58c9bef5",
+      "sourcePage": "https://www.solotodo.cl/products/272888-kingston-fury-beast-kf560c36bbek2-64-2-x-32-gb-dimm-ddr5-6000",
+      "sourceImage": "https://media.solotodo.com/media/products/2069897_picture_1745669456.png",
+      "referenceModel": "Kingston Fury Beast KF560C36BBEK2-64 (2 x 32 GB | DIMM DDR5-6000)"
+    },
+    "KIN-VALUE-DDR4-SO8": {
+      "file": "assets/3bb3f81f113d2a123ea4.webp",
+      "sha256": "3bb3f81f113d2a123ea41c20629b68b1d3b3689afe982ec8c4ef69bf374292a0",
+      "sourcePage": "https://www.solotodo.cl/products/114413-kingston-kvr32s22s88-1-x-8gb-so-dimm-ddr4-3200",
+      "sourceImage": "https://media.solotodo.com/media/products/1233586_picture_1600829627.jpg",
+      "referenceModel": "Kingston KVR32S22S8/8 (1 x 8GB | SO-DIMM DDR4-3200)"
+    },
+    "KIN-VALUE-DDR4-SO16": {
+      "file": "assets/3bb3f81f113d2a123ea4.webp",
+      "sha256": "3bb3f81f113d2a123ea41c20629b68b1d3b3689afe982ec8c4ef69bf374292a0",
+      "sourcePage": "https://www.solotodo.cl/products/92626-kingston-kvr32s22s816-1-x-16gb-so-dimm-ddr4-3200",
+      "sourceImage": "https://media.solotodo.com/media/products/1233586_picture_1600829627.jpg",
+      "referenceModel": "Kingston KVR32S22S8/16 (1 x 16GB | SO-DIMM DDR4-3200)"
+    },
+    "AMD-CPU-5500": {
+      "file": "assets/861dff5f269d52a20ff3.webp",
+      "sha256": "861dff5f269d52a20ff3e17dd493a151b330e3827344adb5e3e85f5cc8970c5d",
+      "sourcePage": "https://www.solotodo.cl/products/137994-amd-ryzen-5-5500-100-100000457box",
+      "sourceImage": "https://media.solotodo.com/media/products/1580673_picture_1651582928.jpg",
+      "referenceModel": "AMD Ryzen 5 5500 [100-100000457BOX]"
+    },
+    "AMD-CPU-5700X": {
+      "file": "assets/ebc846c723f44ffc3706.webp",
+      "sha256": "ebc846c723f44ffc37061799134c087ba9f253ae1bf0092294f5a1cb29b1e6fa",
+      "sourcePage": "https://www.solotodo.cl/products/135977-amd-ryzen-7-5700x-100-100000926wof",
+      "sourceImage": "https://media.solotodo.com/media/products/1569342_picture_1672268351.jpg",
+      "referenceModel": "AMD Ryzen 7 5700X [100-100000926WOF]"
+    },
+    "AMD-CPU-7600": {
+      "file": "assets/64dc06cf74b12211486c.webp",
+      "sha256": "64dc06cf74b12211486c9a028604c3ca8d90168e434c34a3653f4c8d7ea06750",
+      "sourcePage": "https://www.solotodo.cl/products/166287-amd-ryzen-5-7600-100-100001015box",
+      "sourceImage": "https://media.solotodo.com/media/products/1696740_picture_1673410406.jpg",
+      "referenceModel": "AMD Ryzen 5 7600 [100-100001015BOX]"
+    },
+    "AMD-CPU-7700": {
+      "file": "assets/2f9aecb5b3c008fba54d.webp",
+      "sha256": "2f9aecb5b3c008fba54dae901623ec346244eb73c8f8c46e509f15db7b01782f",
+      "sourcePage": "https://www.solotodo.cl/products/166286-amd-ryzen-7-7700-100-100000592box",
+      "sourceImage": "https://media.solotodo.com/media/products/1696728_picture_1673410464.jpg",
+      "referenceModel": "AMD Ryzen 7 7700 [100-100000592BOX]"
+    },
+    "INT-CPU-i3-12100": {
+      "file": "assets/a5e59d1d3fc78162f2f9.webp",
+      "sha256": "a5e59d1d3fc78162f2f9e8ea6b328efed627b0bada8ac294a3f4fd0ce548f2d6",
+      "sourcePage": "https://www.solotodo.cl/products/142361-intel-core-i3-12100-bx8071512100",
+      "sourceImage": "https://media.solotodo.com/media/products/1606262_picture_1653721520.jpg",
+      "referenceModel": "Intel Core i3-12100 [BX8071512100]"
+    },
+    "INT-CPU-i5-12400F": {
+      "file": "assets/1b8cb73f86f5737f0292.webp",
+      "sha256": "1b8cb73f86f5737f02924829ee5c9270c71ce7a87e397ca24356a45ad4b33159",
+      "sourcePage": "https://www.solotodo.cl/products/127944-intel-core-i5-12400f-bx8071512400f",
+      "sourceImage": "https://media.solotodo.com/media/products/1514024_picture_1640156807.jpg",
+      "referenceModel": "Intel Core i5-12400F [BX8071512400F]"
+    },
+    "INT-CPU-i5-13400": {
+      "file": "assets/0eed4fc6f28f8819c3b3.webp",
+      "sha256": "0eed4fc6f28f8819c3b3c49fa990098ca226332f6507968c76d289743870135e",
+      "sourcePage": "https://www.solotodo.cl/products/178563-intel-core-i5-13400-bx8071513400",
+      "sourceImage": "https://media.solotodo.com/media/products/1719352_picture_1675848872.jpg",
+      "referenceModel": "Intel Core i5-13400 [BX8071513400]"
+    },
+    "INT-CPU-i7-13700": {
+      "file": "assets/36ab8050bd5c782e808c.webp",
+      "sha256": "36ab8050bd5c782e808c15439be0ef61dc760a9e40bec70049e21acce0b61cd6",
+      "sourcePage": "https://www.solotodo.cl/products/179353-intel-core-i7-13700-bx8071513700",
+      "sourceImage": "https://media.solotodo.com/media/products/1721093_picture_1676012506.jpg",
+      "referenceModel": "Intel Core i7-13700 [BX8071513700]"
+    },
+    "MSI-B650-TOMAHAWK": {
+      "file": "assets/fa141121909eab0d7c50.webp",
+      "sha256": "fa141121909eab0d7c5065a51613ecc1666138b49ba1dc94d516a447ecbf5b47",
+      "sourcePage": "https://www.solotodo.cl/products/153079-msi-mag-b650-tomahawk-wifi",
+      "sourceImage": "https://media.solotodo.com/media/products/1653396_picture_1666021029.jpg",
+      "referenceModel": "MSI MAG B650 TOMAHAWK WIFI"
+    },
+    "ASU-B760MA-D4": {
+      "file": "assets/6dad405aa2e080debd93.webp",
+      "sha256": "6dad405aa2e080debd93b4338cbb4839ac273595462e24d79cb6b3c6295de38d",
+      "sourcePage": "https://www.solotodo.cl/products/189885-asus-prime-b760m-a-wifi-d4",
+      "sourceImage": "https://media.solotodo.com/media/products/1737213_picture_1678941922.png",
+      "referenceModel": "ASUS PRIME B760M-A WIFI D4"
+    },
+    "SAP-PULSE-6600": {
+      "file": "assets/a83d16342b781418c963.webp",
+      "sha256": "a83d16342b781418c9638df74ea003445c7c835f9e65649366154fdb81f7eddc",
+      "sourcePage": "https://www.solotodo.cl/products/123220-sapphire-pulse-amd-radeon-rx-6600-11310-01-20g",
+      "sourceImage": "https://media.solotodo.com/media/products/1479248_picture_1634816636.jpg",
+      "referenceModel": "Sapphire PULSE AMD Radeon RX 6600 [11310-01-20G]"
+    },
+    "SAP-PULSE-7600": {
+      "file": "assets/a2e7169b253c74634405.webp",
+      "sha256": "a2e7169b253c746344053067de15e067d912d1e530294646edcf30d7de232e4f",
+      "sourcePage": "https://www.solotodo.cl/products/210456-sapphire-pulse-amd-radeon-rx-7600-8gb-11324-01-20g",
+      "sourceImage": "https://media.solotodo.com/media/products/1767787_picture_1685549207.jpg",
+      "referenceModel": "Sapphire PULSE AMD Radeon RX 7600 8GB [11324-01-20G]"
+    },
+    "SAP-PULSE-7800XT": {
+      "file": "assets/fe98ef576d779733269b.webp",
+      "sha256": "fe98ef576d779733269bb457ef6a6449dfb785f1e158012eb434843563cf898a",
+      "sourcePage": "https://www.solotodo.cl/products/219977-sapphire-pulse-amd-radeon-rx-7800-xt-16gb-11330-02-20g",
+      "sourceImage": "https://media.solotodo.com/media/products/1819750_picture_1695706289.png",
+      "referenceModel": "Sapphire PULSE AMD Radeon RX 7800 XT 16GB [11330-02-20G]"
+    },
+    "COR-CX550": {
+      "file": "assets/33993ec6e321585d620c.webp",
+      "sha256": "33993ec6e321585d620c2dc5e9413778f54996de9db26264048bf7a1017934fe",
+      "sourcePage": "https://www.solotodo.cl/products/239152-corsair-cx-series-cx550-2023-cp-9020277-na-550-w",
+      "sourceImage": "https://media.solotodo.com/media/products/1899914_picture_1712043589.jpg",
+      "referenceModel": "Corsair CX Series CX550 2023 (CP-9020277-NA) (550 W)"
+    },
+    "COR-CX750": {
+      "file": "assets/82e17fed5237e23606d1.webp",
+      "sha256": "82e17fed5237e23606d19112fc0f02fa3e362c1d903e3c7456ab1d13b50f6ad2",
+      "sourcePage": "https://www.solotodo.cl/products/239151-corsair-cx-series-cx750-2023-cp-9020279-na-750-w",
+      "sourceImage": "https://media.solotodo.com/media/products/1899906_picture_1712043196.jpg",
+      "referenceModel": "Corsair CX Series CX750 2023 (CP-9020279-NA) (750 W)"
+    },
+    "COR-RM750E": {
+      "file": "assets/a90a2ee10fbb0aacb56b.webp",
+      "sha256": "a90a2ee10fbb0aacb56bce3c527aea574f26c189cf3899f410d840623062c375",
+      "sourcePage": "https://www.solotodo.cl/products/211837-corsair-rme-series-rm750e-2023-cp-9020262-na-750-w",
+      "sourceImage": "https://media.solotodo.com/media/products/1743962_picture_1680150418.jpg",
+      "referenceModel": "Corsair RMe Series RM750e 2023 (CP-9020262-NA) (750 W)"
+    },
+    "COR-RM850E": {
+      "file": "assets/1202b384b474f4ef02ab.webp",
+      "sha256": "1202b384b474f4ef02ab1013b7f60850a4121b816afecd275648cce4d8b24847",
+      "sourcePage": "https://www.solotodo.cl/products/211836-corsair-rme-series-rm850e-2023-cp-9020263-na-850-w",
+      "sourceImage": "https://media.solotodo.com/media/products/1734444_picture_1678425441.jpg",
+      "referenceModel": "Corsair RMe Series RM850e 2023 (CP-9020263-NA) (850 W)"
+    },
+    "COR-4000D": {
+      "file": "assets/6b444bc5d89d355f31f5.webp",
+      "sha256": "6b444bc5d89d355f31f5fe500d1117ec94fcbc1fc5e79aa32dead1ef8f1b0f28",
+      "sourcePage": "https://www.solotodo.cl/products/87038-corsair-4000d-airflow-black-cc-9011200-ww",
+      "sourceImage": "https://media.solotodo.com/media/products/1237679_picture_1601411489.jpg",
+      "referenceModel": "Corsair 4000D AIRFLOW - Black (CC-9011200-WW)"
+    },
+    "NZXT-H5FLOW": {
+      "file": "assets/5605cbea18691013fc4a.webp",
+      "sha256": "5605cbea18691013fc4afeac95f0b53a6a67333fb837ab2b0c0685ae1361425c",
+      "sourcePage": "https://www.solotodo.cl/products/280723-nzxt-h5-flow-black-cc-h52fb-01",
+      "sourceImage": "https://media.solotodo.com/media/products/2063791",
+      "referenceModel": "NZXT H5 Flow - Black (CC-H52FB-01)"
+    },
+    "CM-NR200": {
+      "file": "assets/1d5846e5121eccc29445.webp",
+      "sha256": "1d5846e5121eccc29445cac767fb17f5cc2ec30b36c94092474c37ca0e6688d5",
+      "sourcePage": "https://www.solotodo.cl/products/97514-cooler-master-masterbox-nr200-mcb-nr200-knnn-s00",
+      "sourceImage": "https://media.solotodo.com/media/products/1318208_picture_1612368218.jpg",
+      "referenceModel": "Cooler Master MasterBox NR200 (MCB-NR200-KNNN-S00)"
+    },
+    "DEE-AK400": {
+      "file": "assets/29f7d1e232bc780b0a48.webp",
+      "sha256": "29f7d1e232bc780b0a485aa138997b39964cca27363bb7dfb9542f1b96f69fc5",
+      "sourcePage": "https://www.solotodo.cl/products/155066-deepcool-ak400",
+      "sourceImage": "https://media.solotodo.com/media/products/1666073_picture_1668145294.jpg",
+      "referenceModel": "Deepcool AK400"
+    },
+    "NOC-NHD15": {
+      "file": "assets/db19ea893e76c405636c.webp",
+      "sha256": "db19ea893e76c405636ce58f9d759c8903746b268316fad923c81a3b75954297",
+      "sourcePage": "https://www.solotodo.cl/products/28558-noctua-nh-d15",
+      "sourceImage": "https://media.solotodo.com/media/products/530159_picture_1474461723.jpg",
+      "referenceModel": "Noctua NH-D15"
+    },
+    "ARC-LFIII240": {
+      "file": "assets/6609a9c1676cd17c9f06.webp",
+      "sha256": "6609a9c1676cd17c9f065efcbc2f583ac672436c44c917bfc2b7743b9f3f0d43",
+      "sourcePage": "https://www.solotodo.cl/products/243975-arctic-liquid-freezer-iii-240-black-acfre00134a",
+      "sourceImage": "https://media.solotodo.com/media/products/1913961_picture_1715770588.jpg",
+      "referenceModel": "Arctic Liquid Freezer III 240 - Black (ACFRE00134A)"
+    },
+    "SAM-G5-27": {
+      "file": "assets/7bb7122c69a9c4b427ca.webp",
+      "sha256": "7bb7122c69a9c4b427ca2b990fc3902de8f1ea7dc9008add10039362a8fa70b7",
+      "sourcePage": "https://www.solotodo.cl/products/169255-samsung-odyssey-g5-lc27g55tqblxzs",
+      "sourceImage": "https://media.solotodo.com/media/products/1700381_picture_1673898643.webp",
+      "referenceModel": "Samsung Odyssey G5 [LC27G55TQBLXZS]"
+    },
+    "LG-27GP850": {
+      "file": "assets/ca08dfa61cb00bbe38e6.webp",
+      "sha256": "ca08dfa61cb00bbe38e6068f2a6bec74d653e7e813ab4fc68d2ffd53a759ad97",
+      "sourcePage": "https://www.solotodo.cl/products/121436-lg-ultragear-27gp850-b",
+      "sourceImage": "https://media.solotodo.com/media/products/1466811_picture_1632993336.jpg",
+      "referenceModel": "LG UltraGear 27GP850-B"
+    },
+    "ASU-MB16AC": {
+      "file": "assets/94c13d6c0a408d045480.webp",
+      "sha256": "94c13d6c0a408d04548062afd944c5542f01799d8757ec3fddf63a71dcb18cd4",
+      "sourcePage": "https://www.solotodo.cl/products/72797-asus-zenscreen-mb16ac",
+      "sourceImage": "https://media.solotodo.com/media/products/1057723_picture_1579868008.jpg",
+      "referenceModel": "ASUS ZenScreen MB16AC"
+    },
+    "LEN-M14": {
+      "file": "assets/be5faef1825c726d625f.webp",
+      "sha256": "be5faef1825c726d625fb404d49839c926bd5067db80d3aab12aa52e706b0434",
+      "sourcePage": "https://www.solotodo.cl/products/113463-lenovo-thinkvision-m14-61dduar6us",
+      "sourceImage": "https://media.solotodo.com/media/products/1408288_picture_1623797779.webp",
+      "referenceModel": "Lenovo ThinkVision M14 [61DDUAR6US]"
+    },
+    "LOG-G413": {
+      "file": "assets/ac2ce1fc611a27426827.webp",
+      "sha256": "ac2ce1fc611a27426827e2ef841bba2841a7e6cadfa04641c6b45bb39d43cf88",
+      "sourcePage": "https://www.solotodo.cl/products/45918-logitech-g413-mechanical-backlit-gaming-keyboard-carbon-920-008300",
+      "sourceImage": "https://media.solotodo.com/media/products/755924_picture_1631278697.jpg",
+      "referenceModel": "Logitech G413 Mechanical Backlit Gaming Keyboard - Carbon (920-008300)"
+    },
+    "LOG-G502HERO": {
+      "file": "assets/a5499dc2f3618395b0fe.webp",
+      "sha256": "a5499dc2f3618395b0fe2e3a4d7b0c5b868e166de439cc30472862ea47fcfeb8",
+      "sourcePage": "https://www.solotodo.cl/products/51795-logitech-g502-hero-910-005550-910-005470-910-005469",
+      "sourceImage": "https://media.solotodo.com/media/products/824987_picture_1625755678.png",
+      "referenceModel": "Logitech G502 Hero (910-005550 / 910-005470 / 910-005469)"
+    },
+    "LOG-M170": {
+      "file": "assets/5f1dd572db3175fb01a6.webp",
+      "sha256": "5f1dd572db3175fb01a63fc22dbfb7997750d5774f0c73fe70e1fc47f07200bb",
+      "sourcePage": "https://www.solotodo.cl/products/29135-logitech-m170-negro-910-004425-910-004940",
+      "sourceImage": "https://media.solotodo.com/media/products/540590_picture_1477074590.jpg",
+      "referenceModel": "Logitech M170 - Negro (910-004425 / 910-004940)"
+    },
+    "LOG-H340": {
+      "file": "assets/03cfc0da63475977a151.webp",
+      "sha256": "03cfc0da63475977a1512913effce48c23b12992e0e14c32852a2a0903e1dbc5",
+      "sourcePage": "https://www.solotodo.cl/products/110006-logitech-h340-usb-computer-headset-981-000507",
+      "sourceImage": "https://media.solotodo.com/media/products/1391188_picture_1621006774.jpg",
+      "referenceModel": "Logitech H340 USB Computer Headset (981-000507)"
+    },
+    "TPL-T2UNANO": {
+      "file": "assets/e2aa3840a8b6676ec291.webp",
+      "sha256": "e2aa3840a8b6676ec291ba99ee6b08bab7130883f77cf52fa98fb47750a0790b",
+      "sourcePage": "https://www.solotodo.cl/products/382204-tp-link-archer-t2u-nano-t2u-nano",
+      "sourceImage": "https://media.solotodo.com/media/products/2195342.jpg",
+      "referenceModel": "TP-Link Archer T2U Nano [T2U Nano]"
+    },
+    "TPL-T3U": {
+      "file": "assets/c144b85d41ef3cebb3e5.webp",
+      "sha256": "c144b85d41ef3cebb3e56e533c7fbdbb40dfe91c2790f75fa812526b6612bd5b",
+      "sourcePage": "https://www.solotodo.cl/products/382272-tp-link-archer-t3u-t3u",
+      "sourceImage": "https://media.solotodo.com/media/products/2703853_picture_1771937629.jpg",
+      "referenceModel": "TP-Link Archer T3U [T3U]"
+    },
+    "KIN-NV3-500": {
+      "file": "assets/70b49e3b8afe0718e7b9.webp",
+      "sha256": "70b49e3b8afe0718e7b9ac4c9b9a1c6733175a2f6c8f45759e58079f69c136ab",
+      "sourcePage": "https://www.solotodo.cl/products/253375-kingston-nv3-500-gb-snv3s500g",
+      "sourceImage": "https://media.solotodo.com/media/products/1948258_picture_1724532007.jpg",
+      "referenceModel": "Kingston NV3 500 GB (SNV3S/500G)"
+    },
+    "KIN-NV3-1000": {
+      "file": "assets/c195bd90c4afc9d616ed.webp",
+      "sha256": "c195bd90c4afc9d616ed1c150dd0d5292f91eb9da66f8ef088d1d3db32b7b87d",
+      "sourcePage": "https://www.solotodo.cl/products/253373-kingston-nv3-1-tb-snv3s1000g",
+      "sourceImage": "https://media.solotodo.com/media/products/1948236_picture_1724531834.jpg",
+      "referenceModel": "Kingston NV3 1 TB (SNV3S/1000G)"
+    },
+    "KIN-NV3-2000": {
+      "file": "assets/cf949cc4271feaa9cc87.webp",
+      "sha256": "cf949cc4271feaa9cc87327f9cedc08db0fa310d6473de86b1ee5b858d69736a",
+      "sourcePage": "https://www.solotodo.cl/products/253374-kingston-nv3-2-tb-snv3s2000g",
+      "sourceImage": "https://media.solotodo.com/media/products/1948249_picture_1724531921.jpg",
+      "referenceModel": "Kingston NV3 2 TB (SNV3S/2000G)"
+    },
+    "KIN-KC600-512": {
+      "file": "assets/c95097c22b4243af031e.webp",
+      "sha256": "c95097c22b4243af031eed7b180fcba02797aa8a6f73163404d644d2ae50c3e8",
+      "sourcePage": "https://www.solotodo.cl/products/68883-kingston-kc600-512-gb-skc600512g",
+      "sourceImage": "https://media.solotodo.com/media/products/1016617_picture_1574193167.jpg",
+      "referenceModel": "Kingston KC600 512 GB (SKC600/512G)"
+    },
+    "KIN-FURY-DDR4-16": {
+      "file": "assets/d11d56de7da65430d52e.webp",
+      "sha256": "d11d56de7da65430d52eb767c62542ac175a16838da22e2c5b92493533105e6d",
+      "sourcePage": "https://www.solotodo.cl/products/117455-kingston-fury-beast-kf432c16bb116-1-x-16gb-dimm-ddr4-3200",
+      "sourceImage": "https://media.solotodo.com/media/products/1437078_picture_1628627252.jpg",
+      "referenceModel": "Kingston Fury Beast KF432C16BB1/16 (1 x 16GB | DIMM DDR4-3200)"
+    },
+    "KIN-FURY-DDR5-32": {
+      "file": "assets/fd5b71cacf99ec3bf788.webp",
+      "sha256": "fd5b71cacf99ec3bf788421aab72ef0e2b7734c842ef0343445cf24e4b873e78",
+      "sourcePage": "https://www.solotodo.cl/products/264856-kingston-fury-beast-kf560c30bbek2-32-2-x-16-gb-dimm-ddr5-6000",
+      "sourceImage": "https://media.solotodo.com/media/products/2012660_picture_1737639746.png",
+      "referenceModel": "Kingston Fury Beast KF560C30BBEK2-32 (2 x 16 GB | DIMM DDR5-6000)"
+    },
+    "AMD-R5-5600": {
+      "file": "assets/eb0a3c61e92c5864c77f.webp",
+      "sha256": "eb0a3c61e92c5864c77ffb1c8507b2d0e5032db802e890d1c318e1de37574c9e",
+      "sourcePage": "https://www.solotodo.cl/products/135981-amd-ryzen-5-5600-100-100000927box",
+      "sourceImage": "https://media.solotodo.com/media/products/1569395_picture_1672268277.jpg",
+      "referenceModel": "AMD Ryzen 5 5600 [100-100000927BOX]"
+    },
+    "INT-I5-12400": {
+      "file": "assets/1b8cb73f86f5737f0292.webp",
+      "sha256": "1b8cb73f86f5737f02924829ee5c9270c71ce7a87e397ca24356a45ad4b33159",
+      "sourcePage": "https://www.solotodo.cl/products/127943-intel-core-i5-12400-bx8071512400",
+      "sourceImage": "https://media.solotodo.com/media/products/1514024_picture_1640156807.jpg",
+      "referenceModel": "Intel Core i5-12400 [BX8071512400]"
+    },
+    "DEL-P2422H": {
+      "file": "assets/4c651242360d69ac5bc3.webp",
+      "sha256": "4c651242360d69ac5bc342dfb9b8ab32cd896de51ce5b8823eca06e93620f881",
+      "sourcePage": "https://www.solotodo.cl/products/111292-dell-p2422h-210-bbcc",
+      "sourceImage": "https://media.solotodo.com/media/products/1396688_picture_1621934385.jpg",
+      "referenceModel": "Dell P2422H [210-BBCC]"
+    },
+    "LG-24GN600": {
+      "file": "assets/62f2744868b2eb7fff27.webp",
+      "sha256": "62f2744868b2eb7fff27db153a0bc112ccc9665bcd47e70cbee9a5f1155b51b3",
+      "sourcePage": "https://www.solotodo.cl/products/105481-lg-ultragear-24gn600-b",
+      "sourceImage": "https://media.solotodo.com/media/products/1365181_picture_1618262440.jpg",
+      "referenceModel": "LG UltraGear 24GN600-B"
+    },
+    "LOG-K380": {
+      "file": "assets/bcd6a730ddd7fd92fcfa.webp",
+      "sha256": "bcd6a730ddd7fd92fcfa792ed5ae77a2a9e74e834dca521acc2cd205d223eefa",
+      "sourcePage": "https://www.solotodo.cl/products/45775-logitech-bluetooth-multi-device-k380-black-920-007562-920-007558",
+      "sourceImage": "https://media.solotodo.com/media/products/754594_picture_1528247244.jpg",
+      "referenceModel": "Logitech Bluetooth Multi-Device K380 - Black (920-007562 / 920-007558)"
+    },
+    "TPL-C64": {
+      "file": "assets/b08da6284fb52a8c58ec.webp",
+      "sha256": "b08da6284fb52a8c58ec27f2347e0ea52a198c5d79d408186c3bcdcd8bd3a9c8",
+      "sourcePage": "https://www.solotodo.cl/products/369350-tp-link-archer-c64-archer-c64",
+      "sourceImage": "https://media.solotodo.com/media/products/2625483_picture_1768502352.jpg",
+      "referenceModel": "TP-Link Archer C64 [ARCHER C64]"
+    },
+    "APP-MINI-M4-16-256": {
+      "file": "assets/17a974b551838386be0e.webp",
+      "sha256": "17a974b551838386be0e5338c22342f0bff86dc7398af872eb626ff38a44caaa",
+      "sourcePage": "https://support.apple.com/en-us/121555",
+      "sourceImage": "https://cdsassets.apple.com/live/7WUAS350/images/tech-specs/mac-mini-2024.png"
+    },
+    "LOG-MX3S": {
+      "file": "assets/55f36a62fa9189f222d3.webp",
+      "sha256": "55f36a62fa9189f222d399378714a4e4541f746f3b6cf7e313225b4c76d72b77",
+      "sourcePage": "https://www.logitech.com/en-us/shop/p/mx-master-3s",
+      "sourceImage": "https://resource.logitech.com/c_fill,q_auto,f_auto,dpr_1.0/d_transparent.gif/content/dam/logitech/en/products/mice/mx-master-3s/2025-update/mx-master-3s-bluetooth-edition-left-front-view-graphite-new-8.png"
+    },
+    "SAM-990PRO-4000": {
+      "file": "assets/c7c04da06598d6b83de8.webp",
+      "sha256": "c7c04da06598d6b83de817a888d568e54e5cf707f7bb23dc1b8711c6c2ce5b8d",
+      "sourcePage": "https://www.solotodo.cl/products/158336-samsung-990-pro-2-tb-mz-v9p2t0bw",
+      "sourceImage": "https://media.solotodo.com/media/products/1682072_picture_1671099017.webp",
+      "note": "Imagen de referencia de la familia 990 PRO sin disipador; la capacidad de esta ficha es 4 TB."
+    },
+    "DEL-G2724D": {
+      "file": "assets/305a6b3d0b4305282b23.webp",
+      "sha256": "305a6b3d0b4305282b23837779d17f6ab305d7581a3751bbebfad9f2b495d6ba",
+      "sourcePage": "https://www.dell.com/en-us/shop/monitors/ar/8141/pivot-rotation?appliedRefinements=45566",
+      "sourceImage": "https://i.dell.com/is/image/DellContent/content/dam/ss2/product-images/dell-client-products/peripherals/monitors/g-series/g2724d/media-gallery/monitor-g2724d-black-gallery-1.psd?fmt=png-alpha&hei=1000&qlt=90"
+    },
+    "AOC-24G2SP": {
+      "file": "assets/2a81dafb2ee11767ffdc.webp",
+      "sha256": "2a81dafb2ee11767ffdcbc65d51e145b49eed4c5c2a132181cb52171faeccfa5",
+      "sourcePage": "https://www.aoc.com/us/gaming/monitors/24g2sp",
+      "sourceImage": "https://cdn.sanity.io/images/hf5b3axp/production/d711ca9aaf71f961f8ab64eff8d6624d4d532839-3840x3840.png?w=1536&fit=max&auto=format"
+    },
+    "TPL-TX20UPLUS": {
+      "file": "assets/6446ee9f10c14d7f1f06.webp",
+      "sha256": "6446ee9f10c14d7f1f067d473872f0a86173680d5454580ff7404e844048f97b",
+      "sourcePage": "https://www.tp-link.com/us/home-networking/usb-adapter/archer-tx20u-plus/",
+      "sourceImage": "https://static.tp-link.com/upload/image-line/Archer_TX20U_Plus_2000px_large_20230809095804r.jpg"
+    },
+    "LOG-C920": {
+      "file": "assets/a4aceb3962147b996892.webp",
+      "sha256": "a4aceb3962147b99689290c79e304f1deadc9a1742817c70cbb0146c3464269e",
+      "sourcePage": "https://www.visunext.nl/p/logitech-c920-webcam-1000011950/",
+      "sourceImage": "https://images.visunextgroup.com/images/D/original/2/1000011950/nl/logitech/Logitech-C920-HD-PRO-webcam.jpg"
+    },
+    "TRA-110S-128": {
+      "file": "assets/bb2e39e5b3ebcf7e3682.webp",
+      "sha256": "bb2e39e5b3ebcf7e36829c604ba037c030c9236fd5f7b02f2bc632384b9cde23",
+      "sourcePage": "https://www.dateks.lv/en/cenas/cietie-diski-ssd/228937-transcend-mte110s-128gb-m-2-gen3-x4",
+      "sourceImage": "https://www.dateks.lv/images/pic/2400/2400/014/438.jpg",
+      "note": "Imagen de referencia de la familia MTE110S; consultar capacidad en la ficha."
+    },
+    "TRA-110S-256": {
+      "file": "assets/bb2e39e5b3ebcf7e3682.webp",
+      "sha256": "bb2e39e5b3ebcf7e36829c604ba037c030c9236fd5f7b02f2bc632384b9cde23",
+      "sourcePage": "https://www.dateks.lv/en/cenas/cietie-diski-ssd/228937-transcend-mte110s-128gb-m-2-gen3-x4",
+      "sourceImage": "https://www.dateks.lv/images/pic/2400/2400/014/438.jpg",
+      "note": "Imagen de referencia de la familia MTE110S; consultar capacidad en la ficha."
+    },
+    "TRA-110S-512": {
+      "file": "assets/bb2e39e5b3ebcf7e3682.webp",
+      "sha256": "bb2e39e5b3ebcf7e36829c604ba037c030c9236fd5f7b02f2bc632384b9cde23",
+      "sourcePage": "https://www.dateks.lv/en/cenas/cietie-diski-ssd/228937-transcend-mte110s-128gb-m-2-gen3-x4",
+      "sourceImage": "https://www.dateks.lv/images/pic/2400/2400/014/438.jpg",
+      "note": "Imagen de referencia de la familia MTE110S; consultar capacidad en la ficha."
+    },
+    "TRA-110S-1000": {
+      "file": "assets/bb2e39e5b3ebcf7e3682.webp",
+      "sha256": "bb2e39e5b3ebcf7e36829c604ba037c030c9236fd5f7b02f2bc632384b9cde23",
+      "sourcePage": "https://www.dateks.lv/en/cenas/cietie-diski-ssd/228937-transcend-mte110s-128gb-m-2-gen3-x4",
+      "sourceImage": "https://www.dateks.lv/images/pic/2400/2400/014/438.jpg",
+      "note": "Imagen de referencia de la familia MTE110S; consultar capacidad en la ficha."
+    },
+    "LG-24MP400": {
+      "file": "assets/c342c74aee47b89ad05b.webp",
+      "sha256": "c342c74aee47b89ad05babbabfd164b3efc9efb84fb928a8fb0ad2423cadd141",
+      "sourcePage": "https://www.solotodo.cl/products/131980-lg-24mp400-b",
+      "sourceImage": "https://media.solotodo.com/media/products/1543896_picture_1644935158.webp"
+    },
+    "LG-27UL500": {
+      "file": "assets/bf040597f3eb3786fe5f.webp",
+      "sha256": "bf040597f3eb3786fe5ff43024537b235a825c45869b3e11966adcc67f2c44b2",
+      "sourcePage": "https://www.solotodo.cl/products/61973-lg-27ul500-w",
+      "sourceImage": "https://media.solotodo.com/media/products/937788_picture_1559851659.jpg"
+    },
+    "STA-HDMI-1M": {
+      "file": "assets/d66b9571e14b70c5b0b4.webp",
+      "sha256": "d66b9571e14b70c5b0b4e50376c298e6eb8140d76d2f267ba8dc280af194bb1c",
+      "sourcePage": "https://www.novatech.co.uk/products/startech-com-2m-high-speed-hdmi-cable-hdmi-mm-1-x-hdmi-male-digital-audiovideo/hdmm2m.html",
+      "sourceImage": "https://content.etilize.com/2000/1023443911.jpg",
+      "note": "Imagen de referencia de la familia HDMM, compartida entre longitudes. Consultar longitud en la ficha."
+    },
+    "STA-HDMI-2M": {
+      "file": "assets/d66b9571e14b70c5b0b4.webp",
+      "sha256": "d66b9571e14b70c5b0b4e50376c298e6eb8140d76d2f267ba8dc280af194bb1c",
+      "sourcePage": "https://www.novatech.co.uk/products/startech-com-2m-high-speed-hdmi-cable-hdmi-mm-1-x-hdmi-male-digital-audiovideo/hdmm2m.html",
+      "sourceImage": "https://content.etilize.com/2000/1023443911.jpg",
+      "note": "Imagen de referencia de la familia HDMM, compartida entre longitudes. Consultar longitud en la ficha."
+    },
+    "STA-HDMI-3M": {
+      "file": "assets/d66b9571e14b70c5b0b4.webp",
+      "sha256": "d66b9571e14b70c5b0b4e50376c298e6eb8140d76d2f267ba8dc280af194bb1c",
+      "sourcePage": "https://www.novatech.co.uk/products/startech-com-2m-high-speed-hdmi-cable-hdmi-mm-1-x-hdmi-male-digital-audiovideo/hdmm2m.html",
+      "sourceImage": "https://content.etilize.com/2000/1023443911.jpg",
+      "note": "Imagen de referencia de la familia HDMM, compartida entre longitudes. Consultar longitud en la ficha."
+    }
+  }
+}

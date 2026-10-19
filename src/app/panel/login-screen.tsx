@@ -1,4 +1,5 @@
 'use client';
+import TechnologySignature from '../technology-signature';
 import {useState,type FormEvent} from 'react';
 import styles from './login.module.css';
 
@@ -31,7 +32,7 @@ export default function LoginScreen({company,busy,checking,message,onSubmit}:{co
         </form>}
       </section>
       <p className={styles.support}>¿Necesitas acceso? Contacta al administrador de tu empresa.</p>
-      <footer className={styles.footer}>Impulsado con tecnología <strong>Nexo</strong></footer>
+      <footer className={styles.footer}><TechnologySignature/></footer>
     </div>
   </main>;
 }

@@ -5,6 +5,7 @@ import {Pool} from 'pg';
 import {migrate} from './migrate';
 import {backupDatabase} from './backup-store';
 import {demoProducts} from './demo-products';
+import {loadDemoImages,applyDemoImages} from './demo-images';
 import {readCategories,validateProductMetadata} from '../src/server/categories';
 import {transaction} from '../src/server/db';
 import {audit} from '../src/server/audit';
@@ -13,8 +14,9 @@ import type {Actor} from '../src/server/auth';
 
 // Maintenance command for the explicitly identified local demo. Never exposed as an HTTP route.
 const mode=process.argv[2];
-if(process.env.NODE_ENV==='production'||process.argv.length!==3||!['--replace','--fill'].includes(mode))throw new Error('Usar demo:seed -- --fill o --replace solo para la demostración local');
+if(process.env.NODE_ENV==='production'||process.argv.length!==3||!['--replace','--fill','--images'].includes(mode))throw new Error('Usar demo:seed -- --fill, --images o --replace solo para la demostración local');
 if(new Set(demoProducts.map(p=>p.sku)).size!==demoProducts.length)throw new Error('La semilla contiene SKU duplicados');
+const images=await loadDemoImages();
 const root=resolve('.nexo');
 const config=JSON.parse(await readFile(join(root,'dev.json'),'utf8'));
 const access=JSON.parse(await readFile(join(root,'prismabyte-access.json'),'utf8'));
@@ -51,7 +53,7 @@ try{
   let added=0;
   let units=0;
   for(const [index,product] of demoProducts.entries()){
-   if(existing.has(product.sku))continue;
+   if(mode==='--images'||existing.has(product.sku))continue;
    added++;
    const id=randomUUID(),categoryId=categoryIds.get(product.category)!;
    await db.query('INSERT INTO products(id,company_id,sku,name,description,price_minor,category_id,specifications) VALUES($1,$2,$3,$4,$5,$6,$7,$8)',[id,actor.company_id,product.sku,product.name,'Producto de demostración. Precio y existencias simulados; no constituyen una oferta comercial.',product.price,categoryId,JSON.stringify(product.specifications)]);
@@ -66,13 +68,14 @@ try{
     units+=quantity;
    }
   }
+  const imagesAdded=await applyDemoImages(db,actor.company_id,'prismabyte',images);
   for(const table of tables)if(foreignCounts[table]!==Number((await db.query(`SELECT count(*) FROM ${table} WHERE company_id<>$1`,[actor.company_id])).rows[0].count))throw new Error('Se modificaron datos fuera de la demo');
   const invalid=await db.query(`SELECT 1 FROM stock s WHERE s.company_id=$1 AND (s.on_hand<>COALESCE((SELECT sum(m.delta) FROM stock_movements m WHERE m.company_id=s.company_id AND m.product_id=s.product_id AND m.location_id=s.location_id),0))`,[actor.company_id]);
   if(invalid.rowCount)throw new Error('Libro de stock inconsistente');
   const totals=(await db.query('SELECT count(*) AS products FROM products WHERE company_id=$1',[actor.company_id])).rows[0];
   const stockTotals=(await db.query('SELECT COALESCE(sum(on_hand),0) AS units,COALESCE(sum(reserved),0) AS reserved FROM stock WHERE company_id=$1',[actor.company_id])).rows[0];
-  await audit(db,actor,mode==='--fill'?'DEMO_CATALOG_FILLED':'DEMO_CATALOG_REPLACED',actor.company_id,{removed,added,seededProducts:demoProducts.length,addedUnits:units});
-  return {company:'prismabyte',mode,products:Number(totals.products),seededProducts:demoProducts.length,added,categories:categories.length,locations:locations.length,units:Number(stockTotals.units),reserved:Number(stockTotals.reserved),addedUnits:units,removed};
+  await audit(db,actor,mode==='--images'?'DEMO_IMAGES_ADDED':mode==='--fill'?'DEMO_CATALOG_FILLED':'DEMO_CATALOG_REPLACED',actor.company_id,{removed,added,imagesAdded,seededProducts:demoProducts.length,addedUnits:units});
+  return {company:'prismabyte',mode,imagesAdded,products:Number(totals.products),seededProducts:demoProducts.length,added,categories:categories.length,locations:locations.length,units:Number(stockTotals.units),reserved:Number(stockTotals.reserved),addedUnits:units,removed};
  });
  await writeFile(join(root,'prismabyte-taxonomy-seed.json'),JSON.stringify({...result,backup,appliedAt:new Date().toISOString()},null,2)+'\n');
  console.log(JSON.stringify({...result,backup}));
