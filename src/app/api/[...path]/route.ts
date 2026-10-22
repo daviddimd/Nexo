@@ -7,7 +7,7 @@ import {dashboardSummary} from '../../../server/dashboard';
 import {database} from '../../../server/db';
 import {authenticate,login,digest,staff,owner} from '../../../server/auth';
 import {applyOperation} from '../../../server/inventory';
-import {publicCatalog,inventory,inventoryMatrix,managedProducts,inventoryFacets,history} from '../../../server/catalog';
+import {publicCatalog,publicFacets,inventory,inventoryMatrix,managedProducts,inventoryFacets,history} from '../../../server/catalog';
 import {createProduct,patchProduct,createLocation,patchLocation,createUser} from '../../../server/manage';
 import {body,rawJsonBody,sameOrigin,json,failure,pagination} from '../../../server/http';
 import {loginSchema,operationSchema,uuid} from '../../../server/schemas';
@@ -49,8 +49,9 @@ async function handle(request:Request,context:Context) {
     }
     if(route==='ready'&&method==='GET'){await pool.query('SELECT 1 FROM license_imports LIMIT 1');return json({status:'ready'});}
     if(path.length===3&&path[0]==='public'&&path[2]==='settings'&&method==='GET')return json(await publicSettings(pool,path[1]));
+    if(path.length===3&&path[0]==='public'&&path[2]==='facets'&&method==='GET')return json(await publicFacets(pool,path[1],Object.fromEntries(new URL(request.url).searchParams)));
     if(path.length===3&&path[0]==='public'&&path[2]==='catalog'&&method==='GET') {
-      const {limit,offset}=pagination(new URL(request.url));return json(await publicCatalog(pool,path[1],limit,offset));
+      const {limit,offset}=pagination(new URL(request.url));return json(await publicCatalog(pool,path[1],limit,offset,Object.fromEntries([...new URL(request.url).searchParams].filter(([key])=>!['limit','offset'].includes(key)))));
     }
     if(path.length===4&&path[0]==='public'&&path[2]==='products'&&method==='GET')return json(await publicProductDetail(pool,path[1],uuid.parse(path[3])));
     if(path.length===5&&path[0]==='public'&&path[2]==='products'&&path[4]==='image'&&method==='GET')return publicProductImage(pool,path[1],uuid.parse(path[3]));

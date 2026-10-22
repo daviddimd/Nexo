@@ -5,15 +5,17 @@ import type {ProductDetail as Detail} from '../server/product-detail';
 import {specificationLabel} from '../catalog/taxonomy';
 import ProfileMenu from './profile-menu';
 import ProductPurchase from './tienda/product-purchase';
+import {storeLogo,storeTheme} from './tienda/store-identity';
 import styles from './product-detail.module.css';
 export default function ProductDetail({data,user,from='inventory'}:{data:Detail;user?:{name:string;role:string};from?:'inventory'|'products'}){
  const {company,product,fields,availability,categoryPath}=data;
+ const publicLogo=storeLogo(company.slug,company.logo_url);
  const back=user?`/panel?seccion=${from}`:`/tienda?empresa=${encodeURIComponent(company.slug)}`;
  const available=availability.filter(l=>l.active).reduce((sum,l)=>sum+l.available,0);
  const populated=fields.filter(field=>product.specifications[field.key]!==undefined);
  const money=new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0}).format(BigInt(product.price_minor));
- return <main className={styles.page} style={{'--product-color':user?'var(--nexo-primary)':company.primary_color??'var(--nexo-primary)'} as CSSProperties}>
-  <header className={styles.header}>{user?<Link className={styles.logo} href="/panel?seccion=home" aria-label="Nexo, inicio">nexo<span>.</span></Link>:<Link className={styles.company} href={back}>{company.logo_url?<img src={company.logo_url} alt={company.name}/>:company.name}</Link>}{user?<ProfileMenu name={user.name} role={user.role}/>:<span className={styles.headerLabel}>Catálogo de productos</span>}</header>
+ return <main className={`${styles.page} ${!user?styles.storeTheme:''}`} style={{...(!user?storeTheme(company.slug,company.primary_color):{}),'--product-color':'var(--nexo-primary)'} as CSSProperties}>
+  <header className={styles.header}>{user?<Link className={styles.logo} href="/panel?seccion=home" aria-label="Nexo, inicio">nexo<span>.</span></Link>:<Link className={styles.company} href={back}>{publicLogo?<img src={publicLogo} alt={company.name}/>:company.name}</Link>}{user?<ProfileMenu name={user.name} role={user.role}/>:<span className={styles.headerLabel}>Catálogo de productos</span>}</header>
   <Link className={styles.back} href={back} prefetch={false}>← {user?(from==='products'?'Volver a productos':'Volver al inventario'):'Volver al catálogo'}</Link>
   <div className={styles.hero}>
    <div className={styles.image}>{product.image_url?<img src={product.image_url} alt={product.name}/>:<div className={styles.placeholder}><svg width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" aria-hidden="true"><path d="m12 3 9 5v8l-9 5-9-5V8l9-5Z M3 8l9 5 9-5 M12 13v8 M7.5 5.5l9 5"/></svg><span>Imagen no disponible</span></div>}</div>

@@ -1,0 +1,65 @@
+'use client';
+import Link from 'next/link';
+import ProductCarousel from './product-carousel';
+import CategoryMenu from './category-menu';
+import StoreSearch from './store-search';
+import StoreTraits from './store-traits';
+import {storeLogo} from './store-identity';
+import {useEffect,useState,type ReactNode} from 'react';
+import {ActionIcon,IconButton} from '../action-icon';
+import {specificationLabel,type Category} from '../../catalog/taxonomy';
+import type {StoreProduct} from './cart-context';
+import styles from './storefront.module.css';
+export type StoreFilters={q:string;categoryId:string;priceMin:string;priceMax:string;available:string;sort:string;specs:Record<string,string|number|boolean>};
+export const emptyStoreFilters:StoreFilters={q:'',categoryId:'',priceMin:'',priceMax:'',available:'all',sort:'name_asc',specs:{}};
+export type StoreLocation={id:string;name:string;kind:string;shipping_enabled:boolean};
+const money=(value:string)=>new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0}).format(BigInt(value));
+function ShopIcon({kind}:{kind:'cart'|'box'|'truck'|'search'}){return <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{kind==='cart'?<><path d="M3 3h2l2.5 12h11l2-8H6"/><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/></>:kind==='search'?<><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></>:kind==='truck'?<><path d="M2 5h12v12H2zM14 9h4l4 5v3h-8"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></>:<path d="m12 3 9 5v8l-9 5-9-5V8l9-5ZM3 8l9 5 9-5M12 13v8M7.5 5.5l9 5"/>}</svg>}
+type Props={slug:string;company:{name:string;about?:string;logo_url?:string};products:StoreProduct[];categories:Category[];locations:StoreLocation[];busy:boolean;locked:boolean;notice:string;page:number;filters:StoreFilters;cartCount:number;account:ReactNode;onCart:()=>void;onFilter:(filters:StoreFilters)=>void;onPage:(page:number)=>void;onAdd:(product:StoreProduct)=>boolean;onPurchases?:()=>void};
+export default function StoreCatalog({slug,company,products,categories,locations,busy,locked,notice,page,filters,cartCount,account,onCart,onFilter,onPage,onAdd,onPurchases}:Props){
+ const [draft,setDraft]=useState(filters),[showFilters,setShowFilters]=useState(false),[lastAdded,setLastAdded]=useState('');
+ const [highlights]=useState(()=>{
+  const available=products.filter(product=>product.image_url&&product.availability.some(location=>location.available>0));
+  const priority=['notebooks','monitores-escritorio','tarjetas-graficas','procesadores','placas-madre'];
+  const rank=(product:StoreProduct)=>{const value=priority.indexOf(categories.find(category=>category.id===product.category_id)?.slug??'');return value<0?priority.length:value;};
+  const seen=new Set<string>();return [...available].sort((a,b)=>rank(a)-rank(b)).filter(product=>{const key=product.category_id??product.id;if(seen.has(key))return false;seen.add(key);return true;}).slice(0,5);
+ });
+ useEffect(()=>{if(!lastAdded)return;const timer=setTimeout(()=>setLastAdded(''),1800);return()=>clearTimeout(timer);},[lastAdded]);
+ function scrollToCatalog(){document.getElementById('catalogo')?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});}
+ function apply(next:StoreFilters){onFilter(next);setShowFilters(false);}
+ function clear(){const next={...emptyStoreFilters,specs:{}};setDraft(next);apply(next);}
+
+ const roots=categories.filter(category=>!category.parent_id),selected=categories.find(category=>category.id===draft.categoryId);
+ function changeCategory(id:string){const next={...draft,categoryId:id,specs:{}};setDraft(next);onFilter(next);}
+ const disabled=busy||locked;
+ const logo=storeLogo(slug,company.logo_url);
+ const activeCategory=categories.find(category=>category.id===filters.categoryId);
+ const activeChips=[...(filters.q?[{key:'q',label:`Búsqueda: ${filters.q}`}]:[]),...(activeCategory?[{key:'categoryId',label:activeCategory.name}]:[]),...(filters.priceMin?[{key:'priceMin',label:`Desde ${money(filters.priceMin)}`}]:[]),...(filters.priceMax?[{key:'priceMax',label:`Hasta ${money(filters.priceMax)}`}]:[]),...(filters.available==='available'?[{key:'available',label:'Con stock'}]:[]),...Object.entries(filters.specs).map(([key,value])=>{const field=activeCategory?.fields.find(item=>item.key===key);return {key:'spec:'+key,label:field?`${field.label}: ${specificationLabel(field,value)}`:String(value)};})];
+ function removeChip(key:string){const next={...filters,specs:{...filters.specs}};if(key.startsWith('spec:'))delete next.specs[key.slice(5)];else if(key==='categoryId'){next.categoryId='';next.specs={};}else if(key==='available')next.available='all';else if(key==='q'||key==='priceMin'||key==='priceMax')next[key]='';if(key==='spec:brand')delete next.specs.model;setDraft(next);apply(next);}
+
+ return <>
+  <a className={styles.skipLink} href="#catalogo">Ir al catálogo</a>
+  <div className={styles.chrome}>
+  <header className={styles.header}>
+   <Link className={styles.company} href={`/tienda?empresa=${encodeURIComponent(slug)}`} prefetch={false}>{logo?<img src={logo} alt={company.name}/>:<><span className={styles.companyMark} aria-hidden="true">{company.name.slice(0,1)}</span><span>{company.name}</span></>}</Link>
+   <StoreSearch className={styles.search} slug={slug} value={draft.q} disabled={disabled} onChange={q=>setDraft({...draft,q})} onSearch={()=>{apply(draft);scrollToCatalog();}}/>
+   <div className={styles.account}>{account}<button className={styles.cartButton} aria-label={`Abrir carrito, ${cartCount} ${cartCount===1?'unidad':'unidades'}`} disabled={busy} onClick={onCart}><ShopIcon kind="cart"/><span>Carrito</span><b>{cartCount}</b></button></div>
+  </header>
+  <nav className={styles.categories} aria-label="Categorías de productos"><button disabled={disabled} aria-current={!filters.categoryId?'page':undefined} onClick={()=>changeCategory('')}>Todo el catálogo</button>{roots.map(category=><CategoryMenu key={category.id} category={category} categories={categories} active={filters.categoryId} disabled={disabled} onChoose={id=>{changeCategory(id);scrollToCatalog();}}/>)}{onPurchases&&<button onClick={onPurchases}>Mis compras</button>}</nav>
+  </div>
+  <ProductCarousel products={highlights} slug={slug} disabled={disabled}/>
+
+  <div className={styles.benefits}><div><ShopIcon kind="box"/><span><strong>Retira en sucursal</strong><small>Elige dónde buscar tu compra</small></span></div><div><ShopIcon kind="truck"/><span><strong>¿Necesitas un envío?</strong><small>Cotiza el despacho antes de pagar</small></span></div><div><ActionIcon name="company"/><span><strong>Disponibilidad a la vista</strong><small>Consulta stock web y en tiendas</small></span></div></div>
+  <div className={styles.catalogHeading} id="catalogo"><div><span className={styles.eyebrow}>EL CATÁLOGO</span><h2>{activeCategory?.name||'Encuentra tu próxima actualización'}</h2></div><label>Ordenar por<select value={filters.sort} disabled={disabled} onChange={event=>{const next={...filters,sort:event.target.value};setDraft(next);onFilter(next);}}><option value="name_asc">Nombre: A–Z</option><option value="price_asc">Menor precio</option><option value="price_desc">Mayor precio</option></select></label></div>
+  {activeChips.length>0&&<div className={styles.activeFilters} aria-label="Filtros aplicados">{activeChips.map(chip=><button key={chip.key} disabled={disabled} onClick={()=>removeChip(chip.key)} aria-label={`Quitar filtro ${chip.label}`}>{chip.label}<span aria-hidden="true">×</span></button>)}<button className={styles.clearAll} disabled={disabled} onClick={clear}>Limpiar todo</button></div>}
+  <p className={styles.notice} role="status" aria-live="polite">{busy?'Actualizando catálogo…':notice}</p>
+  <div className={styles.catalogLayout} aria-busy={busy}>
+   <button className={styles.filterToggle} aria-expanded={showFilters} aria-controls="store-filters" onClick={()=>setShowFilters(!showFilters)}>Filtros <span aria-hidden="true">{showFilters?'−':'+'}</span></button>
+   <aside id="store-filters" className={`${styles.filters} ${showFilters?styles.filtersOpen:''}`}><form onSubmit={event=>{event.preventDefault();apply(draft);}}><fieldset disabled={disabled}><div className={styles.filterHeading}><h3>Filtrar productos</h3><button type="button" onClick={()=>{clear();}}>Limpiar</button></div><label>Categoría<select value={draft.categoryId} onChange={event=>setDraft({...draft,categoryId:event.target.value,specs:{}})}><option value="">Todas las categorías</option>{categories.map(category=><option key={category.id} value={category.id}>{'\u00a0'.repeat(category.depth*3)}{category.name}</option>)}</select></label><div className={styles.priceFields}><label>Desde (CLP)<input type="number" min="0" max="1000000000000" step="1" placeholder="0" value={draft.priceMin} onChange={event=>setDraft({...draft,priceMin:event.target.value})}/></label><label>Hasta (CLP)<input type="number" min={draft.priceMin||'0'} max="1000000000000" step="1" placeholder="Sin límite" value={draft.priceMax} onChange={event=>setDraft({...draft,priceMax:event.target.value})}/></label></div><label>Disponibilidad<select value={draft.available} onChange={event=>setDraft({...draft,available:event.target.value})}><option value="all">Todos los productos</option><option value="available">Con stock disponible</option></select></label>
+   {selected&&<div className={styles.traits}><h3>Características</h3><StoreTraits key={`${selected.id}-${String(draft.specs.brand??'')}`} slug={slug} category={selected} specs={draft.specs} disabled={disabled} onChange={specs=>setDraft({...draft,specs})}/></div>}
+   <button className={styles.primary} type="submit">Aplicar filtros</button></fieldset></form></aside>
+   <div><div className={styles.productGrid}>{products.map(product=>{const available=product.availability.reduce((sum,location)=>sum+location.available,0);const fields=categories.find(category=>category.id===product.category_id)?.fields??[];const summary=fields.filter(field=>!['brand','model'].includes(field.key)&&product.specifications[field.key]!==undefined).slice(0,2).map(field=>specificationLabel(field,product.specifications[field.key])).join(' · ');return <article className={styles.product} key={product.id}><Link className={styles.productImage} prefetch={false} aria-disabled={disabled} onClick={event=>{if(disabled)event.preventDefault();}} href={`/tienda/productos/${product.id}?empresa=${encodeURIComponent(slug)}`}>{product.image_url?<img src={product.image_url} alt={product.name} width={400} height={300} loading="lazy"/>:<ShopIcon kind="box"/>}</Link><div className={styles.productInfo}><small>{product.category_name||'Catálogo'}</small><h3><Link prefetch={false} aria-disabled={disabled} onClick={event=>{if(disabled)event.preventDefault();}} href={`/tienda/productos/${product.id}?empresa=${encodeURIComponent(slug)}`}>{product.name}</Link></h3><span className={styles.sku} title={product.sku}>{summary||product.sku}</span><strong className={styles.price}>{money(product.price_minor)}</strong><span className={available>0?styles.stock:styles.noStock}>{available>0?'Stock disponible':'Sin stock disponible'}</span><button className={lastAdded===product.id?styles.added:undefined} disabled={disabled||available===0} onClick={()=>{if(onAdd(product))setLastAdded(product.id);}}>{lastAdded===product.id?'Agregado al carrito':available>0?'Agregar al carrito':'Sin stock'}<span aria-hidden="true">{lastAdded===product.id?'✓':'+'}</span></button></div></article>;})}</div>{!products.length&&!busy&&<div className={styles.empty}><ShopIcon kind="search"/><h3>No encontramos productos</h3><p>Prueba con otro nombre o ajusta los filtros.</p><button disabled={disabled} onClick={clear}>Limpiar filtros</button></div>}<nav className={styles.pagination} aria-label="Páginas del catálogo"><IconButton icon="previous" label="Página anterior" disabled={disabled||page===0} onClick={()=>onPage(page-1)}/><span>Página {page+1}</span><IconButton icon="next" label="Página siguiente" disabled={disabled||products.length<24} onClick={()=>onPage(page+1)}/></nav></div>
+  </div>
+  <section id="sucursales" className={styles.branches}><div><span className={styles.eyebrow}>CERCA DE TI</span><h2>Nuestras sucursales</h2><p>{company.about||'Compra online y elige una sucursal con stock para retirar tu pedido.'}</p></div><div className={styles.branchGrid}>{locations.filter(location=>location.kind==='STORE').map(location=><div key={location.id}><ActionIcon name="company"/><span><strong>{location.name}</strong><small>{location.shipping_enabled?'Retiro y envío disponible':'Retiro en tienda'}</small></span></div>)}{!locations.some(location=>location.kind==='STORE')&&<p>No hay sucursales de retiro publicadas.</p>}</div></section>
+ </>;
+}

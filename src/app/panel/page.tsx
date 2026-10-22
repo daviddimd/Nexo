@@ -75,11 +75,11 @@ export default function Panel(){
     catch(error){setMessage(`${(error as Error).message}. Si hubo un corte de conexión, reintenta sin cambiar los datos.`);return false;}finally{setBusy(false);}
   }
   if(!user)return <LoginScreen company={companyHint} busy={busy} checking={checking} message={message} onSubmit={login}/>;
-  return <main className={`${styles.panel} ${styles.workspace} ${(['home','inventory','movements','products','locations','orders','reports','shipping'].includes(view))&&user.role!=='CUSTOMER'?styles.boundedWorkspace:''}`}>{view!=='home'&&<h1 className={styles.srOnly}>Panel de gestión</h1>}
+  return <main className={`${styles.panel} ${styles.workspace} ${(['home','inventory','movements','products','locations','sales','orders','reports','shipping'].includes(view))&&user.role!=='CUSTOMER'?styles.boundedWorkspace:''}`}>{view!=='home'&&<h1 className={styles.srOnly}>Panel de gestión</h1>}
     <header className={styles.workspaceHeader}>
       <a className="brand-link" href="/panel?seccion=home" aria-label="Nexo, inicio del panel">nexo<span className="brand-dot">.</span></a>
       {user.role!=='CUSTOMER'?<PanelNavigation selected={view} disabled={busy} onNavigate={navigate}/>:<span/>}
-      {user&&<ProfileMenu name={user.name} role={user.role} disabled={busy} onSettings={()=>navigate('settings')}/>}
+      <div className={styles.headerActions}>{user.role!=='CUSTOMER'&&<a className={styles.websiteLink} href="/mi-web" target="_blank" rel="noopener noreferrer">Acceder a tu web<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14 3h7v7M21 3 10 14M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5"/></svg><span className={styles.srOnly}> (se abre en una pestaña nueva)</span></a>}<ProfileMenu name={user.name} role={user.role} disabled={busy} onSettings={()=>navigate('settings')}/></div>
     </header>
     {(checking||message)&&<p role="status" aria-live="polite">{checking?'Comprobando sesión…':message}</p>}
     {user&&<>
@@ -87,7 +87,7 @@ export default function Panel(){
         {view==='home'&&<DashboardHome name={user.name} navigate={navigate} request={api}/>}
 
         {(view==='products'||view==='locations')&&<CatalogManager categories={categories} key={view} view={view} role={user.role} products={catalogProducts} locations={locations} busy={busy} group={catalogPage} request={api} reload={()=>refresh()} setBusy={setBusy} changeGroup={cp=>refresh(page,productPage,movementPage,cp)} filters={productFilters} onFilter={values=>filter('products',values)}/>}
-        <SalesOrders role={user.role} view={view==='sales'||view==='orders'?view:null} products={products} locations={locations} group={productPage} busy={busy} setBusy={setBusy} request={api} reload={()=>refresh()} changeGroup={p=>refresh(page,p)}/>
+        <SalesOrders role={user.role} view={view==='sales'||view==='orders'?view:null} products={products} locations={locations} busy={busy} setBusy={setBusy} request={api} reload={()=>refresh()}/>
         {view==='reports'&&<ReportsManager role={user.role} busy={busy} setBusy={setBusy} request={api}/>}
         {view==='shipping'&&<ShippingManager locations={locations} busy={busy} setBusy={setBusy} request={api}/>}
         {(view==='settings'||view==='team')&&<SettingsWorkspace key={view} initialTeam={view==='team'} user={user} locations={locations} busy={busy} setBusy={setBusy} request={api}/>}

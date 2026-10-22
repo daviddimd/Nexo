@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="280" height="60" viewBox="0 0 280 60" fill="none">
+ <title>PrismaByte Tecnología</title>
+ <path d="M7 16 28 4l21 12v25L28 54 7 42V16Z" fill="#6D28D9"/>
+ <path d="m28 4 21 12-21 13V4Z" fill="#A78BFA"/>
+ <path d="m28 29 21-13v25L28 54V29Z" fill="#4C1D95"/>
+ <path d="m17 22 11-6 11 6v12l-11 7V29l-11 6V22Z" fill="white"/>
+ <path d="m28 16 11 6-11 7-11-7 11-6Z" fill="#EDE9FE"/>
+ <text x="64" y="32" fill="#241C32" font-family="Inter,Arial,sans-serif" font-size="27" font-weight="700" letter-spacing="-1">Prisma<tspan fill="#6D28D9">Byte</tspan></text>
+ <text x="66" y="48" fill="#73637E" font-family="Inter,Arial,sans-serif" font-size="8" font-weight="500" letter-spacing="3.1">TECNOLOGÍA</text>
+</svg>

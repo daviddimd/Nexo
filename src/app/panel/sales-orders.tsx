@@ -4,17 +4,18 @@ import {useEffect,useRef,useState,type FormEvent} from 'react';
 import Modal from './modal';
 import AftersalesManager from './aftersales-manager';
 import OrdersWorkspace from './orders-workspace';
+import NewSaleWorkspace from './new-sale-workspace';
 import managementStyles from './management-workspace.module.css';
 import type {ManagedProduct,ManagedLocation} from './catalog-manager';
 export type Order={id:string;status:string;channel:string;fulfillment:string;location_id:string;total_minor:string;created_at:string;expires_at:string;goods_minor?:string;shipping_minor?:string;payment_reference?:string;items?:{product_id:string;name:string;sku:string;quantity:number;line_total_minor:string}[];events?:{id:string;type:string;reason:string;created_at:string}[]};
 type After={refundState:string;withdrawn:boolean;orderPaymentRefundedMinor:string};
-type Line={product:ManagedProduct;quantity:number};
-type Props={role:string;view:'sales'|'orders'|null;products:ManagedProduct[];locations:ManagedLocation[];group:number;busy:boolean;setBusy:(v:boolean)=>void;
- request:(path:string,options?:RequestInit)=>Promise<any>;reload:()=>Promise<void>;changeGroup:(p:number)=>Promise<void>};
+export type SaleLine={product:ManagedProduct;quantity:number};
+type Props={role:string;view:'sales'|'orders'|null;products:ManagedProduct[];locations:ManagedLocation[];busy:boolean;setBusy:(v:boolean)=>void;
+ request:(path:string,options?:RequestInit)=>Promise<any>;reload:()=>Promise<void>};
 const labels:Record<string,string>={RESERVED:'Reservado',PAID:'Pagado',FULFILLED:'Completado',CANCELLED:'Cancelado',EXPIRED:'Vencido'};
 const money=(v:string|number)=>new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0}).format(BigInt(v));
-export default function SalesOrders({role,view,products,locations,group,busy,setBusy,request,reload,changeGroup}:Props){
- const [lines,setLines]=useState<Line[]>([]),[notice,setNotice]=useState(''),[uncertain,setUncertain]=useState(false),[saleId,setSaleId]=useState(''),[sequence,setSequence]=useState(0);
+export default function SalesOrders({role,view,products,locations,busy,setBusy,request,reload}:Props){
+ const [lines,setLines]=useState<SaleLine[]>([]),[notice,setNotice]=useState(''),[uncertain,setUncertain]=useState(false),[saleId,setSaleId]=useState(''),[sequence,setSequence]=useState(0);
  const [orders,setOrders]=useState<Order[]>([]),[page,setPage]=useState(0),[selected,setSelected]=useState<Order|null>(null),[after,setAfter]=useState<After|null>(null);
  const [received,setReceived]=useState<string|null>(null);
  const [confirmed,setConfirmed]=useState(false);
@@ -26,18 +27,28 @@ export default function SalesOrders({role,view,products,locations,group,busy,set
  async function detail(id:string){const order=await request(`orders/${id}`);setSelected(order);setAfter(null);try{setAfter(await request(`orders/${id}/aftersales`));}catch{setNotice('Pedido cargado. No se pudo consultar su posventa; actualiza antes de entregarlo.');}}
  async function refreshOrders(p=page){setBusy(true);setNotice('');try{await list(p);}catch(error){setNotice((error as Error).message);}finally{setBusy(false);}}
  useEffect(()=>{if(view==='orders')void refreshOrders();},[view]);
- async function add(event:FormEvent<HTMLFormElement>){event.preventDefault();const form=event.currentTarget,f=new FormData(form),product=products.find(p=>p.id===f.get('product')),quantity=Number(f.get('quantity'));
-  if(!product||!Number.isInteger(quantity)||quantity<1)return;
-  const old=lines.find(l=>l.product.id===product.id);if((old?.quantity??0)+quantity>1000000){setNotice('Máximo un millón de unidades por producto.');return;}
-  if(!old&&lines.length>=50){setNotice('Máximo 50 productos por venta.');return;}
-  setLines(current=>old?current.map(l=>l.product.id===product.id?{...l,quantity:l.quantity+quantity}:l):[...current,{product,quantity}]);form.reset();setNotice('');
+ function addProduct(product:ManagedProduct,quantity:number){
+  if(busy||uncertain||saving.current)return false;
+  if(!product.active||!Number.isInteger(quantity)||quantity<1){setNotice('Selecciona un producto activo y una cantidad válida.');return false;}
+  const old=lines.find(line=>line.product.id===product.id);
+  if((old?.quantity??0)+quantity>1000000){setNotice('Máximo un millón de unidades por producto.');return false;}
+  if(!old&&lines.length>=50){setNotice('Máximo 50 productos por venta.');return false;}
+  setLines(current=>old?current.map(line=>line.product.id===product.id?{...line,product,quantity:line.quantity+quantity}:line):[...current,{product,quantity}]);setConfirmed(false);setNotice('');return true;
+ }
+ async function refreshSale(){
+  if(busy||uncertain||saving.current)return;setBusy(true);setNotice('');
+  try{
+   const refreshed=await Promise.all(lines.map(async line=>{const detail=await request(`products/${line.product.id}`);return detail.product as ManagedProduct;}));
+   const current=new Map(refreshed.map(product=>[product.id,product]));
+   setLines(previous=>previous.map(line=>({...line,product:current.get(line.product.id)??line.product})));setConfirmed(false);await reload();
+  }catch(error){setNotice((error as Error).message);}finally{setBusy(false);}
  }
  async function sendSale(){if(saving.current||!pending.current)return;saving.current=true;setBusy(true);setNotice('');
-  try{const result=await request('sales',{method:'POST',headers:{'idempotency-key':pending.current.key},body:pending.current.body});setSaleId(result.id);pending.current=null;setUncertain(false);setLines([]);setReceived(null);setSequence(s=>s+1);setNotice(`Venta registrada: ${result.id}. Pago y entrega confirmados.`);await reload();}
+  try{const result=await request('sales',{method:'POST',headers:{'idempotency-key':pending.current.key},body:pending.current.body});setSaleId(result.id);pending.current=null;setUncertain(false);setLines([]);setReceived(null);setSequence(s=>s+1);setConfirmed(false);setNotice(`Venta registrada: ${result.id}. Pago y entrega confirmados.`);try{await reload();}catch{setNotice(`Venta registrada: ${result.id}. Actualiza el catálogo para consultar las existencias.`);}}
   catch(error){const e=error as Error&{status?:number};setUncertain(!e.status);setNotice(e.status?e.message:'Se perdió la respuesta. No cambies la venta: reintenta con la misma clave para comprobarla sin duplicar stock.');}
   finally{saving.current=false;setBusy(false);}
  }
- async function sale(event:FormEvent<HTMLFormElement>){event.preventDefault();const f=new FormData(event.currentTarget);if(!lines.length){setNotice('Agrega al menos un producto.');return;}
+ async function sale(event:FormEvent<HTMLFormElement>){event.preventDefault();if(busy||uncertain||saving.current)return;const f=new FormData(event.currentTarget);if(!lines.length){setNotice('Agrega al menos un producto.');return;}
   const body=JSON.stringify({locationId:f.get('location'),items:lines.map(l=>({productId:l.product.id,quantity:l.quantity})),payment:{amountMinor:String(f.get('amount')),method:f.get('method'),reference:f.get('reference')}});
   if(pending.current?.body!==body)pending.current={body,key:crypto.randomUUID()};await sendSale();
  }
@@ -50,13 +61,8 @@ export default function SalesOrders({role,view,products,locations,group,busy,set
   catch(error){setNotice(applied?'Cambio registrado, pero no se pudo actualizar la pantalla. Actualiza el pedido antes de repetir.':`${(error as Error).message}. Consulta el estado del pedido antes de reintentar.`);}
   finally{saving.current=false;setBusy(false);}
  }
- return <div hidden={view===null} className={`sales-workspace ${view==='orders'?managementStyles.workspace:''}`}>{notice&&<p className={managementStyles.notice} role="status" aria-live="polite">{notice}</p>}
- <div hidden={view!=='sales'}><section><span className="eyebrow">VENTA EN SUCURSAL</span><h2>Registrar una venta local</h2><p>Registra una venta cuyo pago ya recibiste y cuyos productos ya entregaste. Este formulario no realiza cargos.</p>
- <form onSubmit={add}><fieldset disabled={busy||uncertain}><label>Producto para la venta<select name="product" required><option value="">Selecciona un producto</option>{products.filter(p=>p.active).map(p=><option key={p.id} value={p.id}>{p.sku} · {p.name} · {money(p.price_minor)}</option>)}</select></label><label>Unidades para agregar<input name="quantity" type="number" min={1} max={1000000} step={1} required defaultValue={1}/></label><button>Agregar a la venta</button><nav aria-label="Productos para venta"><IconButton icon="previous" label="Grupo anterior" type="button" disabled={group===0} onClick={()=>changeGroup(group-1)}/><span>Grupo {group+1}</span><IconButton icon="next" label="Grupo siguiente" type="button" disabled={products.length<100} onClick={()=>changeGroup(group+1)}/></nav></fieldset></form>
- <div className="table-scroll"><table><thead><tr><th>Producto</th><th>Cantidad</th><th>Subtotal estimado</th><th>Acción</th></tr></thead><tbody>{lines.map(l=><tr key={l.product.id}><td>{l.product.name}</td><td>{l.quantity}</td><td>{money((BigInt(l.product.price_minor)*BigInt(l.quantity)).toString())}</td><td><button disabled={busy||uncertain} onClick={()=>setLines(current=>current.filter(row=>row.product.id!==l.product.id))}>Quitar {l.product.sku}</button></td></tr>)}{!lines.length&&<tr><td colSpan={4}>Agrega productos para preparar la venta.</td></tr>}</tbody></table></div><p className="sale-total">Total estimado <strong>{money(estimate)}</strong></p><p>El servidor comprobará precios y existencias al registrar la venta.</p><IconButton icon="refresh" label="Actualizar precios y stock" disabled={busy||uncertain} onClick={()=>reload()}/>
- <form key={sequence} onSubmit={sale}><fieldset disabled={busy||uncertain}><label>Sucursal de venta<select name="location" required><option value="">Selecciona sucursal</option>{locations.filter(l=>l.active&&l.kind==='STORE').map(l=><option key={l.id} value={l.id}>{l.name}</option>)}</select></label>{!locations.some(l=>l.active&&l.kind==='STORE')&&<p>Necesitas una sucursal activa asignada para vender.</p>}
- <label>Importe de la venta en CLP<input name="amount" type="text" inputMode="numeric" pattern="(0|[1-9][0-9]{0,15})" value={received??estimate} onChange={e=>setReceived(e.target.value)} required/></label><label>Medio de pago<select name="method"><option value="CASH">Efectivo</option><option value="CARD">Tarjeta (cobro externo)</option><option value="TRANSFER">Transferencia</option></select></label><label>Referencia del pago<input name="reference" required minLength={3} maxLength={120}/></label><label><input type="checkbox" required checked={confirmed} onChange={e=>setConfirmed(e.target.checked)}/> Confirmo que recibí el pago y entregué los productos.</label><button className="primary" disabled={!lines.length}>Registrar venta cobrada y entregada</button></fieldset></form>
- {uncertain&&<button disabled={busy} onClick={()=>sendSale()}>Reintentar comprobación de venta</button>}{saleId&&<p>Venta registrada: <strong>{saleId}</strong>. Puedes consultarla en Pedidos y ventas.</p>}</section></div>
+ return <div hidden={view===null} className={`sales-workspace ${view==='orders'||view==='sales'?managementStyles.workspace:''}`}>{notice&&view!=='sales'&&<p className={managementStyles.notice} role="status" aria-live="polite">{notice}</p>}
+ <NewSaleWorkspace visible={view==='sales'} lines={lines} locations={locations} busy={busy} uncertain={uncertain} estimate={estimate} received={received} confirmed={confirmed} sequence={sequence} notice={notice} saleId={saleId} request={request} onAdd={addProduct} onRemove={id=>{if(busy||uncertain||saving.current)return;setLines(current=>current.filter(line=>line.product.id!==id));setConfirmed(false);}} onRefresh={refreshSale} onReceived={setReceived} onConfirmed={setConfirmed} onSubmit={sale} onRetry={sendSale}/>
  <div hidden={view!=='orders'} className={managementStyles.workspace}><OrdersWorkspace orders={orders} locations={locations} page={page} busy={busy} onRefresh={()=>refreshOrders()} onPage={refreshOrders} onOpen={open}>
  {selected&&view==='orders'&&<Modal title={`Pedido ${selected.id.slice(0,8)}`} busy={busy} onClose={()=>{setSelected(null);setAfter(null);}}><div className={managementStyles.detail}><p role="status" aria-live="polite">{notice}</p><div className="section-heading"><IconButton icon="refresh" label="Actualizar detalle" disabled={busy} onClick={()=>open(selected.id)}/></div><div className={managementStyles.detailSummary}><div><span className={`${managementStyles.badge} ${selected.status==='PAID'?managementStyles.info:selected.status==='FULFILLED'?managementStyles.positive:managementStyles.neutral}`}>{labels[selected.status]??selected.status}</span><small>{selected.id}</small></div><strong>{money(selected.total_minor)}</strong></div><p>Posventa: {after?`${after.refundState==='NONE'?'Sin reembolsos':after.refundState==='FULL'?'Reembolso completo':'Reembolso parcial'}${after.withdrawn?' · Retiro registrado':''}`:'No disponible'}</p>
  <ul>{selected.items?.map(l=><li key={l.product_id}>{l.sku} · {l.name} × {l.quantity} — {money(l.line_total_minor)}</li>)}</ul><p>Productos: {money(selected.goods_minor??selected.total_minor)} · Envío: {money(selected.shipping_minor??'0')}</p>{selected.payment_reference&&<p>Referencia de pago: {selected.payment_reference}</p>}

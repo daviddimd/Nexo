@@ -19,18 +19,30 @@ export async function managedProducts(pool:Pool,actor:Actor,limit=50,offset=0,ra
   return {items:rows,limit,offset};
 }
 
-export async function publicCatalog(pool: Pool, slug: string, limit=50, offset=0) {
+const storeFilters=z.object({q:inventoryFilters.shape.q,categoryId:inventoryFilters.shape.categoryId,priceMin:priceFilter,priceMax:priceFilter,specs:specificationFilter,sort:z.enum(['name_asc','price_asc','price_desc']).default('name_asc'),available:z.enum(['all','available']).default('all')}).strict().refine(v=>!v.priceMin||!v.priceMax||BigInt(v.priceMin)<=BigInt(v.priceMax),'El precio mínimo no puede superar el máximo');
+export async function publicCatalog(pool: Pool, slug: string, limit=50, offset=0,raw:unknown={}) {
+  const f=storeFilters.parse(raw);
   const company=await pool.query('SELECT id,name,slug FROM companies WHERE slug=$1',[slug]);
   ensure(company.rows[0],404,'COMPANY_NOT_FOUND','Tienda inexistente');
+  await transaction(pool,db=>validateProductMetadata(db,company.rows[0].id,f.categoryId||null,f.specs));
   await expireCompanyReservations(pool,company.rows[0].id);
-  const products=await pool.query(`SELECT p.id,p.sku,p.name,p.description,p.price_minor::text,p.currency,p.image_url,p.category_id,p.specifications,
+  const order={name_asc:'p.name,p.id',price_asc:'p.price_minor,p.name,p.id',price_desc:'p.price_minor DESC,p.name,p.id'}[f.sort];
+  const products=await pool.query(`WITH RECURSIVE branch AS (SELECT id FROM categories WHERE company_id=$1 AND id=$5::uuid UNION ALL SELECT c.id FROM categories c JOIN branch b ON c.parent_id=b.id WHERE c.company_id=$1)
+    SELECT p.id,p.sku,p.name,p.description,p.price_minor::text,p.currency,p.image_url,p.category_id,p.specifications,
     (SELECT name FROM categories c WHERE c.company_id=p.company_id AND c.id=p.category_id) AS category_name,
     COALESCE((SELECT jsonb_agg(jsonb_build_object('locationId',l.id,'name',l.name,'kind',l.kind,
       'shippingEnabled',l.shipping_enabled,'available',COALESCE(s.on_hand-s.reserved,0)) ORDER BY l.name)
       FROM locations l LEFT JOIN stock s ON s.company_id=l.company_id AND s.location_id=l.id AND s.product_id=p.id
       WHERE l.company_id=p.company_id AND l.active),'[]'::jsonb) AS availability
-    FROM products p WHERE p.company_id=$1 AND p.active ORDER BY p.name,p.id LIMIT $2 OFFSET $3`,[company.rows[0].id,limit,offset]);
-  return {company:company.rows[0],products:products.rows,categories:await readCategories(pool,company.rows[0].id),limit,offset};
+    FROM products p WHERE p.company_id=$1 AND p.active
+    AND ($4='' OR strpos(lower(p.name),lower($4))>0 OR strpos(lower(p.sku),lower($4))>0)
+    AND ($5::uuid IS NULL OR p.category_id IN(SELECT id FROM branch))
+    AND ($6::bigint IS NULL OR p.price_minor >= $6) AND ($7::bigint IS NULL OR p.price_minor <= $7)
+    AND p.specifications @> $8::jsonb
+    AND ($9='all' OR EXISTS(SELECT 1 FROM stock s JOIN locations l ON l.id=s.location_id AND l.company_id=s.company_id WHERE s.company_id=p.company_id AND s.product_id=p.id AND l.active AND s.on_hand-s.reserved>0))
+    ORDER BY ${order} LIMIT $2 OFFSET $3`,[company.rows[0].id,limit,offset,f.q,f.categoryId||null,f.priceMin||null,f.priceMax||null,JSON.stringify(f.specs),f.available]);
+  const locations=await pool.query('SELECT id,name,kind,shipping_enabled FROM locations WHERE company_id=$1 AND active ORDER BY name',[company.rows[0].id]);
+  return {company:company.rows[0],products:products.rows,categories:await readCategories(pool,company.rows[0].id),locations:locations.rows,limit,offset};
 }
 export async function inventory(pool: Pool, actor: Actor, limit=50, offset=0) {
   staff(actor);
@@ -100,4 +112,23 @@ export async function inventoryFacets(pool:Pool,actor:Actor,raw:unknown){
  ), ranked AS (SELECT key,value,row_number() OVER(PARTITION BY key ORDER BY value) AS rank FROM choices)
  SELECT key,jsonb_agg(value ORDER BY value) AS values FROM ranked WHERE rank<=200 GROUP BY key`,[actor.company_id,categoryId]);
  return {fields:category.fields,values:Object.fromEntries(rows.filter(row=>category.fields.some(f=>f.key===row.key)).map(row=>[row.key,row.values]))};
+}
+
+export async function publicFacets(pool:Pool,slug:string,raw:unknown){
+ const input=z.object({categoryId:z.uuid(),brand:z.string().trim().max(200).default(''),modelQ:z.string().trim().max(200).default('')}).strict().parse(raw);
+ const company=(await pool.query('SELECT id FROM companies WHERE slug=$1',[slug])).rows[0];
+ ensure(company,404,'COMPANY_NOT_FOUND','Tienda inexistente');
+ const category=(await readCategories(pool,company.id)).find(item=>item.id===input.categoryId);
+ ensure(category,400,'CATEGORY_INVALID','La categoría no pertenece a esta empresa');
+ const {rows}=await pool.query(`WITH RECURSIVE branch AS (
+  SELECT id FROM categories WHERE company_id=$1 AND id=$2
+  UNION ALL SELECT c.id FROM categories c JOIN branch b ON c.parent_id=b.id WHERE c.company_id=$1
+ ), choices AS (
+  SELECT DISTINCT e.key,e.value FROM products p CROSS JOIN LATERAL jsonb_each(p.specifications) e
+  WHERE p.company_id=$1 AND p.active AND p.category_id IN(SELECT id FROM branch)
+  AND (e.key='brand' OR $3='' OR p.specifications->>'brand'=$3)
+  AND (e.key<>'model' OR $4='' OR strpos(lower(e.value#>>'{}'),lower($4))>0)
+ ), ranked AS (SELECT key,value,row_number() OVER(PARTITION BY key ORDER BY value) AS rank FROM choices)
+ SELECT key,jsonb_agg(value ORDER BY value) AS values FROM ranked WHERE rank<=200 GROUP BY key`,[company.id,input.categoryId,input.brand,input.modelQ]);
+ return {fields:category.fields,values:Object.fromEntries(rows.filter(row=>category.fields.some(field=>field.key===row.key)).map(row=>[row.key,row.values]))};
 }
