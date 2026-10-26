@@ -16,21 +16,21 @@ export default function DashboardHome({name,navigate,request}:{name:string;navig
  useEffect(()=>{void load();},[]);
  const date=data?new Date(`${data.date}T12:00:00Z`).toLocaleDateString('es-CL',{weekday:'long',day:'numeric',month:'long',timeZone:'America/Santiago'}):'';
  return <div className={styles.workspace}>
-  <div className={styles.welcome}>
+  <div data-panel-reveal="home-welcome" className={styles.welcome}>
    <div><p className={styles.company}>{data?.company??'Tu espacio de trabajo'}</p><h1>Hola, {name}.</h1>{date&&<p className={styles.date}>{date}</p>}</div>
    <div className={styles.actions}><IconButton icon="refresh" label="Actualizar resumen" disabled={busy} onClick={()=>void load()}/><button type="button" className={styles.newSale} onClick={()=>navigate('sales')}><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Nueva venta</button></div>
   </div>
   <div className={styles.body} aria-busy={busy}>
    {error&&<div className={styles.error} role="alert"><span>{error}</span><button disabled={busy} onClick={()=>void load()}>Reintentar</button></div>}
-   <div className={styles.sectionHeading}><h2>Resumen de tu operación</h2><span role="status" aria-live="polite">{busy?'Actualizando resumen…':updatedAt?`Actualizado a las ${updatedAt} · Chile`:''}</span></div>
+   <div data-panel-reveal="home-summary-title" className={styles.sectionHeading}><h2>Resumen de tu operación</h2><span role="status" aria-live="polite">{busy?'Actualizando resumen…':updatedAt?`Actualizado a las ${updatedAt} · Chile`:''}</span></div>
    {data?<>
     <div className={styles.metrics} aria-label="Resumen de tus ubicaciones autorizadas">
-     <button className={`${styles.metric} ${styles.salesMetric}`} onClick={()=>navigate('reports')}><div className={styles.metricLabel}><span>Ventas cobradas hoy</span><SummaryIcon kind="sales"/></div><strong>{money(data.sales_minor)}</strong><div className={styles.metricFoot}><small>{data.sales_count.toLocaleString('es-CL')} {data.sales_count===1?'venta':'ventas'} · Bruto antes de reembolsos</small><span aria-hidden="true">↗</span></div></button>
-     <button className={styles.metric} onClick={()=>navigate('orders')}><div className={styles.metricLabel}><span>Pedidos por entregar</span><SummaryIcon kind="orders"/></div><strong>{data.awaiting_delivery.toLocaleString('es-CL')}</strong><div className={styles.metricFoot}><small>Pagados y sin reembolsos aplicados</small><span aria-hidden="true">↗</span></div></button>
-     <button className={styles.metric} onClick={()=>navigate('shipping')}><div className={styles.metricLabel}><span>Envíos por cotizar</span><SummaryIcon kind="shipping"/></div><strong>{data.awaiting_quotes.toLocaleString('es-CL')}</strong><div className={styles.metricFoot}><small>Solicitudes pendientes de revisión</small><span aria-hidden="true">↗</span></div></button>
-     <button className={styles.metric} onClick={()=>navigate('reports')}><div className={styles.metricLabel}><span>Alertas de stock</span><SummaryIcon kind="stock"/></div><strong>{data.low_stock_count.toLocaleString('es-CL')}</strong><div className={styles.metricFoot}><small>Hasta 5 unidades · {data.empty_stock_count} sin stock</small><span aria-hidden="true">↗</span></div></button>
+     <button data-panel-reveal="home-sales" className={`${styles.metric} ${styles.salesMetric}`} onClick={()=>navigate('reports')}><div className={styles.metricLabel}><span>Ventas cobradas hoy</span><SummaryIcon kind="sales"/></div><strong>{money(data.sales_minor)}</strong><div className={styles.metricFoot}><small>{data.sales_count.toLocaleString('es-CL')} {data.sales_count===1?'venta':'ventas'} · Bruto antes de reembolsos</small><span aria-hidden="true">↗</span></div></button>
+     <button data-panel-reveal="home-orders" className={styles.metric} onClick={()=>navigate('orders')}><div className={styles.metricLabel}><span>Pedidos por entregar</span><SummaryIcon kind="orders"/></div><strong>{data.awaiting_delivery.toLocaleString('es-CL')}</strong><div className={styles.metricFoot}><small>Pagados y sin reembolsos aplicados</small><span aria-hidden="true">↗</span></div></button>
+     <button data-panel-reveal="home-shipping" className={styles.metric} onClick={()=>navigate('shipping')}><div className={styles.metricLabel}><span>Envíos por cotizar</span><SummaryIcon kind="shipping"/></div><strong>{data.awaiting_quotes.toLocaleString('es-CL')}</strong><div className={styles.metricFoot}><small>Solicitudes pendientes de revisión</small><span aria-hidden="true">↗</span></div></button>
+     <button data-panel-reveal="home-stock" className={styles.metric} onClick={()=>navigate('reports')}><div className={styles.metricLabel}><span>Alertas de stock</span><SummaryIcon kind="stock"/></div><strong>{data.low_stock_count.toLocaleString('es-CL')}</strong><div className={styles.metricFoot}><small>Hasta 5 unidades · {data.empty_stock_count} sin stock</small><span aria-hidden="true">↗</span></div></button>
     </div>
-    <div className={styles.attention}>
+    <div data-panel-reveal="home-stock-list" className={styles.attention}>
      <div className={styles.attentionHeading}><div><h2>Stock a revisar</h2><p>{data.alerts.length?'Productos con menor disponibilidad en tus ubicaciones.':'Disponibilidad en tus ubicaciones autorizadas.'}</p></div><button className={styles.textAction} onClick={()=>navigate('inventory')}>Ver inventario <span aria-hidden="true">→</span></button></div>
      {data.alerts.length?<>
       <div className={styles.listHeading} aria-hidden="true"><span>Producto</span><span>Ubicación</span><span>Disponible</span></div>

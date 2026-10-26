@@ -1,5 +1,6 @@
 'use client';
 import {useEffect,useId,useRef,useState} from 'react';
+import {productLabel} from '../../catalog/product-label';
 import {useRouter} from 'next/navigation';
 import type {StoreProduct} from './cart-context';
 import styles from './store-search.module.css';
@@ -39,9 +40,9 @@ export default function StoreSearch({slug,value,disabled,className,onChange,onSe
   {expanded&&<div className={styles.popup}>
    <div className={styles.heading}>Productos sugeridos <small>Nombre o SKU</small></div>
    <div ref={list} id={id} role="listbox" aria-label="Resultados de búsqueda" aria-busy={loading} className={styles.results}>
-    {items.map((product,index)=><div key={product.id} id={`${id}-${index}`} data-index={index} role="option" aria-selected={active===index} className={`${styles.option} ${active===index?styles.selected:''}`} onPointerDown={event=>event.preventDefault()} onPointerMove={()=>setActive(index)} onClick={()=>choose(product)}>
-     <div className={styles.image}>{product.image_url?<img src={product.image_url} alt="" width={52} height={52}/>:<span aria-hidden="true">▧</span>}</div><div className={styles.name}><strong>{product.name}</strong><small>{product.sku}</small></div><div className={styles.price}><strong>{money(product.price_minor)}</strong><small>{product.availability.some(location=>location.available>0)?'Disponible':'Sin stock'}</small></div>
-    </div>)}
+    {items.map((product,index)=>{const label=productLabel(product);return <div key={product.id} id={`${id}-${index}`} data-index={index} role="option" aria-selected={active===index} className={`${styles.option} ${active===index?styles.selected:''}`} onPointerDown={event=>event.preventDefault()} onPointerMove={()=>setActive(index)} onClick={()=>choose(product)}>
+     <div className={styles.image}>{product.image_url?<img src={product.image_url} alt="" width={52} height={52}/>:<span aria-hidden="true">▧</span>}</div><div className={styles.name}>{label.brand&&<small className={styles.brand}>{label.brand}</small>}<strong>{label.title}</strong><small>{product.sku}</small></div><div className={styles.price}><strong>{money(product.price_minor)}</strong><small>{product.availability.some(location=>location.available>0)?'Disponible':'Sin stock'}</small></div>
+    </div>;})}
    </div>
    {(loading||error||!items.length)&&<p className={styles.status} role="status">{loading?'Buscando productos…':error||'No encontramos productos con ese nombre o SKU.'}</p>}
    <button type="submit" className={styles.allResults}>Ver resultados en el catálogo <span aria-hidden="true">→</span></button>

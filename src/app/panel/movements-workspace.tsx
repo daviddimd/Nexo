@@ -19,11 +19,11 @@ export default function MovementsWorkspace({movements,products,locations,page,pr
  const activeLocations=locations.filter(l=>l.active);
  async function submit(event:FormEvent<HTMLFormElement>){if(await onSubmit(event))setOpen(false);}
  return <div className={styles.view}>
-  <div className={styles.heading}>
+  <div data-panel-reveal="movements-workspace-0" className={styles.heading}>
    <div><h2>Movimientos</h2><p>El registro de lo que entra, sale y se mueve entre ubicaciones.</p></div>
    <div className={styles.headingActions}><IconButton icon="refresh" label="Actualizar movimientos" onClick={onRefresh} disabled={busy}/><button className={styles.primary} disabled={busy} onClick={()=>{onKind('RECEIPT');setSource('');setOpen(true);}}><span aria-hidden="true">＋</span> Registrar movimiento</button></div>
   </div>
-  <div className={styles.history} aria-busy={busy}>
+  <div data-panel-reveal="movements-workspace-1" className={styles.history} aria-busy={busy}>
    <div className={styles.historyHeading}><h3>Historial de movimientos</h3><span>{movements.length} {movements.length===1?'registro':'registros'} en esta página</span></div>
    {movements.length?<div className={styles.tableScroll} tabIndex={0} role="region" aria-label="Historial de movimientos"><table className={styles.table}>
     <thead><tr><th scope="col">Fecha y hora</th><th scope="col">Producto</th><th scope="col">Ubicación</th><th scope="col">Tipo</th><th scope="col" className={styles.units}>Unidades</th><th scope="col">Motivo</th></tr></thead>

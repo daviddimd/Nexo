@@ -50,4 +50,12 @@ describe('Catálogo público de la empresa',{skip:!process.env.TEST_DATABASE_URL
   await assert.rejects(()=>publicFacets(pool,slug,{categoryId:foreignCategory}));await assert.rejects(()=>publicFacets(pool,'absent-company',{categoryId:ssd}));
  });
 
+ test('la página de marca agrupa categorías sin incluir productos de otra marca',async()=>{
+  const monitor=(await listCategories(pool,owner)).items.find(category=>category.slug==='monitores-escritorio')!;await createProduct(pool,owner,{sku:'EXAMPLE-MONITOR',name:'Example monitor',priceMinor:500,categoryId:monitor.id,specifications:{brand:'Example',model:'Display 24'}});
+  const found=await publicCatalog(pool,slug,24,0,{brand:'Example'});assert.deepEqual(found.products.map(product=>product.sku),['SSD-A','SSD-B','SSD-C','EXAMPLE-MONITOR']);
+  assert.equal((await publicCatalog(pool,slug,24,0,{brand:'Hidden brand'})).products.length,0);
+  assert.equal((await publicCatalog(pool,slug,24,0,{brand:'Unknown'})).products.length,0);
+  assert.deepEqual((await publicCatalog(pool,slug,24,0,{brand:'Other',categoryId:components})).products.map(product=>product.sku),['OTHER-SSD']);
+ });
+
 });

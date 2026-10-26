@@ -27,7 +27,7 @@ describe('Fichas individuales de producto',{skip:!process.env.TEST_DATABASE_URL,
  });
  after(async()=>{await pool?.end();if(admin){await admin.query('DROP SCHEMA IF EXISTS "'+schema+'" CASCADE');await admin.end();}});
  test('ficha pública tiene especificaciones y disponible, sin cantidades privadas',async()=>{
-  const detail=await publicProductDetail(pool,slug,productId);assert.equal(detail.product.name,'SSD detail');assert.equal(detail.product.price_minor,'64990');assert.equal(detail.product.specifications.dram,false);assert.equal(detail.product.specifications.capacity_gb,1000);assert.equal(detail.categoryPath,'Componentes / Almacenamiento / SSD');
+  const detail=await publicProductDetail(pool,slug,productId);assert.equal(detail.product.name,'SSD detail');assert.equal(detail.product.price_minor,'64990');assert.equal(detail.product.specifications.dram,false);assert.equal(detail.product.specifications.capacity_gb,1000);assert.equal(detail.categoryPath,'Componentes / Almacenamiento / SSD');assert.deepEqual(detail.categoryTrail.map(item=>item.name),['Componentes','Almacenamiento','SSD']);assert.equal(detail.categoryTrail.at(-1)?.id,detail.product.category_id);
   assert.equal(detail.availability.length,2);assert.equal(detail.availability.find(l=>l.locationId===storeId)?.available,3);assert.ok(detail.availability.every(l=>l.active&&!Object.hasOwn(l,'onHand')&&!Object.hasOwn(l,'reserved')));assert.ok(!Object.hasOwn(detail.company,'reservation_minutes'));
  });
  test('ficha interna respeta sucursales asignadas y ofrece stock físico y reservado',async()=>{
@@ -45,6 +45,6 @@ describe('Fichas individuales de producto',{skip:!process.env.TEST_DATABASE_URL,
  test('productos inactivos quedan ocultos en público y consultables por personal',async()=>{
   const hidden=await createProduct(pool,owner,{sku:'HIDDEN',name:'Inactive product',priceMinor:100});await patchProduct(pool,owner,hidden.id,{active:false});
   await assert.rejects(()=>publicProductDetail(pool,slug,hidden.id),code('PRODUCT_NOT_FOUND'));
-  const result=await managedProductDetail(pool,owner,hidden.id);assert.equal(result.product.active,false);assert.equal(result.categoryPath,'');assert.deepEqual(result.fields,[]);
+  const result=await managedProductDetail(pool,owner,hidden.id);assert.equal(result.product.active,false);assert.equal(result.categoryPath,'');assert.deepEqual(result.categoryTrail,[]);assert.deepEqual(result.fields,[]);
  });
 });

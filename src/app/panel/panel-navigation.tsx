@@ -26,13 +26,13 @@ export default function PanelNavigation({selected,disabled,onNavigate}:{selected
   if(active){
    const buttonRect=active.getBoundingClientRect(),navRect=element.getBoundingClientRect();
    if(buttonRect.left<navRect.left||buttonRect.right>navRect.right){
-    element.scrollTo({left:element.scrollLeft+buttonRect.left-navRect.left-(element.clientWidth-buttonRect.width)/2,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
+    element.scrollTo({left:element.scrollLeft+buttonRect.left-navRect.left-(element.clientWidth-buttonRect.width)/2,behavior:element.dataset.keyboard==='true'||window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
    }
   }
   return()=>{disposed=true;observer.disconnect();};
  },[selected]);
  return <nav ref={nav} className={styles.topNav} aria-label="Secciones del panel">
-  {sections.map(([section,label])=><button key={section} type="button" disabled={disabled} aria-pressed={selected===section} aria-current={selected===section?'page':undefined} onClick={()=>onNavigate(section)}><span>{label}</span></button>)}
+  {sections.map(([section,label])=><button key={section} type="button" disabled={disabled} aria-pressed={selected===section} aria-current={selected===section?'page':undefined} onClick={event=>{if(nav.current)nav.current.dataset.keyboard=String(event.detail===0);onNavigate(section);}}><span>{label}</span></button>)}
   <span className={styles.navIndicator} aria-hidden="true" style={{width:indicator.width,transform:`translateX(${indicator.left}px)`,opacity:indicator.visible?1:0}}/>
  </nav>;
 }

@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import {productLabel} from '../../catalog/product-label';
 import {useState,type FormEvent} from 'react';
 import Modal from '../panel/modal';
 import {ActionIcon} from '../action-icon';
@@ -21,10 +22,11 @@ export default function StoreCart({initialDelivery='pickup',slug,lines,locations
   {!lines.length?<div className={styles.empty}><span><Bag/></span><h3>Tu próxima compra empieza aquí</h3><p>Agrega productos al carrito para revisar tu compra.</p><button type="button" disabled={busy} onClick={onClose}>Explorar productos <span aria-hidden="true">→</span></button></div>:<div className={styles.layout}>
    <div className={styles.products}><div className={styles.listHeading}><h3>Tus productos</h3><span>{units.toLocaleString('es-CL')} {units===1?'unidad':'unidades'}</span></div>
     <ul className={styles.lines}>{lines.map(line=>{
+     const label=productLabel(line.product);
      const href=`/tienda/productos/${encodeURIComponent(line.product.id)}?empresa=${encodeURIComponent(slug)}`;
      return <li key={line.product.id} className={styles.line}>
       <Link className={styles.image} href={href} prefetch={false} aria-label={`Ver ${line.product.name}`} aria-disabled={locked} onClick={event=>{if(locked)event.preventDefault();}}>{line.product.image_url?<img src={line.product.image_url} alt="" width={100} height={100}/>:<Bag/>}</Link>
-      <div className={styles.productInfo}><small>{line.product.category_name||line.product.sku}</small><Link href={href} prefetch={false} aria-disabled={locked} onClick={event=>{if(locked)event.preventDefault();}}>{line.product.name}</Link><span>{money(line.product.price_minor)} <small>por unidad</small></span></div>
+      <div className={styles.productInfo}>{label.brand&&<small>{label.brand}</small>}<Link href={href} prefetch={false} aria-disabled={locked} onClick={event=>{if(locked)event.preventDefault();}}>{label.title}</Link><span>{money(line.product.price_minor)} <small>por unidad</small></span></div>
       <div className={styles.lineActions}><div className={styles.quantity} role="group" aria-label={`Cantidad de ${line.product.name}`}><button type="button" aria-label={`Restar una unidad de ${line.product.name}`} disabled={locked||line.quantity<=1} onClick={()=>onQuantity(line.product.id,line.quantity-1)}>−</button><input aria-label={`Unidades de ${line.product.name}`} type="number" min={1} max={1000000} step={1} inputMode="numeric" value={line.quantity} disabled={locked} onChange={event=>{const next=Number(event.target.value);if(Number.isInteger(next)&&next>=1&&next<=1000000)onQuantity(line.product.id,next);}}/><button type="button" aria-label={`Sumar una unidad de ${line.product.name}`} disabled={locked||line.quantity>=1000000} onClick={()=>onQuantity(line.product.id,line.quantity+1)}>+</button></div><button type="button" className={styles.remove} disabled={locked} aria-label={`Quitar ${line.product.name} del carrito`} onClick={()=>onRemove(line.product.id)}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 6h16M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7M14 10v7"/></svg>Quitar</button></div>
       <strong className={styles.lineTotal}>{money(BigInt(line.product.price_minor)*BigInt(line.quantity))}</strong>
      </li>;

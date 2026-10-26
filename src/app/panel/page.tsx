@@ -10,6 +10,7 @@ import InventoryBrowser from './inventory-browser';
 import MovementsWorkspace from './movements-workspace';
 import {emptyInventoryFilters,type InventoryFilters} from '../../catalog/inventory-filters';
 import PanelNavigation from './panel-navigation';
+import usePanelMotion from './use-panel-motion';
 import {useEffect,useRef,useState,type FormEvent} from 'react';
 import styles from './panel.module.css';
 import CatalogManager,{type ManagedProduct,type ManagedLocation} from './catalog-manager';
@@ -31,6 +32,7 @@ export default function Panel(){
   const [stock,setStock]=useState<Stock[]>([]),[movements,setMovements]=useState<Movement[]>([]),[products,setProducts]=useState<Product[]>([]),[locations,setLocations]=useState<Location[]>([]);
   const [page,setPage]=useState(0),[productPage,setProductPage]=useState(0),[movementPage,setMovementPage]=useState(0),[kind,setKind]=useState('RECEIPT');
   const [view,setView]=useState<'home'|'inventory'|'products'|'locations'|'sales'|'orders'|'team'|'settings'|'shipping'|'reports'|'movements'>('home');
+  const panelMotion=usePanelMotion(view,Boolean(user)&&!checking);
   const [inventoryFilters,setInventoryFilters]=useState<InventoryFilters>({...emptyInventoryFilters}),[productFilters,setProductFilters]=useState({q:'',status:'all',categoryId:''});
   const [categories,setCategories]=useState<Category[]>([]);
   const [catalogProducts,setCatalogProducts]=useState<Product[]>([]),[catalogPage,setCatalogPage]=useState(0);
@@ -75,9 +77,12 @@ export default function Panel(){
     catch(error){setMessage(`${(error as Error).message}. Si hubo un corte de conexión, reintenta sin cambiar los datos.`);return false;}finally{setBusy(false);}
   }
   if(!user)return <LoginScreen company={companyHint} busy={busy} checking={checking} message={message} onSubmit={login}/>;
-  return <main className={`${styles.panel} ${styles.workspace} ${(['home','inventory','movements','products','locations','sales','orders','reports','shipping'].includes(view))&&user.role!=='CUSTOMER'?styles.boundedWorkspace:''}`}>{view!=='home'&&<h1 className={styles.srOnly}>Panel de gestión</h1>}
+  return <main ref={panelMotion} className={`${styles.panel} ${styles.workspace} ${(['home','inventory','movements','products','locations','sales','orders','reports','shipping'].includes(view))&&user.role!=='CUSTOMER'?styles.boundedWorkspace:''}`}>{view!=='home'&&<h1 className={styles.srOnly}>Panel de gestión</h1>}
     <header className={styles.workspaceHeader}>
-      <a className="brand-link" href="/panel?seccion=home" aria-label="Nexo, inicio del panel">nexo<span className="brand-dot">.</span></a>
+      <a className="brand-link" href="/panel?seccion=home" aria-label="Nexo, inicio del panel" aria-current={view==='home'?'page':undefined} aria-disabled={busy||undefined} onClick={event=>{
+        if(event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+        event.preventDefault();if(!busy)navigate('home');
+      }}>nexo<span className="brand-dot">.</span></a>
       {user.role!=='CUSTOMER'?<PanelNavigation selected={view} disabled={busy} onNavigate={navigate}/>:<span/>}
       <div className={styles.headerActions}>{user.role!=='CUSTOMER'&&<a className={styles.websiteLink} href="/mi-web" target="_blank" rel="noopener noreferrer">Acceder a tu web<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M14 3h7v7M21 3 10 14M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5"/></svg><span className={styles.srOnly}> (se abre en una pestaña nueva)</span></a>}<ProfileMenu name={user.name} role={user.role} disabled={busy} onSettings={()=>navigate('settings')}/></div>
     </header>
@@ -93,7 +98,7 @@ export default function Panel(){
         {(view==='settings'||view==='team')&&<SettingsWorkspace key={view} initialTeam={view==='team'} user={user} locations={locations} busy={busy} setBusy={setBusy} request={api}/>}
         {view==='inventory'&&<>
         {page===0&&productPage===0&&(!products.length||!locations.length)&&<section><h2>Comencemos con tu inventario</h2><p>Primero crea una ubicación y agrega un producto. Después registra una entrada para cargar tus unidades.</p><div className={styles.bar}>{user.role==='OWNER'&&<button onClick={()=>navigate('locations')}>Configurar ubicaciones</button>}<button onClick={()=>navigate('products')}>Agregar productos</button></div></section>}
-        <div className={styles.inventoryHeading}><h2>Inventario</h2><div className={styles.inventoryHeadingActions}>
+        <div data-panel-reveal="inventory-heading" className={styles.inventoryHeading}><h2>Inventario</h2><div className={styles.inventoryHeadingActions}>
           <details className={styles.inventoryHelp}><summary aria-label="Cómo leer el inventario" title="Cómo leer el inventario"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></svg></summary><div><strong>Stock disponible</strong><p>Las cifras descuentan las unidades reservadas, que se indican debajo.</p><p>Rojo: agotado. Ámbar: entre 1 y 5 unidades.</p><p>Al elegir todas las ubicaciones, un producto aparece si cumple el filtro en al menos una. El orden por stock suma las ubicaciones seleccionadas.</p></div></details>
           <IconButton icon="refresh" label="Actualizar inventario" onClick={()=>refresh()} disabled={busy}/>
         </div></div>

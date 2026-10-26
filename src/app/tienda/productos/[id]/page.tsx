@@ -4,9 +4,12 @@ import {publicProductDetail} from '../../../../server/product-detail';
 import {uuid} from '../../../../server/schemas';
 import {AppError} from '../../../../server/errors';
 import ProductDetail from '../../../product-detail';
+import Storefront from '../../storefront';
+import {readCategories} from '../../../../server/categories';
 export const metadata={title:'Producto · Nexo'};
 export default async function ProductPage({params,searchParams}:{params:Promise<{id:string}>;searchParams:Promise<{empresa?:string}>}){
  const {id}=await params,{empresa}=await searchParams;if(typeof empresa!=='string'||!uuid.safeParse(id).success)notFound();
  let data;try{data=await publicProductDetail(database(),empresa,id);}catch(error){if(error instanceof AppError&&error.status===404)notFound();throw error;}
- return <ProductDetail data={data}/>;
+ const categories=await readCategories(database(),data.company.id);
+ return <Storefront key={data.product.id} initialCompany={data.company} initialCategories={categories} initialCategoryId={data.product.category_id??''}><ProductDetail data={data} embedded/></Storefront>;
 }

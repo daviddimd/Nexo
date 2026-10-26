@@ -29,10 +29,10 @@ export default function NewSaleWorkspace({visible,lines,locations,busy,uncertain
  function add(event:FormEvent<HTMLFormElement>){event.preventDefault();if(locked||lookup)return;if(!selected){setLookupError('Selecciona un producto de las sugerencias.');return;}const form=event.currentTarget,quantity=Number(new FormData(form).get('quantity'));if(onAdd(selected,quantity)){form.reset();setSelected(null);setSearchRevision(value=>value+1);setLookupError('');}}
  const mismatch=received!==null&&/^(0|[1-9][0-9]{0,15})$/.test(received)&&BigInt(received)!==BigInt(estimate);
  return <div hidden={!visible} className={styles.workspace}>
-  <div className={styles.heading}><div><h2>Nueva venta</h2><p>Registra el pago recibido y los productos entregados en sucursal.</p></div><div className={styles.headingActions}><span className={styles.localBadge}>Venta local</span><IconButton icon="refresh" label="Actualizar precios del catálogo y la venta" disabled={locked} onClick={()=>void onRefresh()}/></div></div>
+  <div data-panel-reveal="new-sale-workspace-0" className={styles.heading}><div><h2>Nueva venta</h2><p>Registra el pago recibido y los productos entregados en sucursal.</p></div><div className={styles.headingActions}><span className={styles.localBadge}>Venta local</span><IconButton icon="refresh" label="Actualizar precios del catálogo y la venta" disabled={locked} onClick={()=>void onRefresh()}/></div></div>
   {notice&&<div className={`${styles.notice} ${uncertain?styles.warning:''}`} role="status" aria-live="polite"><span>{notice}</span>{uncertain&&<button disabled={busy} onClick={()=>void onRetry()}>Reintentar comprobación</button>}</div>}
   <div className={styles.layout}>
-   <div className={styles.cart}>
+   <div data-panel-reveal="new-sale-workspace-1" className={styles.cart}>
     <div className={styles.cardHeading}><h3>Productos de la venta</h3><span>{lines.length} {lines.length===1?'producto':'productos'} · {units.toLocaleString('es-CL')} {units===1?'unidad':'unidades'}</span></div>
     <form className={styles.picker} onSubmit={add}><fieldset disabled={locked||lookup}>
      <label className={styles.search}>Buscar producto<ProductSearch key={searchRevision} defaultValue="" request={search} onValueChange={clearSelection} onSelect={(_sku,_form,item)=>void choose(item.id)}/></label>
@@ -46,7 +46,7 @@ export default function NewSaleWorkspace({visible,lines,locations,busy,uncertain
     </tbody></table></div>
     <p className={styles.cartNote}>Los precios y el stock se comprueban al registrar la venta.</p>
    </div>
-   <aside className={styles.checkout} aria-label="Resumen y pago de la venta">
+   <aside data-panel-reveal="new-sale-workspace-2" className={styles.checkout} aria-label="Resumen y pago de la venta">
     <div className={styles.cardHeading}><h3>Resumen de la venta</h3><span>CLP</span></div>
     <div className={styles.total}><span>Total estimado</span><strong>{money(estimate)}</strong><small>{units.toLocaleString('es-CL')} {units===1?'unidad':'unidades'} en la venta</small></div>
     <form key={sequence} className={styles.checkoutForm} onSubmit={onSubmit}><fieldset disabled={locked}>

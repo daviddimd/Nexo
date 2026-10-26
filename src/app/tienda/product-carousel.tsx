@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import {productLabel} from '../../catalog/product-label';
 import {useEffect,useLayoutEffect,useId,useRef,useState} from 'react';
 import {ActionIcon} from '../action-icon';
 import type {StoreProduct} from './cart-context';
@@ -54,8 +55,8 @@ export default function ProductCarousel({products,slug,disabled}:{products:Store
     event.preventDefault();go(event.key==='Home'?0:event.key==='End'?products.length-1:current.current+(event.key==='ArrowRight'?1:-1),true);
    }
   }}>
-   {slides.map((product,physical)=>{const clone=looping&&(physical===0||physical===slides.length-1),slide=looping?((physical-1)%products.length+products.length)%products.length:0;return <div key={`${product.id}-${physical}`} inert={clone} aria-hidden={clone||undefined} data-variant={slide%3} className={styles.slide} role="group" aria-roledescription="diapositiva" aria-label={`${slide+1} de ${products.length}: ${product.name}`}>
-    <div className={styles.copy}><span className={styles.category}>{product.category_name||'En nuestro catálogo'}</span>{slide===0&&!clone?<h1>{product.name.split(' · ')[0]}</h1>:<h2>{product.name.split(' · ')[0]}</h2>}<strong className={styles.price}>{money(product.price_minor)}</strong><Link className={styles.link} href={`/tienda/productos/${product.id}?empresa=${encodeURIComponent(slug)}`} prefetch={false} aria-disabled={disabled} onClick={event=>{if(disabled)event.preventDefault();}}>Ver producto <span aria-hidden="true">↗</span></Link></div>
+   {slides.map((product,physical)=>{const clone=looping&&(physical===0||physical===slides.length-1),slide=looping?((physical-1)%products.length+products.length)%products.length:0;const label=productLabel(product);return <div key={`${product.id}-${physical}`} inert={clone} aria-hidden={clone||undefined} data-variant={slide%3} className={styles.slide} role="group" aria-roledescription="diapositiva" aria-label={`${slide+1} de ${products.length}: ${product.name}`}>
+    <div className={styles.copy}><span className={styles.category}>{label.brand}</span>{slide===0&&!clone?<h1>{label.title}</h1>:<h2>{label.title}</h2>}<strong className={styles.price}>{money(product.price_minor)}</strong><Link className={styles.link} href={`/tienda/productos/${product.id}?empresa=${encodeURIComponent(slug)}`} prefetch={false} aria-disabled={disabled} onClick={event=>{if(disabled)event.preventDefault();}}>Ver producto <span aria-hidden="true">↗</span></Link></div>
     <Link className={styles.photo} href={`/tienda/productos/${product.id}?empresa=${encodeURIComponent(slug)}`} prefetch={false} aria-disabled={disabled} onClick={event=>{if(disabled)event.preventDefault();}} tabIndex={-1} aria-hidden="true"><img src={product.image_url!} alt="" width={900} height={600} loading={slide===0&&!clone?'eager':'lazy'} fetchPriority={slide===0&&!clone?'high':'auto'}/></Link>
    </div>;})}
   </div>

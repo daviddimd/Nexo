@@ -19,7 +19,7 @@ export async function managedProducts(pool:Pool,actor:Actor,limit=50,offset=0,ra
   return {items:rows,limit,offset};
 }
 
-const storeFilters=z.object({q:inventoryFilters.shape.q,categoryId:inventoryFilters.shape.categoryId,priceMin:priceFilter,priceMax:priceFilter,specs:specificationFilter,sort:z.enum(['name_asc','price_asc','price_desc']).default('name_asc'),available:z.enum(['all','available']).default('all')}).strict().refine(v=>!v.priceMin||!v.priceMax||BigInt(v.priceMin)<=BigInt(v.priceMax),'El precio mínimo no puede superar el máximo');
+const storeFilters=z.object({brand:z.string().trim().max(200).default(''),q:inventoryFilters.shape.q,categoryId:inventoryFilters.shape.categoryId,priceMin:priceFilter,priceMax:priceFilter,specs:specificationFilter,sort:z.enum(['name_asc','price_asc','price_desc']).default('name_asc'),available:z.enum(['all','available']).default('all')}).strict().refine(v=>!v.priceMin||!v.priceMax||BigInt(v.priceMin)<=BigInt(v.priceMax),'El precio mínimo no puede superar el máximo');
 export async function publicCatalog(pool: Pool, slug: string, limit=50, offset=0,raw:unknown={}) {
   const f=storeFilters.parse(raw);
   const company=await pool.query('SELECT id,name,slug FROM companies WHERE slug=$1',[slug]);
@@ -39,8 +39,9 @@ export async function publicCatalog(pool: Pool, slug: string, limit=50, offset=0
     AND ($5::uuid IS NULL OR p.category_id IN(SELECT id FROM branch))
     AND ($6::bigint IS NULL OR p.price_minor >= $6) AND ($7::bigint IS NULL OR p.price_minor <= $7)
     AND p.specifications @> $8::jsonb
+    AND ($10='' OR p.specifications->>'brand'=$10)
     AND ($9='all' OR EXISTS(SELECT 1 FROM stock s JOIN locations l ON l.id=s.location_id AND l.company_id=s.company_id WHERE s.company_id=p.company_id AND s.product_id=p.id AND l.active AND s.on_hand-s.reserved>0))
-    ORDER BY ${order} LIMIT $2 OFFSET $3`,[company.rows[0].id,limit,offset,f.q,f.categoryId||null,f.priceMin||null,f.priceMax||null,JSON.stringify(f.specs),f.available]);
+    ORDER BY ${order} LIMIT $2 OFFSET $3`,[company.rows[0].id,limit,offset,f.q,f.categoryId||null,f.priceMin||null,f.priceMax||null,JSON.stringify(f.specs),f.available,f.brand]);
   const locations=await pool.query('SELECT id,name,kind,shipping_enabled FROM locations WHERE company_id=$1 AND active ORDER BY name',[company.rows[0].id]);
   return {company:company.rows[0],products:products.rows,categories:await readCategories(pool,company.rows[0].id),locations:locations.rows,limit,offset};
 }

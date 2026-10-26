@@ -25,16 +25,16 @@ export default function ProductsWorkspace({products,categories,filters,busy,page
  const filtered=Boolean(filters.q||filters.categoryId||filters.status!=='all');
  function submit(event:FormEvent<HTMLFormElement>){event.preventDefault();void onFilter(draft);}
  return <div className={styles.workspace}>
-  <div className={styles.heading}><div><h2>Productos</h2><p>Organiza tu catálogo, sus precios y especificaciones.</p></div><div className={styles.headingActions}>{categoryControl}<IconButton icon="refresh" label="Actualizar productos" disabled={busy} onClick={()=>void onRefresh()}/><button className={styles.primary} disabled={busy} onClick={onNew}><span aria-hidden="true">＋</span> Nuevo producto</button></div></div>
+  <div data-panel-reveal="products-workspace-0" className={styles.heading}><div><h2>Productos</h2><p>Organiza tu catálogo, sus precios y especificaciones.</p></div><div className={styles.headingActions}>{categoryControl}<IconButton icon="refresh" label="Actualizar productos" disabled={busy} onClick={()=>void onRefresh()}/><button className={styles.primary} disabled={busy} onClick={onNew}><span aria-hidden="true">＋</span> Nuevo producto</button></div></div>
   <div className={styles.catalog}>
-   <form className={styles.filters} onSubmit={submit}><fieldset disabled={busy}>
+   <form data-panel-reveal="products-workspace-1" className={styles.filters} onSubmit={submit}><fieldset disabled={busy}>
     <label className={styles.search}>Buscar producto<ProductSearch defaultValue={draft.q} onValueChange={q=>setDraft(v=>({...v,q}))} request={request} onSelect={sku=>void onFilter({...draft,q:sku})}/></label>
     <label>Categoría<select value={draft.categoryId} onChange={e=>setDraft(v=>({...v,categoryId:e.target.value}))}><option value="">Todas las categorías</option>{categories.map(c=><option key={c.id} value={c.id}>{c.path}</option>)}</select></label>
     <label>Estado<select value={draft.status} onChange={e=>setDraft(v=>({...v,status:e.target.value}))}><option value="all">Todos</option><option value="active">Activos</option><option value="inactive">Inactivos</option></select></label>
     <button type="submit" className={styles.apply}>Aplicar</button><button type="button" className={styles.clear} onClick={()=>void onFilter({q:'',categoryId:'',status:'all'})}>Limpiar</button>
    </fieldset></form>
-   <div className={styles.listHeading}><span>{products.length} {products.length===1?'producto':'productos'} en esta página{filtered?' · Resultados filtrados':''}</span><span>Precios en CLP</span></div>
-   <div ref={table} className={styles.tableScroll} tabIndex={0} role="region" aria-label="Catálogo de productos" aria-busy={busy}>
+   <div data-panel-reveal="products-workspace-2" className={styles.listHeading}><span>{products.length} {products.length===1?'producto':'productos'} en esta página{filtered?' · Resultados filtrados':''}</span><span>Precios en CLP</span></div>
+   <div ref={table} data-panel-reveal="products-workspace-3" className={styles.tableScroll} tabIndex={0} role="region" aria-label="Catálogo de productos" aria-busy={busy}>
     <table className={styles.table}><thead><tr><th scope="col">Producto</th><th scope="col">Categoría</th><th scope="col" className={styles.price}>Precio</th><th scope="col">Estado</th><th scope="col" className={styles.menuCell}><span className={styles.srOnly}>Opciones de producto</span></th></tr></thead><tbody>
      {products.map(product=>{const category=categoryMap.get(product.category_id??''),parent=category?.path.split(' / ').slice(0,-1).join(' / '),href=`/panel/productos/${product.id}?desde=products`;return <tr key={product.id}>
       <td className={styles.identity}><Link href={href} prefetch={false} className={styles.productLink}><Thumbnail key={product.image_url} source={product.image_url}/><span><strong>{product.name}</strong><small>{product.sku}</small></span></Link></td>
@@ -46,7 +46,7 @@ export default function ProductsWorkspace({products,categories,filters,busy,page
      {!products.length&&<tr><td colSpan={5}><div className={styles.empty}><BoxIcon/><h3>{filtered?'No encontramos productos':'Todavía no hay productos en esta página'}</h3><p>{filtered?'Prueba con otro nombre, categoría o estado.':'Agrega productos para comenzar a organizar tu catálogo.'}</p>{filtered&&<button type="button" disabled={busy} onClick={()=>void onFilter({q:'',categoryId:'',status:'all'})}>Limpiar filtros</button>}</div></td></tr>}
     </tbody></table>
    </div>
-   <div className={styles.pagination}><span>Hasta 100 productos por página</span><nav aria-label="Páginas de productos"><IconButton icon="previous" label="Productos anteriores" disabled={busy||page===0} onClick={()=>void onPage(page-1)}/><span>Página {page+1}</span><IconButton icon="next" label="Productos siguientes" disabled={busy||products.length<100} onClick={()=>void onPage(page+1)}/></nav></div>
+   <div data-panel-reveal="products-workspace-4" className={styles.pagination}><span>Hasta 100 productos por página</span><nav aria-label="Páginas de productos"><IconButton icon="previous" label="Productos anteriores" disabled={busy||page===0} onClick={()=>void onPage(page-1)}/><span>Página {page+1}</span><IconButton icon="next" label="Productos siguientes" disabled={busy||products.length<100} onClick={()=>void onPage(page+1)}/></nav></div>
   </div>
   {children}
  </div>;
