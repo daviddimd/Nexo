@@ -1,4 +1,5 @@
 'use client';
+import AnimatedAmount from '../animated-amount';
 import {IconButton} from '../action-icon';
 import {useEffect,useRef,useState,type FormEvent} from 'react';
 import Modal from './modal';
@@ -45,7 +46,7 @@ export default function ShippingManager({locations,busy,setBusy,request}:Props){
      <div><span>Por cotizar</span><strong>{!loaded||busy?'—':requested}</strong><small>Solicitudes que requieren revisión</small></div>
      <div><span>Aprobadas</span><strong>{!loaded||busy?'—':approved}</strong><small>Aún sin convertir en pedido</small></div>
      <div><span>Convertidas en pedido</span><strong>{!loaded||busy?'—':used}</strong><small>No implica entrega confirmada</small></div>
-     <div><span>Envíos cotizados</span><strong>{!loaded||busy?'—':money(quotedFees.toString())}</strong><small>Aprobadas y utilizadas · sin confirmar cobro</small></div>
+     <div><span>Envíos cotizados</span><strong>{!loaded||busy?'—':<AnimatedAmount value={quotedFees}/>}</strong><small>Aprobadas y utilizadas · sin confirmar cobro</small></div>
     </div>
     <p className={styles.scopeNote}>Resumen de la página {page+1} · {quotes.length} solicitudes. El detalle de cada solicitud incluye destino, productos y condiciones.</p>
     <div data-panel-reveal="shipping-manager-1" className={styles.panel}><div className={styles.panelHeading}><h3>Cotizaciones de envío</h3><span>{quotes.length} {quotes.length===1?'solicitud':'solicitudes'} en esta página</span></div>
@@ -55,11 +56,11 @@ export default function ShippingManager({locations,busy,setBusy,request}:Props){
     </tbody></table></div><div className={styles.pagination}><span>Hasta 25 solicitudes por página</span><nav aria-label="Páginas de cotizaciones"><IconButton icon="previous" label="Solicitudes anteriores" disabled={busy||page===0} onClick={()=>refresh(page-1)}/><span>Página {page+1}</span><IconButton icon="next" label="Solicitudes siguientes" disabled={busy||quotes.length<25} onClick={()=>refresh(page+1)}/></nav></div></div>
     <p className={styles.note}>Cotizar no reserva stock ni realiza cobros. Revisa el destino y los productos antes de aprobar.</p>
     {selected&&<Modal title={`Cotización ${selected.id.slice(0,8)}`} busy={busy} onClose={()=>{setSelected(null);setUncertain(false);pending.current=null;}}><div className={styles.detail}>
-      <p role="status" aria-live="polite">{notice}</p><IconButton icon="refresh" label="Actualizar detalle" disabled={busy} onClick={()=>open(selected.id)}/><div className={styles.detailSummary}><div><span className={`${styles.badge} ${selected.status==='REQUESTED'?styles.warning:selected.status==='APPROVED'?styles.positive:styles.neutral}`}>{labels[selected.status]}</span><small>{locations.find(l=>l.id===selected.location_id)?.name??'Origen seleccionado'}</small></div>{selected.shipping_minor!==null&&<strong>{money(selected.shipping_minor)}</strong>}</div>
+      <p role="status" aria-live="polite">{notice}</p><IconButton icon="refresh" label="Actualizar detalle" disabled={busy} onClick={()=>open(selected.id)}/><div className={styles.detailSummary}><div><span className={`${styles.badge} ${selected.status==='REQUESTED'?styles.warning:selected.status==='APPROVED'?styles.positive:styles.neutral}`}>{labels[selected.status]}</span><small>{locations.find(l=>l.id===selected.location_id)?.name??'Origen seleccionado'}</small></div>{selected.shipping_minor!==null&&<strong><AnimatedAmount key={selected.id} value={selected.shipping_minor}/></strong>}</div>
       {selected.address&&<><h3>Destino</h3><p>{selected.address.recipient}<br/>{selected.address.line1}<br/>{selected.address.commune}, {selected.address.region}, Chile{selected.address.postalCode&&<><br/>Código postal: {selected.address.postalCode}</>}</p><p>Teléfono: {selected.address.phone}</p></>}
       <h3>Productos</h3><ul>{items.map(item=><li key={item.productId}>{item.sku} · {item.name} × {item.quantity} — {money(item.lineTotal)}</li>)}</ul>
       <p>{selected.goods_minor===null?'Subtotal referencial actual':'Productos cotizados'}: <strong>{money(selected.goods_minor??subtotal)}</strong></p>
-      {selected.shipping_minor!==null&&<p>Envío: {money(selected.shipping_minor)} · Total: <strong>{money((BigInt(selected.goods_minor??subtotal)+BigInt(selected.shipping_minor)).toString())}</strong></p>}
+      {selected.shipping_minor!==null&&<p>Envío: {money(selected.shipping_minor)} · Total: <strong><AnimatedAmount key={selected.id} value={BigInt(selected.goods_minor??subtotal)+BigInt(selected.shipping_minor)}/></strong></p>}
       {selected.note&&<p>Nota: {selected.note}</p>}{selected.expires_at&&<p>Vigencia: {new Date(selected.expires_at).toLocaleString('es-CL')}</p>}
       {selected.status==='REQUESTED'&&<><h3>Aprobar envío</h3><p>El precio de productos se fija al aprobar. La cotización aprobada dura 30 minutos; el stock se comprueba y reserva al crear el pedido.</p><form onSubmit={e=>submit(e,'approve')}><fieldset disabled={busy||uncertain}><label>Costo de envío en CLP<input name="amount" inputMode="numeric" pattern="(0|[1-9][0-9]{0,12})" type="text" required maxLength={13}/></label><label>Condiciones del envío<textarea name="note" minLength={3} maxLength={500} required/></label><label><input type="checkbox" required/> Confirmo el costo y la cobertura del envío.</label><button>Aprobar cotización</button></fieldset></form>
         <details><summary>Rechazar solicitud</summary><form onSubmit={e=>submit(e,'reject')}><fieldset disabled={busy||uncertain}><label>Motivo<textarea name="reason" minLength={3} maxLength={500} required/></label><button>Rechazar solicitud</button></fieldset></form></details></>}

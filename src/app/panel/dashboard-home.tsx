@@ -1,4 +1,5 @@
 'use client';
+import AnimatedAmount from '../animated-amount';
 import {useEffect,useState} from 'react';
 import {IconButton} from '../action-icon';
 import styles from './dashboard-home.module.css';
@@ -9,7 +10,6 @@ function SummaryIcon({kind}:{kind:'sales'|'orders'|'shipping'|'stock'}){
  const paths={sales:'M7 3h10v18l-3-1-2 1-2-1-3 1V3ZM10 8h4m-4 4h4m-4 4h2',orders:'m4 7 8-4 8 4v10l-8 4-8-4V7Zm0 0 8 4 8-4m-8 4v10M8 5l8 4',shipping:'M3 5h12v12H3V5Zm12 5h4l3 4v3h-7M8 17a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm12 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z',stock:'m12 3 10 18H2L12 3Zm0 6v5m0 3h.01'};
  return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={paths[kind]}/></svg>;
 }
-const money=(value:string)=>new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0}).format(BigInt(value));
 export default function DashboardHome({name,navigate,request}:{name:string;navigate:(view:Destination)=>void;request:(path:string)=>Promise<any>}){
  const [data,setData]=useState<Summary|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState(''),[updatedAt,setUpdatedAt]=useState('');
  async function load(){setBusy(true);setError('');try{setData(await request('dashboard'));setUpdatedAt(new Intl.DateTimeFormat('es-CL',{hour:'2-digit',minute:'2-digit',timeZone:'America/Santiago'}).format(new Date()));}catch(error){setError((error as Error).message);}finally{setBusy(false);}}
@@ -25,7 +25,7 @@ export default function DashboardHome({name,navigate,request}:{name:string;navig
    <div data-panel-reveal="home-summary-title" className={styles.sectionHeading}><h2>Resumen de tu operación</h2><span role="status" aria-live="polite">{busy?'Actualizando resumen…':updatedAt?`Actualizado a las ${updatedAt} · Chile`:''}</span></div>
    {data?<>
     <div className={styles.metrics} aria-label="Resumen de tus ubicaciones autorizadas">
-     <button data-panel-reveal="home-sales" className={`${styles.metric} ${styles.salesMetric}`} onClick={()=>navigate('reports')}><div className={styles.metricLabel}><span>Ventas cobradas hoy</span><SummaryIcon kind="sales"/></div><strong>{money(data.sales_minor)}</strong><div className={styles.metricFoot}><small>{data.sales_count.toLocaleString('es-CL')} {data.sales_count===1?'venta':'ventas'} · Bruto antes de reembolsos</small><span aria-hidden="true">↗</span></div></button>
+     <button data-panel-reveal="home-sales" className={`${styles.metric} ${styles.salesMetric}`} onClick={()=>navigate('reports')}><div className={styles.metricLabel}><span>Ventas cobradas hoy</span><SummaryIcon kind="sales"/></div><strong><AnimatedAmount value={data.sales_minor}/></strong><div className={styles.metricFoot}><small>{data.sales_count.toLocaleString('es-CL')} {data.sales_count===1?'venta':'ventas'} · Bruto antes de reembolsos</small><span aria-hidden="true">↗</span></div></button>
      <button data-panel-reveal="home-orders" className={styles.metric} onClick={()=>navigate('orders')}><div className={styles.metricLabel}><span>Pedidos por entregar</span><SummaryIcon kind="orders"/></div><strong>{data.awaiting_delivery.toLocaleString('es-CL')}</strong><div className={styles.metricFoot}><small>Pagados y sin reembolsos aplicados</small><span aria-hidden="true">↗</span></div></button>
      <button data-panel-reveal="home-shipping" className={styles.metric} onClick={()=>navigate('shipping')}><div className={styles.metricLabel}><span>Envíos por cotizar</span><SummaryIcon kind="shipping"/></div><strong>{data.awaiting_quotes.toLocaleString('es-CL')}</strong><div className={styles.metricFoot}><small>Solicitudes pendientes de revisión</small><span aria-hidden="true">↗</span></div></button>
      <button data-panel-reveal="home-stock" className={styles.metric} onClick={()=>navigate('reports')}><div className={styles.metricLabel}><span>Alertas de stock</span><SummaryIcon kind="stock"/></div><strong>{data.low_stock_count.toLocaleString('es-CL')}</strong><div className={styles.metricFoot}><small>Hasta 5 unidades · {data.empty_stock_count} sin stock</small><span aria-hidden="true">↗</span></div></button>

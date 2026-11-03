@@ -1,4 +1,5 @@
 'use client';
+import AnimatedAmount from '../animated-amount';
 import type {ReactNode} from 'react';
 import {IconButton} from '../action-icon';
 import RowActions from './row-actions';
@@ -7,7 +8,7 @@ import type {Order} from './sales-orders';
 import styles from './management-workspace.module.css';
 const labels:Record<string,string>={RESERVED:'Reservado',PAID:'Pagado',FULFILLED:'Completado',CANCELLED:'Cancelado',EXPIRED:'Vencido'};
 const money=(v:string)=>new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0}).format(BigInt(v));
-export default function OrdersWorkspace({orders,locations,page,busy,onRefresh,onPage,onOpen,children}:{orders:Order[];locations:ManagedLocation[];page:number;busy:boolean;onRefresh:()=>Promise<void>;onPage:(page:number)=>Promise<void>;onOpen:(id:string)=>Promise<void>;children:ReactNode}){
+export default function OrdersWorkspace({orders,locations,page,busy,active=true,onRefresh,onPage,onOpen,children}:{active?:boolean;orders:Order[];locations:ManagedLocation[];page:number;busy:boolean;onRefresh:()=>Promise<void>;onPage:(page:number)=>Promise<void>;onOpen:(id:string)=>Promise<void>;children:ReactNode}){
  const paid=orders.filter(order=>order.status==='PAID');
  const fulfilled=orders.filter(order=>order.status==='FULFILLED');
  const recorded=orders.filter(order=>order.status==='PAID'||order.status==='FULFILLED');
@@ -18,7 +19,7 @@ export default function OrdersWorkspace({orders,locations,page,busy,onRefresh,on
    <div><span>Pedidos registrados</span><strong>{busy?'—':orders.length}</strong><small>Página {page+1} · hasta 25 registros</small></div>
    <div><span>Por entregar o despachar</span><strong>{busy?'—':paid.length}</strong><small>Con estado pagado · revisar posventa</small></div>
    <div><span>Completados</span><strong>{busy?'—':fulfilled.length}</strong><small>Entregados o despachados</small></div>
-   <div><span>Importe cobrado</span><strong>{busy?'—':money(gross.toString())}</strong><small>Esta página · antes de reembolsos</small></div>
+   <div><span>Importe cobrado</span><strong>{busy?'—':<AnimatedAmount value={gross} active={active}/>}</strong><small>Esta página · antes de reembolsos</small></div>
   </div>
   <div data-panel-reveal="orders-workspace-1" className={styles.panel}><div className={styles.panelHeading}><h3>Registro de pedidos</h3><span>{orders.length} {orders.length===1?'pedido':'pedidos'} en esta página</span></div>
    <div className={styles.tableScroll} tabIndex={0} role="region" aria-label="Pedidos y ventas" aria-busy={busy}><table className={styles.table}><thead><tr><th scope="col">Pedido</th><th scope="col">Origen</th><th scope="col">Ubicación</th><th scope="col">Estado</th><th scope="col" className={styles.amount}>Total</th><th scope="col" className={styles.menuCell}><span className={styles.srOnly}>Opciones del pedido</span></th></tr></thead><tbody>

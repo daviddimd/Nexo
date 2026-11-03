@@ -1,4 +1,5 @@
 'use client';
+import AnimatedAmount from '../animated-amount';
 import {useEffect,useRef,useState,type FormEvent} from 'react';
 import {IconButton} from '../action-icon';
 import ProductSearch from './product-search';
@@ -48,7 +49,7 @@ export default function NewSaleWorkspace({visible,lines,locations,busy,uncertain
    </div>
    <aside data-panel-reveal="new-sale-workspace-2" className={styles.checkout} aria-label="Resumen y pago de la venta">
     <div className={styles.cardHeading}><h3>Resumen de la venta</h3><span>CLP</span></div>
-    <div className={styles.total}><span>Total estimado</span><strong>{money(estimate)}</strong><small>{units.toLocaleString('es-CL')} {units===1?'unidad':'unidades'} en la venta</small></div>
+    <div className={styles.total}><span>Total estimado</span><strong><AnimatedAmount value={estimate} active={visible}/></strong><small>{units.toLocaleString('es-CL')} {units===1?'unidad':'unidades'} en la venta</small></div>
     <form key={sequence} className={styles.checkoutForm} onSubmit={onSubmit}><fieldset disabled={locked}>
      <label>Sucursal de venta<select name="location" required><option value="">Selecciona una sucursal</option>{stores.map(location=><option key={location.id} value={location.id}>{location.name}</option>)}</select></label>
      {!stores.length&&<p className={styles.pickerError}>Necesitas una sucursal activa asignada para registrar la venta.</p>}
