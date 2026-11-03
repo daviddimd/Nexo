@@ -231,3 +231,8 @@ Posventa operativa (dinero y stock separados), reportes por sucursal/fechas de C
 ## Colaboradores
 
 Para descargar el repositorio privado y ejecutarlo por primera vez en Windows, sigue [Empezar como colaborador](docs/EMPEZAR-COLABORADOR.md).
+
+
+## Compra y envío directo
+
+La tienda calcula envío por ciudad/comuna sin aprobación del agente. Perfiles, dirección, historial y tarjetas ficticias persistentes: [Checkout directo](docs/CHECKOUT-DIRECTO.md).

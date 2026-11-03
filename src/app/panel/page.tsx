@@ -17,7 +17,7 @@ import CatalogManager,{type ManagedProduct,type ManagedLocation} from './catalog
 import SalesOrders from './sales-orders';
 import SettingsWorkspace from './settings-workspace';
 import ReportsManager from './reports-manager';
-import ShippingManager from './shipping-manager';
+import DeliveryManager from './delivery-manager';
 type User={id:string;name:string;role:string};
 type Location=ManagedLocation;
 type Product=ManagedProduct;
@@ -94,7 +94,7 @@ export default function Panel(){
         {(view==='products'||view==='locations')&&<CatalogManager categories={categories} key={view} view={view} role={user.role} products={catalogProducts} locations={locations} busy={busy} group={catalogPage} request={api} reload={()=>refresh()} setBusy={setBusy} changeGroup={cp=>refresh(page,productPage,movementPage,cp)} filters={productFilters} onFilter={values=>filter('products',values)}/>}
         <SalesOrders role={user.role} view={view==='sales'||view==='orders'?view:null} products={products} locations={locations} busy={busy} setBusy={setBusy} request={api} reload={()=>refresh()}/>
         {view==='reports'&&<ReportsManager role={user.role} busy={busy} setBusy={setBusy} request={api}/>}
-        {view==='shipping'&&<ShippingManager locations={locations} busy={busy} setBusy={setBusy} request={api}/>}
+        {view==='shipping'&&<DeliveryManager role={user.role} busy={busy} setBusy={setBusy} request={api}/>}
         {(view==='settings'||view==='team')&&<SettingsWorkspace key={view} initialTeam={view==='team'} user={user} locations={locations} busy={busy} setBusy={setBusy} request={api}/>}
         {view==='inventory'&&<>
         {page===0&&productPage===0&&(!products.length||!locations.length)&&<section><h2>Comencemos con tu inventario</h2><p>Primero crea una ubicación y agrega un producto. Después registra una entrada para cargar tus unidades.</p><div className={styles.bar}>{user.role==='OWNER'&&<button onClick={()=>navigate('locations')}>Configurar ubicaciones</button>}<button onClick={()=>navigate('products')}>Agregar productos</button></div></section>}

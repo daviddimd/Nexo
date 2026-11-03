@@ -1,0 +1,10 @@
+/* Keep caret, hit testing and selection on the actual input. */
+.field{position:relative;display:block;min-width:0;width:100%}
+.field input[data-animated-ink=true]{color:transparent!important;-webkit-text-fill-color:transparent;caret-color:var(--nexo-primary)}
+.mirror{position:absolute;inset:1px;display:flex;align-items:center;overflow:hidden;border-radius:inherit;pointer-events:none;user-select:none;box-sizing:border-box}
+.text{display:block;white-space:pre;min-width:0;flex-shrink:0}
+.character{display:inline-block;animation:characterIn 180ms cubic-bezier(.23,1,.32,1) both}
+@keyframes characterIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.character{animation:none}}
+
+.field input,.mirror{font-kerning:none;font-variant-ligatures:none}

@@ -1,3 +1,4 @@
+import {localCustomerAccess} from './local-customer-access';
 import {initializeTechnologyCategories} from './category-bootstrap';
 import { randomBytes, randomUUID, scrypt, timingSafeEqual, createHash } from 'node:crypto';
 import { promisify } from 'node:util';
@@ -29,14 +30,14 @@ export async function login(pool: Pool, input: {company: string; email: string; 
   const {rows} = await pool.query(`SELECT u.* FROM users u JOIN companies c ON c.id=u.company_id WHERE c.slug=$1 AND u.email=$2 AND u.active`, [input.company,input.email]);
   const user = rows[0];
   const valid = await verifyPassword(input.password, user?.password_hash ?? dummyHash);
-  ensure(user && valid && (!user.email_verification_required||user.email_verified_at), 401, 'INVALID_CREDENTIALS', 'Credenciales incorrectas o cuenta no habilitada');
+  ensure(user && valid && (!user.email_verification_required||user.email_verified_at||(localCustomerAccess()&&user.role==='CUSTOMER')), 401, 'INVALID_CREDENTIALS', 'Credenciales incorrectas o cuenta no habilitada');
   const token = randomBytes(32).toString('base64url');
   await transaction(pool, async db => {
     await db.query('SELECT id FROM companies WHERE id=$1 FOR UPDATE',[user.company_id]);
     const fresh=await db.query('SELECT password_hash,role,active,email_verification_required,email_verified_at FROM users WHERE company_id=$1 AND id=$2',[user.company_id,user.id]);
     ensure(fresh.rows[0]?.active&&fresh.rows[0].password_hash===user.password_hash&&fresh.rows[0].role===user.role,
       401,'INVALID_CREDENTIALS','La cuenta cambió durante el acceso; vuelve a iniciar sesión');
-    ensure(!fresh.rows[0].email_verification_required||fresh.rows[0].email_verified_at,401,'INVALID_CREDENTIALS','Cuenta no habilitada');
+    ensure(!fresh.rows[0].email_verification_required||fresh.rows[0].email_verified_at||(localCustomerAccess()&&fresh.rows[0].role==='CUSTOMER'),401,'INVALID_CREDENTIALS','Cuenta no habilitada');
     await db.query('DELETE FROM login_attempts WHERE company_slug=$1 AND email=$2',[input.company,input.email]);
     await db.query(`INSERT INTO sessions(token_hash,company_id,user_id,expires_at) VALUES($1,$2,$3,now()+interval '8 hours')`, [digest(token),user.company_id,user.id]);
   });
@@ -45,7 +46,7 @@ export async function login(pool: Pool, input: {company: string; email: string; 
 export async function authenticate(pool: Pool, token: string | undefined): Promise<Actor> {
   ensure(token && token.length <= 128, 401, 'UNAUTHENTICATED', 'Inicia sesión');
   const {rows} = await pool.query(`SELECT u.id,u.company_id,u.role,u.name FROM sessions s JOIN users u ON u.company_id=s.company_id AND u.id=s.user_id
-    WHERE s.token_hash=$1 AND s.expires_at>now() AND u.active AND (NOT u.email_verification_required OR u.email_verified_at IS NOT NULL)`,[digest(token)]);
+    WHERE s.token_hash=$1 AND s.expires_at>now() AND u.active AND (NOT u.email_verification_required OR u.email_verified_at IS NOT NULL OR ($2 AND u.role='CUSTOMER'))`,[digest(token),localCustomerAccess()]);
   ensure(rows[0],401,'UNAUTHENTICATED','Sesión inválida o vencida');
   return rows[0];
 }

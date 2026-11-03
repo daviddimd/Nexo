@@ -1,6 +1,6 @@
 import type {ButtonHTMLAttributes} from 'react';
 
-type IconName='logout'|'previous'|'next'|'refresh'|'settings'|'profile'|'team'|'security'|'company'|'identity'|'clock';
+type IconName='logout'|'previous'|'next'|'refresh'|'settings'|'profile'|'team'|'security'|'company'|'identity'|'clock'|'shipping';
 export function ActionIcon({name,size=22}:{name:IconName;size?:number}){
   const paths:Record<IconName,string[]>={
     logout:['M9 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h4','M10 12h10','m16 8 4 4-4 4'],
@@ -12,6 +12,7 @@ export function ActionIcon({name,size=22}:{name:IconName;size?:number}){
     security:['M12 3 4 6v6c0 4.5 4.5 7.5 8 9 3.5-1.5 8-4.5 8-9V6l-8-3Z','m8.5 12 2.5 2.5 4.5-5'],
     company:['M4 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16','M16 9h3a1 1 0 0 1 1 1v11','M2 21h20','M8 7h4M8 11h4M8 15h4','M9 21v-3h2v3'],
     identity:['M12 3a9 9 0 1 0 0 18h1a2 2 0 0 0 1.4-3.4l-.4-.4a1.8 1.8 0 0 1 1.3-3.1H17a4 4 0 0 0 4-4c0-4-4-7.1-9-7.1Z','M7.5 10h.01M10 6.5h.01M14 6.5h.01M17 9.5h.01'],
+    shipping:['M2 5h12v12H2V5Z','M14 9h4l4 5v3h-8','M5 17v3m14-3v3'],
     clock:['M12 7v5l3 2'],
     settings:['M9.5 4.5 10 2h4l.5 2.5 2 .9 2.4-.8 2 3.5-1.9 1.7v2.4l1.9 1.7-2 3.5-2.4-.8-2 .9L14 20h-4l-.5-2.5-2-.9-2.4.8-2-3.5L5 12.2V9.8L3.1 8.1l2-3.5 2.4.8 2-.9Z'],
   };

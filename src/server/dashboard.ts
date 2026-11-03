@@ -23,6 +23,7 @@ export async function dashboardSummary(pool:Pool,actor:Actor){
         AND NOT EXISTS(SELECT 1 FROM return_receipts r WHERE r.company_id=o.company_id AND r.order_id=o.id AND r.kind='WITHDRAWAL')
         AND NOT EXISTS(SELECT 1 FROM refunds r LEFT JOIN payment_captures cap ON cap.company_id=r.company_id AND cap.id=r.capture_id
           WHERE r.company_id=o.company_id AND r.order_id=o.id AND (r.capture_id IS NULL OR cap.disposition='APPLIED'))) AS awaiting_delivery,
+      (SELECT count(*)::int FROM orders o WHERE o.company_id=$1 AND o.location_id IN(SELECT id FROM visible) AND o.fulfillment='SHIP' AND o.status='PAID' AND NOT EXISTS(SELECT 1 FROM refunds r LEFT JOIN payment_captures c ON c.company_id=r.company_id AND c.id=r.capture_id WHERE r.company_id=o.company_id AND r.order_id=o.id AND (r.capture_id IS NULL OR c.disposition='APPLIED')) AND NOT EXISTS(SELECT 1 FROM return_receipts r WHERE r.company_id=o.company_id AND r.order_id=o.id AND r.kind='WITHDRAWAL')) AS awaiting_shipments,
       (SELECT count(*)::int FROM shipping_quotes q WHERE q.company_id=$1 AND q.location_id IN(SELECT id FROM visible) AND q.status='REQUESTED') AS awaiting_quotes,
       (SELECT count(*)::int FROM alerts) AS low_stock_count,
       (SELECT count(*)::int FROM alerts WHERE available=0) AS empty_stock_count,

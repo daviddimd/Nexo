@@ -12,6 +12,7 @@ import {createUser} from '../src/server/manage';
 import {patchUser,resetUserPassword,changePassword} from '../src/server/accounts';
 import {createOnlineOrder} from '../src/server/orders';
 import {registerCustomer,requestAccountMail,consumeAccountToken} from '../src/server/recovery';
+import {customerProfile} from '../src/server/customer-profile';
 import {decryptLocalMail} from '../src/server/local-mail';
 import {POST} from '../src/app/api/[...path]/route';
 
@@ -169,4 +170,29 @@ describe('Public registration, verification and recovery',{skip:!process.env.TES
       const repeated=spawnSync(process.execPath,['--import','tsx','scripts/local-mail.ts',owner.company_id,row.id],{encoding:'utf8',env:process.env});assert.equal(repeated.status,1);
     }finally{await unlink(path);}
   });
+  test('local signup skips the unavailable email step without claiming verification',async()=>{
+    const saved={NODE_ENV:process.env.NODE_ENV,NEXO_LOCAL_SETUP_ENABLED:process.env.NEXO_LOCAL_SETUP_ENABLED,NEXO_LOCAL_CUSTOMER_ACCESS:process.env.NEXO_LOCAL_CUSTOMER_ACCESS};
+    try{
+      Object.assign(process.env,{NODE_ENV:'development',NEXO_LOCAL_SETUP_ENABLED:'true',NEXO_LOCAL_CUSTOMER_ACCESS:'true'});
+      const email=`${randomUUID()}@example.test`;
+      const result=await registerCustomer(pool,{company:slug,email,name:'Cliente local',password});assert.equal((result as any).verificationRequired,false);
+      const user=(await pool.query('SELECT * FROM users WHERE company_id=$1 AND email=$2',[owner.company_id,email])).rows[0];assert.equal(user.email_verified_at,null);assert.equal(user.email_verification_required,true);
+      assert.equal((await pool.query('SELECT 1 FROM account_tokens WHERE company_id=$1 AND user_id=$2',[owner.company_id,user.id])).rowCount,0);
+      await reject(()=>login(pool,{company:slug,email,password:'Incorrect-password-123!'}),'INVALID_CREDENTIALS');
+      const signed=await login(pool,{company:slug,email,password});const actor=await authenticate(pool,signed.token);assert.equal(actor.role,'CUSTOMER');assert.equal((await customerProfile(pool,actor)).name,'Cliente local');
+      Object.assign(process.env,{NODE_ENV:'production'});
+      await reject(()=>login(pool,{company:slug,email,password}),'INVALID_CREDENTIALS');await reject(()=>authenticate(pool,signed.token),'UNAUTHENTICATED');
+    }finally{for(const [key,value] of Object.entries(saved)){if(value===undefined)delete process.env[key];else process.env[key]=value;}}
+  });
+  test('local login unblocks a pending customer from the previous flow without changing email status',async()=>{
+    const {email,user}=await register();
+    const saved={NODE_ENV:process.env.NODE_ENV,NEXO_LOCAL_SETUP_ENABLED:process.env.NEXO_LOCAL_SETUP_ENABLED,NEXO_LOCAL_CUSTOMER_ACCESS:process.env.NEXO_LOCAL_CUSTOMER_ACCESS};
+    try{
+      Object.assign(process.env,{NODE_ENV:'development',NEXO_LOCAL_SETUP_ENABLED:'true',NEXO_LOCAL_CUSTOMER_ACCESS:'true'});
+      const signed=await login(pool,{company:slug,email,password});assert.equal((await authenticate(pool,signed.token)).id,user.id);
+      const unchanged=(await pool.query('SELECT email_verified_at,email_verification_required FROM users WHERE id=$1',[user.id])).rows[0];assert.equal(unchanged.email_verified_at,null);assert.equal(unchanged.email_verification_required,true);
+      delete process.env.NEXO_LOCAL_CUSTOMER_ACCESS;await reject(()=>authenticate(pool,signed.token),'UNAUTHENTICATED');
+    }finally{for(const [key,value] of Object.entries(saved)){if(value===undefined)delete process.env[key];else process.env[key]=value;}}
+  });
+
 });

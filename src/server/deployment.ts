@@ -7,6 +7,7 @@ export function configurationIssues(env:NodeJS.ProcessEnv,maintenance=false){
     if(env.NODE_ENV==='production'&&url.protocol!=='https:')issues.push('HTTPS_ORIGIN_REQUIRED');
   }catch{issues.push('INVALID_APP_ORIGIN');}
   if(env.NODE_ENV==='production'){
+    if(env.NEXO_LOCAL_CUSTOMER_ACCESS==='true')issues.push('LOCAL_CUSTOMER_ACCESS_FORBIDDEN');
     if(env.NEXO_SIMULATOR_ENABLED!=='false')issues.push('SIMULATOR_MUST_BE_DISABLED');
     if(env.NEXO_LOCAL_MAIL_ENABLED!=='false')issues.push('LOCAL_MAIL_MUST_BE_DISABLED');
     if(env.NEXO_LICENSE_PRIVATE_KEY_FILE)issues.push('PRIVATE_SIGNING_KEY_FORBIDDEN');

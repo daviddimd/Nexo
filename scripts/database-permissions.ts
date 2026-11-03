@@ -3,12 +3,12 @@ import {pathToFileURL} from 'node:url';
 import {resolve} from 'node:path';
 import {transaction} from '../src/server/db';
 
-const tables=['categories','companies','users','sessions','login_attempts','locations','agent_locations','products','stock','inventory_operations','stock_movements',
+const tables=['test_payment_cards','test_payment_choices','shipping_rates','customer_profiles','categories','companies','users','sessions','login_attempts','locations','agent_locations','products','stock','inventory_operations','stock_movements',
   'orders','order_items','order_events','shipping_quotes','shipping_quote_items','payment_intents','payment_captures','payment_events',
   'refunds','capture_resolutions','return_receipts','return_items','administrative_events','account_tokens','local_mail','account_rate_limits',
   'staff_invitations','commercial_revisions','installation_identity','license_imports','schema_migrations'];
 const protectedTables=['commercial_revisions','installation_identity','license_imports','schema_migrations'];
-const ledger=['inventory_operations','stock_movements','order_items','order_events','shipping_quote_items','payment_captures','payment_events',
+const ledger=['test_payment_choices','inventory_operations','stock_movements','order_items','order_events','shipping_quote_items','payment_captures','payment_events',
   'refunds','capture_resolutions','return_receipts','return_items','administrative_events','local_mail'];
 const identifier=(value:string)=>{if(!/^[a-z][a-z0-9_]{0,62}$/.test(value))throw new Error('Invalid SQL identifier');return `"${value}"`;};
 

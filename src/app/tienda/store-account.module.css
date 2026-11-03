@@ -9,3 +9,86 @@
 @media(prefers-reduced-motion:reduce){.dialog button,.purchases button{transition:none}}
 
 .dialog form fieldset>button:not([type=button]){background:var(--nexo-primary);color:white;border-color:var(--nexo-primary);border-radius:10px}.dialog .securityCard button{line-height:1.6}.profileContent .notice{margin-top:20px}
+
+.customerSettings form{max-width:none}.customerSettings fieldset{padding:0;margin:0;border:0;min-width:0}.customerSettings label{font-size:13px;margin:14px 0}.customerSettings input,.customerSettings select{min-height:44px;font-size:14px;border:1px solid var(--store-line,var(--nexo-line));background:white;border-radius:10px;padding:11px 12px}.customerSettings button{margin-top:8px;font-size:13px}.customerSettings .securityCard{display:block}.customerSettings .securityCard summary{cursor:pointer;font-weight:600}.savedCards{list-style:none;margin:22px 0;padding:0}.savedCards li{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 0;border-bottom:1px solid var(--store-line,var(--nexo-line))}.savedCards strong,.savedCards small{display:block}.savedCards strong{font-size:14px}.savedCards small{font-size:12px;color:var(--nexo-muted);margin-top:6px}.savedCards button{background:transparent;border:1px solid var(--store-line,var(--nexo-line));font-size:12px;padding:8px 12px}.customerSettings .checkLabel{display:flex;gap:8px;align-items:center}.customerSettings .checkLabel input{width:auto;min-height:0}.customerSettings p[role=status]:empty{display:none}
+
+/* Store access: one title, one form, one action. Scoped away from profile and purchases. */
+.accessDialog{width:min(460px,calc(100vw - 32px));max-height:calc(100dvh - 40px);border:1px solid rgb(36 28 50 / .09);border-radius:22px;background:#fff;box-shadow:0 32px 100px rgb(24 15 37 / .22)}
+.accessDialog::backdrop{background:rgb(24 18 32 / .38);backdrop-filter:blur(6px)}
+.accessDialog>div{max-height:calc(100dvh - 42px)}
+.accessDialog>div>header{align-items:center;padding:27px 30px 0;border:0;gap:16px}
+.accessDialog>div>header h2{margin:0;font-family:var(--nexo-font),system-ui,sans-serif;font-size:25px;line-height:1.25;font-weight:650;letter-spacing:-.045em;color:var(--nexo-ink)}
+.accessDialog>div>header>button{display:grid;place-items:center;width:36px;height:36px;flex:0 0 36px;padding:0;margin:0;border:0;border-radius:50%;background:#f4f2f6;color:#756b7e;box-shadow:none}
+.accessDialog>div>header>button:hover:not(:disabled){background:#ece8f0;color:var(--nexo-ink)}
+.accessDialog>div>div{padding:0 30px 25px}
+.accessForm{padding:0;min-width:0}
+.accessBrand{display:flex;align-items:center;min-height:34px;margin:12px 0 10px;color:var(--nexo-primary);font-size:13px;font-weight:600}
+.accessBrand img{display:block;width:auto;max-width:155px;height:32px;object-fit:contain;object-position:left center}
+.accessIntro{color:var(--store-muted,#71627d);font-size:13.5px;line-height:1.65;margin:0 0 22px;max-width:360px;text-wrap:pretty}
+.accessNotice{margin:0 0 18px;padding:12px 14px;border-left:3px solid var(--nexo-primary);background:color-mix(in srgb,var(--nexo-primary) 8%,white);color:var(--nexo-ink);border-radius:0 10px 10px 0;font-size:12.5px;line-height:1.55;overflow-wrap:anywhere}
+.accessForm form{max-width:none;margin:0}
+.accessForm fieldset{padding:0;margin:0;border:0;min-width:0}
+.accessField{display:grid;gap:7px;margin:0 0 16px;color:var(--nexo-ink);font-size:12px;font-weight:550;line-height:1.4}
+.accessForm input{width:100%;min-height:48px;padding:13px 14px;border:1px solid color-mix(in srgb,var(--nexo-ink) 12%,#ded9e5);border-radius:12px;background:#fff;color:var(--nexo-ink);font-family:inherit;font-size:14px;line-height:1.4;box-shadow:0 1px 2px color-mix(in srgb,var(--nexo-ink) 3%,transparent);transition:border-color 180ms ease,box-shadow 180ms ease,transform 180ms ease}
+.accessForm input::placeholder{color:#9a91a3;opacity:1;font-size:13px}
+.accessForm input:focus-visible{outline:none;border-color:var(--nexo-primary);box-shadow:0 0 0 3px color-mix(in srgb,var(--nexo-primary) 18%,transparent)}
+.passwordGroup{margin:0 0 20px}
+.passwordCaption{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:7px}
+.passwordCaption label{display:block;font-size:12px;line-height:1.4;font-weight:550;color:var(--nexo-ink);margin:0}
+.passwordCaption>:is(button,a){padding:0;border:0;border-radius:2px;background:transparent;color:var(--nexo-primary);font-size:12px;font-weight:500;line-height:1.6;box-shadow:none}
+.passwordInput{position:relative}
+.passwordInput input{padding-right:48px}
+.passwordInput>button{position:absolute;top:50%;right:6px;transform:translateY(-50%);width:36px;height:36px;display:grid;place-items:center;border:0;border-radius:9px;padding:0;margin:0;background:transparent;color:#80758b;box-shadow:none;transition:background 140ms ease,color 140ms ease}
+.passwordInput>button:hover:not(:disabled){background:color-mix(in srgb,var(--nexo-primary) 8%,#f5f2f8);color:var(--nexo-ink)}
+.passwordGroup>small{display:block;margin:8px 0 0;font-size:11px;line-height:1.5;color:var(--store-muted,#71627d)}
+.accessForm form fieldset>.accessSubmit{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;min-height:50px;padding:14px 18px;margin:6px 0 0;border:1px solid transparent;border-radius:12px;background:var(--nexo-primary);color:#fff;box-shadow:0 4px 14px color-mix(in srgb,var(--nexo-primary) 28%,transparent);font:inherit;font-size:13.5px;font-weight:600;line-height:1.5;letter-spacing:.01em;transition:transform 180ms cubic-bezier(.23,1,.32,1),box-shadow 180ms ease,background-color 160ms ease}
+.accessForm form fieldset>.accessSubmit:hover:not(:disabled){background:var(--store-ink-hover,var(--nexo-primary));transform:translateY(-1px);box-shadow:0 6px 18px color-mix(in srgb,var(--nexo-primary) 34%,transparent)}
+.accessForm form fieldset>.accessSubmit:active:not(:disabled){transform:translateY(0) scale(.985);box-shadow:0 2px 8px color-mix(in srgb,var(--nexo-primary) 22%,transparent)}
+.accessSwitch{font-size:12.5px;line-height:1.7;color:var(--store-muted,#71627d);margin:22px 0 0;text-align:center}
+.accessSwitch :is(button,a),.accessBack{padding:2px 0;margin:0;border:0;border-radius:2px;background:transparent;color:var(--nexo-primary);font-size:12.5px;font-weight:600;box-shadow:none}
+.accessSwitch :is(button,a):hover:not(:disabled),.accessBack:hover:not(:disabled),.passwordCaption>:is(button,a):hover:not(:disabled){background:transparent;text-decoration:underline;text-underline-offset:3px}
+.accessBack{display:block;margin:18px auto 0;font-weight:500}
+.accessSupport{border-top:1px solid color-mix(in srgb,var(--nexo-ink) 8%,transparent);padding-top:16px;margin-top:22px}
+.accessSupport summary{cursor:pointer;color:var(--store-muted,#71627d);font-size:11.5px;line-height:1.6;list-style:none;display:flex;justify-content:space-between;align-items:center}
+.accessSupport summary::-webkit-details-marker{display:none}
+.accessSupport summary::after{content:'+';font-size:16px;line-height:1;opacity:.7}
+.accessSupport[open] summary::after{content:'−'}
+.accessSupport>div{display:grid;justify-items:start;gap:2px;padding-top:10px}
+.accessSupport :is(button,a){padding:8px 0;margin:0;border:0;border-radius:2px;background:transparent;color:var(--nexo-primary);font-size:12.5px;font-weight:450;text-align:left;box-shadow:none}
+.accessSpinner{width:14px;height:14px;border:1.5px solid rgb(255 255 255 / .35);border-top-color:#fff;border-radius:50%;animation:accessSpin 650ms linear infinite}
+@keyframes accessSpin{to{transform:rotate(360deg)}}
+@media(hover:hover) and (pointer:fine){.accessForm input:hover:not(:focus-visible):not(:disabled){border-color:color-mix(in srgb,var(--nexo-primary) 28%,#bcb1ca)}}
+@media(max-width:520px){.accessDialog{width:calc(100vw - 24px);border-radius:18px;max-height:calc(100dvh - 24px)}.accessDialog>div{max-height:calc(100dvh - 26px)}.accessDialog>div>header{padding:22px 22px 0}.accessDialog>div>header h2{font-size:23px}.accessDialog>div>div{padding:0 22px 22px}.accessIntro{margin-bottom:20px}.accessBrand{margin-top:12px}}
+@media(pointer:coarse){.accessForm input{font-size:16px;min-height:50px}.accessSwitch :is(button,a),.passwordCaption>:is(button,a),.accessBack,.accessSupport :is(button,a){min-height:36px}.passwordInput>button{width:42px;height:42px}.accessDialog>div>header>button{width:42px;height:42px;flex-basis:42px}}
+@media(prefers-reduced-motion:reduce){.accessForm input,.accessForm form fieldset>.accessSubmit{transition:none}.accessForm form fieldset>.accessSubmit:hover:not(:disabled),.accessForm form fieldset>.accessSubmit:active:not(:disabled){transform:none}.accessSpinner{animation:none}}
+
+.accessSwitch a,.passwordCaption>a,.accessSupport a,.accessBack{text-decoration:none}.accessSupport a{display:inline-block}.accessForm a[aria-disabled=true]{opacity:.5;cursor:default}
+/* Account feedback: brief state changes, never delayed typing. */
+.accessForm{--motion-ease:cubic-bezier(.23,1,.32,1)}
+.accessField,.passwordCaption label{transition:color 160ms ease}
+.accessField:has(input:focus),.passwordGroup:has(input:focus) .passwordCaption label{color:var(--nexo-primary)}
+.accessForm input{caret-color:var(--nexo-primary)}
+.accessForm input[aria-invalid=true]{border-color:#ba3151;box-shadow:0 0 0 3px rgb(186 49 81 / .1)}
+.accessForm input[aria-invalid=true]:focus-visible{border-color:#ba3151;box-shadow:0 0 0 3px rgb(186 49 81 / .14)}
+.accessNotice[data-kind=error]{border-color:#ba3151;background:#fff3f5;color:#87213a}
+.accessNotice[data-kind=success]{border-color:#16775c;background:#edf8f3;color:#165d49}
+.accessForm form fieldset>.accessSubmit[data-success=true]{background:#16775c;box-shadow:none}
+.accessCheck{flex-shrink:0;stroke-dasharray:24;stroke-dashoffset:0;animation:accessConfirm 220ms var(--motion-ease) both}
+@keyframes accessConfirm{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+.accessSupport summary::after{content:'+';transition:transform 180ms var(--motion-ease)}
+.accessSupport[open] summary::after{content:'+';transform:rotate(45deg)}
+@supports (interpolate-size:allow-keywords){
+ .accessSupport{interpolate-size:allow-keywords}
+ .accessSupport::details-content{height:0;overflow:clip;transition:height 200ms var(--motion-ease),content-visibility 200ms allow-discrete}
+ .accessSupport[open]::details-content{height:auto}
+}
+@media(prefers-reduced-motion:reduce){
+ .accessField,.passwordCaption label,.accessSupport summary::after{transition:none}
+ .accessSupport::details-content{transition:none}
+ .accessCheck{animation:none}
+}
+
+/* Keep the eye mounted so its slash draws and reverses smoothly. */
+.eyeSlash{stroke-dasharray:1;stroke-dashoffset:1;opacity:0;transition:stroke-dashoffset 280ms cubic-bezier(.77,0,.175,1),opacity 180ms ease}
+.eyeSlash[data-visible=true]{stroke-dashoffset:0;opacity:1}
+@media(prefers-reduced-motion:reduce){.eyeSlash{transition:none}}

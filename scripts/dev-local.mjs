@@ -59,7 +59,7 @@ try{
   const demoPath=join(root,'demo-runtime.json');
   let demo;if(existsSync(demoPath))demo=JSON.parse(await readFile(demoPath,'utf8'));else{demo={simulatorSecret:randomBytes(32).toString('hex'),mailKey:randomBytes(32).toString('hex')};await writeFile(demoPath,JSON.stringify(demo),{flag:'wx',mode:0o600});}
   if(!/^[a-f0-9]{64}$/.test(demo.simulatorSecret)||!/^[a-f0-9]{64}$/.test(demo.mailKey))throw new Error('Configuración demo inválida');
-  const runtime={...env,NEXO_LOCAL_SETUP_ENABLED:'true',NEXO_SIMULATOR_ENABLED:'true',NEXO_LOCAL_SIMULATOR_SECRET:demo.simulatorSecret,NEXO_LOCAL_MAIL_ENABLED:'true',NEXO_LOCAL_MAIL_KEY:env.NEXO_LOCAL_MAIL_KEY??demo.mailKey};delete runtime.NEXO_MIGRATION_DATABASE_URL;delete runtime.NEXO_OPERATOR_DATABASE_URL;
+  const runtime={...env,NEXO_LOCAL_SETUP_ENABLED:'true',NEXO_LOCAL_CUSTOMER_ACCESS:'true',NEXO_SIMULATOR_ENABLED:'true',NEXO_LOCAL_SIMULATOR_SECRET:demo.simulatorSecret,NEXO_LOCAL_MAIL_ENABLED:'true',NEXO_LOCAL_MAIL_KEY:env.NEXO_LOCAL_MAIL_KEY??demo.mailKey};delete runtime.NEXO_MIGRATION_DATABASE_URL;delete runtime.NEXO_OPERATOR_DATABASE_URL;
   for(const args of [['node_modules/next/dist/bin/next','dev','--hostname','127.0.0.1','--port',String(webPort)],['--import','tsx','scripts/expire-orders.ts','--watch']]){
     if(stopping)break;const child=spawn(process.execPath,args,{env:runtime,stdio:'inherit',windowsHide:true});children.push(child);
     child.once('error',()=>void stop(1));child.once('exit',code=>{if(!stopping)void stop(code??1);});

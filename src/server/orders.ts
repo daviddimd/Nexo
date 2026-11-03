@@ -1,3 +1,4 @@
+import {automaticDelivery} from './shipping-rates';
 import { randomUUID } from 'node:crypto';
 import type { Pool, PoolClient } from 'pg';
 import { digest, locationAccess, owner, staff, type Actor } from './auth';
@@ -39,15 +40,15 @@ async function storeLocation(db: PoolClient, companyId: string, id: string) {
 
 async function reserveDraft(db: PoolClient, actor: Actor, key: string, hash: string,
   channel: Order['channel'], fulfillment: Order['fulfillment'], locationId: string, cart: PricedCart,
-  shipping?: { quoteId:string; address:ShippingAddress; fee:string }) {
+  shipping?: { quoteId?:string; rateId?:string; address:ShippingAddress; fee:string }) {
   const company = await db.query<{ reservation_minutes: number }>('SELECT reservation_minutes FROM companies WHERE id=$1', [actor.company_id]);
   const id = randomUUID();
   await db.query(`INSERT INTO orders(id,company_id,customer_id,created_by,channel,fulfillment,
-    location_id,total_minor,idempotency_key,request_hash,expires_at,goods_minor,shipping_minor,shipping_quote_id,shipping_address)
-    VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,clock_timestamp()+$11*interval '1 minute',$12,$13,$14,$15)`,
+    location_id,total_minor,idempotency_key,request_hash,expires_at,goods_minor,shipping_minor,shipping_quote_id,shipping_address,shipping_rate_id)
+    VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,clock_timestamp()+$11*interval '1 minute',$12,$13,$14,$15,$16)`,
     [id, actor.company_id, channel === 'ONLINE' ? actor.id : null, actor.id, channel, fulfillment,
       locationId, (BigInt(cart.total)+BigInt(shipping?.fee??'0')).toString(), key, hash, company.rows[0].reservation_minutes,
-      cart.total,shipping?.fee??'0',shipping?.quoteId??null,shipping?JSON.stringify(shipping.address):null]);
+      cart.total,shipping?.fee??'0',shipping?.quoteId??null,shipping?JSON.stringify(shipping.address):null,shipping?.rateId??null]);
   for (const item of cart.items) {
     const reserved = await db.query(`UPDATE stock SET reserved=reserved+$4,updated_at=clock_timestamp()
       WHERE company_id=$1 AND product_id=$2 AND location_id=$3 AND on_hand-reserved >= $4`,
@@ -74,6 +75,12 @@ export async function createOnlineOrder(pool: Pool, actor: Actor, key: string, r
     const pending = await db.query<{ count: number }>(`SELECT count(*)::integer AS count FROM orders
       WHERE company_id=$1 AND customer_id=$2 AND status='RESERVED'`, [actor.company_id, actor.id]);
     ensure(pending.rows[0].count < 5, 409, 'PENDING_ORDER_LIMIT', 'Ya tienes cinco pedidos pendientes');
+    if(input.fulfillment==='SHIP'&&input.shippingRateId){
+      const delivery=await automaticDelivery(db,actor.company_id,input.shippingRateId,input.items,input.address!);
+      ensure(delivery.total===input.expectedTotalMinor,409,'CHECKOUT_TOTAL_CHANGED','El precio o el envío cambió. Actualiza el resumen antes de confirmar');
+      const order=await reserveDraft(db,actor,key,hash,'ONLINE','SHIP',delivery.locationId,delivery.cart,{rateId:delivery.rate.id,address:input.address!,fee:delivery.rate.fee_minor});
+      return {...await orderResult(db,order),replayed:false};
+    }
     const quote = input.fulfillment==='SHIP' ? await approvedShippingQuote(db,actor,input.shippingQuoteId!,input.items) : null;
     const cart = quote ? {items:quote.priced_items,total:quote.goods_minor} : await priceCart(db, actor.company_id, input.items);
     const locationId = quote ? quote.location_id : await storeLocation(db, actor.company_id, input.locationId!);
@@ -181,14 +188,15 @@ export async function getOrder(pool: Pool, actor: Actor, id: string) {
   });
 }
 
-export async function listOrders(pool: Pool, actor: Actor, limit = 50, offset = 0) {
+export async function listOrders(pool: Pool, actor: Actor, limit = 50, offset = 0, fulfillment?:string) {
+  ensure(!fulfillment||['SHIP','PICKUP','LOCAL'].includes(fulfillment),400,'INVALID_FULFILLMENT','Método de entrega inválido');
   return orderTransaction(pool, actor, async db => {
     const { rows } = await db.query(`SELECT o.id,o.channel,o.fulfillment,o.location_id,o.status,o.currency,
       o.total_minor::text,o.expires_at,o.created_at,o.paid_at,o.fulfilled_at
-      FROM orders o WHERE o.company_id=$1 AND (
+      FROM orders o WHERE o.company_id=$1 AND ($6::text IS NULL OR o.fulfillment=$6) AND (
         $2='OWNER' OR ($2='CUSTOMER' AND o.customer_id=$3) OR ($2='AGENT' AND EXISTS (
           SELECT 1 FROM agent_locations a WHERE a.company_id=o.company_id AND a.user_id=$3 AND a.location_id=o.location_id
-        ))) ORDER BY o.created_at DESC,o.id LIMIT $4 OFFSET $5`, [actor.company_id, actor.role, actor.id, limit, offset]);
+        ))) ORDER BY o.created_at DESC,o.id LIMIT $4 OFFSET $5`, [actor.company_id, actor.role, actor.id, limit, offset,fulfillment??null]);
     return { items: rows, limit, offset };
   });
 }

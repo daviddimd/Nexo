@@ -36,7 +36,7 @@ export async function createPaymentIntent(pool: Pool, actor: Actor, key: string,
     }
     const order=await findOrder(db,actor.company_id,input.orderId);await orderAccess(db,actor,order);
     ensure(order.status==='RESERVED'&&!await isExpired(db,order),409,'PAYMENT_NOT_AVAILABLE','El pedido no tiene reserva vigente');
-    ensure(order.fulfillment!=='SHIP'||order.shipping_quote_id,409,'SHIPPING_QUOTE_REQUIRED','Recrea el pedido de envío con cotización');
+    ensure(order.fulfillment!=='SHIP'||order.shipping_quote_id||order.shipping_rate_id,409,'SHIPPING_QUOTE_REQUIRED','Recrea el pedido con un costo de envío confirmado');
     ensure(BigInt(order.total_minor)>0n,409,'ZERO_PAYMENT_NOT_SUPPORTED','Un pedido gratuito requiere registro manual');
     const existing=await db.query('SELECT 1 FROM payment_intents WHERE company_id=$1 AND order_id=$2',[actor.company_id,order.id]);
     ensure(!existing.rowCount,409,'PAYMENT_ALREADY_STARTED','Ya existe un intento para el pedido; reintenta con su clave original');

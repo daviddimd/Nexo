@@ -1,3 +1,4 @@
+import {localCustomerAccess} from './local-customer-access';
 import {randomBytes,randomUUID} from 'node:crypto';
 import type {Pool,PoolClient} from 'pg';
 import {z} from 'zod';
@@ -45,19 +46,20 @@ async function issue(db:PoolClient,account:Account,purpose:Purpose){
 }
 export async function registerCustomer(pool:Pool,raw:unknown){
   const input=mailboxSchema.extend({name:z.string().trim().min(1).max(200),password}).strict().parse(raw);
-  assertLocalMail();await limits(pool,input.company,input.email,'REGISTER');
+  const local=localCustomerAccess();if(!local)assertLocalMail();await limits(pool,input.company,input.email,'REGISTER');
+  const response=local?{accepted:true,verificationRequired:false,message:'Puedes iniciar sesión y continuar en este entorno local.'}:generic;
   const hashed=await hashPassword(input.password);
   return transaction(pool,async db=>{
-    const c=await companyBySlug(db,input.company);if(!c)return generic;
+    const c=await companyBySlug(db,input.company);if(!c)return response;
     await lockCompany(db,c.id);
     const existing=await db.query('SELECT 1 FROM users WHERE company_id=$1 AND email=$2',[c.id,input.email]);
-    if(existing.rowCount)return generic;
+    if(existing.rowCount)return response;
     const invitation=await db.query("SELECT 1 FROM staff_invitations WHERE company_id=$1 AND email=$2 AND status='PENDING' AND expires_at>clock_timestamp()",[c.id,input.email]);
-    if(invitation.rowCount)return generic;
+    if(invitation.rowCount)return response;
     const {rows}=await db.query<Account>(`INSERT INTO users(id,company_id,email,name,password_hash,role,email_verification_required)
       VALUES($1,$2,$3,$4,$5,'CUSTOMER',true) RETURNING *`,[randomUUID(),c.id,input.email,input.name,hashed]);
-    await publicAccountEvent(db,rows[0],'CUSTOMER_REGISTERED',{verificationRequired:true});
-    await issue(db,rows[0],'VERIFY_EMAIL');return generic;
+    await publicAccountEvent(db,rows[0],'CUSTOMER_REGISTERED',{verificationRequired:true,localAccess:local});
+    if(!local)await issue(db,rows[0],'VERIFY_EMAIL');return response;
   });
 }
 export async function requestAccountMail(pool:Pool,purpose:Purpose,raw:unknown){

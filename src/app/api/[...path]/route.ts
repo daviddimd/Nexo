@@ -1,3 +1,6 @@
+import {listTestCards,saveTestCard,removeTestCard} from '../../../server/test-payment-methods';
+import {listShippingRates,saveShippingRate,publicDeliveryRates,deliveryEstimate} from '../../../server/shipping-rates';
+import {customerProfile} from '../../../server/customer-profile';
 import {managedProductDetail,publicProductDetail} from '../../../server/product-detail';
 import {listCategories,createCategory,renameCategory} from '../../../server/categories';
 import {simulateCheckout} from '../../../server/demo-checkout';
@@ -47,6 +50,8 @@ async function handle(request:Request,context:Context) {
     if(route==='public/start'&&method==='GET'){
       const {rows}=await pool.query('SELECT name,slug FROM companies ORDER BY slug LIMIT 2');return json({store:rows.length===1?rows[0]:null});
     }
+    if(path.length===3&&path[0]==='public'&&path[2]==='shipping-rates'&&method==='GET')return json(await publicDeliveryRates(pool,path[1]));
+    if(path.length===3&&path[0]==='public'&&path[2]==='shipping-estimate'&&method==='POST')return json(await deliveryEstimate(pool,path[1],await body(request)));
     if(route==='ready'&&method==='GET'){await pool.query('SELECT 1 FROM license_imports LIMIT 1');return json({status:'ready'});}
     if(path.length===3&&path[0]==='public'&&path[2]==='settings'&&method==='GET')return json(await publicSettings(pool,path[1]));
     if(path.length===3&&path[0]==='public'&&path[2]==='facets'&&method==='GET')return json(await publicFacets(pool,path[1],Object.fromEntries(new URL(request.url).searchParams)));
@@ -70,6 +75,14 @@ async function handle(request:Request,context:Context) {
       await pool.query('DELETE FROM sessions WHERE token_hash=$1 AND user_id=$2',[digest(sessionToken(request)!),actor.id]);
       return json({loggedOut:true},200,{'Set-Cookie':cookie('',0)});
     }
+    if(route==='customer/test-cards'&&method==='GET')return json(await listTestCards(pool,actor));
+    if(route==='customer/test-cards'&&method==='POST')return json(await saveTestCard(pool,actor,await body(request)),201);
+    if(path.length===3&&path[0]==='customer'&&path[1]==='test-cards'&&method==='PATCH')return json(await removeTestCard(pool,actor,uuid.parse(path[2])));
+    if(route==='customer/profile'&&method==='GET')return json(await customerProfile(pool,actor));
+    if(route==='customer/profile'&&method==='PATCH')return json(await customerProfile(pool,actor,await body(request)));
+    if(route==='settings/shipping-rates'&&method==='GET')return json(await listShippingRates(pool,actor));
+    if(route==='settings/shipping-rates'&&method==='POST')return json(await saveShippingRate(pool,actor,null,await body(request)),201);
+    if(path.length===3&&path[0]==='settings'&&path[1]==='shipping-rates'&&method==='PATCH')return json(await saveShippingRate(pool,actor,uuid.parse(path[2]),await body(request)));
     if(route==='dashboard'&&method==='GET')return json(await dashboardSummary(pool,actor));
     if(route==='reports'&&method==='GET')return json(await businessReport(pool,actor,Object.fromEntries(new URL(request.url).searchParams)));
     if(route==='auth/me'&&method==='GET')return json({user:actor});
@@ -112,7 +125,7 @@ async function handle(request:Request,context:Context) {
       if(path[3]==='approve')return json(await approveShippingQuote(pool,actor,id,await body(request)));
       if(path[3]==='reject')return json(await rejectShippingQuote(pool,actor,id,await body(request)));
     }
-    if(path.length===4&&path[0]==='payments'&&path[1]==='intents'&&path[3]==='simulate'&&method==='POST')return json(await simulateCheckout(pool,actor,uuid.parse(path[2])));
+    if(path.length===4&&path[0]==='payments'&&path[1]==='intents'&&path[3]==='simulate'&&method==='POST')return json(await simulateCheckout(pool,actor,uuid.parse(path[2]),await body(request)));
     if(route==='payments/intents'&&method==='POST') {
       const intent=await createPaymentIntent(pool,actor,request.headers.get('idempotency-key')??'',await body(request));return json(intent,intent.replayed?200:201);
     }
@@ -130,7 +143,7 @@ async function handle(request:Request,context:Context) {
       return json(order,order.replayed?200:201);
     }
     if(route==='orders'&&method==='GET') {
-      const p=pagination(new URL(request.url));return json(await listOrders(pool,actor,p.limit,p.offset));
+      const p=pagination(new URL(request.url));return json(await listOrders(pool,actor,p.limit,p.offset,new URL(request.url).searchParams.get('fulfillment')??undefined));
     }
     if(path[0]==='orders'&&path.length===2&&method==='GET')return json(await getOrder(pool,actor,uuid.parse(path[1])));
     if(path[0]==='orders'&&path.length===3&&path[2]==='aftersales'&&method==='GET')return json(await aftersalesSummary(pool,actor,uuid.parse(path[1])));

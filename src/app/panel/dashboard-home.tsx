@@ -4,7 +4,7 @@ import {useEffect,useState} from 'react';
 import {IconButton} from '../action-icon';
 import styles from './dashboard-home.module.css';
 
-type Summary={company:string;date:string;sales_count:number;sales_minor:string;awaiting_delivery:number;awaiting_quotes:number;low_stock_count:number;empty_stock_count:number;alerts:{sku:string;name:string;location:string;available:number}[]};
+type Summary={company:string;date:string;sales_count:number;sales_minor:string;awaiting_delivery:number;awaiting_quotes:number;awaiting_shipments:number;low_stock_count:number;empty_stock_count:number;alerts:{sku:string;name:string;location:string;available:number}[]};
 type Destination='reports'|'orders'|'shipping'|'inventory'|'sales';
 function SummaryIcon({kind}:{kind:'sales'|'orders'|'shipping'|'stock'}){
  const paths={sales:'M7 3h10v18l-3-1-2 1-2-1-3 1V3ZM10 8h4m-4 4h4m-4 4h2',orders:'m4 7 8-4 8 4v10l-8 4-8-4V7Zm0 0 8 4 8-4m-8 4v10M8 5l8 4',shipping:'M3 5h12v12H3V5Zm12 5h4l3 4v3h-7M8 17a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm12 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z',stock:'m12 3 10 18H2L12 3Zm0 6v5m0 3h.01'};
@@ -27,7 +27,7 @@ export default function DashboardHome({name,navigate,request}:{name:string;navig
     <div className={styles.metrics} aria-label="Resumen de tus ubicaciones autorizadas">
      <button data-panel-reveal="home-sales" className={`${styles.metric} ${styles.salesMetric}`} onClick={()=>navigate('reports')}><div className={styles.metricLabel}><span>Ventas cobradas hoy</span><SummaryIcon kind="sales"/></div><strong><AnimatedAmount value={data.sales_minor}/></strong><div className={styles.metricFoot}><small>{data.sales_count.toLocaleString('es-CL')} {data.sales_count===1?'venta':'ventas'} · Bruto antes de reembolsos</small><span aria-hidden="true">↗</span></div></button>
      <button data-panel-reveal="home-orders" className={styles.metric} onClick={()=>navigate('orders')}><div className={styles.metricLabel}><span>Pedidos por entregar</span><SummaryIcon kind="orders"/></div><strong>{data.awaiting_delivery.toLocaleString('es-CL')}</strong><div className={styles.metricFoot}><small>Pagados y sin reembolsos aplicados</small><span aria-hidden="true">↗</span></div></button>
-     <button data-panel-reveal="home-shipping" className={styles.metric} onClick={()=>navigate('shipping')}><div className={styles.metricLabel}><span>Envíos por cotizar</span><SummaryIcon kind="shipping"/></div><strong>{data.awaiting_quotes.toLocaleString('es-CL')}</strong><div className={styles.metricFoot}><small>Solicitudes pendientes de revisión</small><span aria-hidden="true">↗</span></div></button>
+     <button data-panel-reveal="home-shipping" className={styles.metric} onClick={()=>navigate('shipping')}><div className={styles.metricLabel}><span>Envíos por despachar</span><SummaryIcon kind="shipping"/></div><strong>{data.awaiting_shipments.toLocaleString('es-CL')}</strong><div className={styles.metricFoot}><small>Pagados, pendientes de despacho</small><span aria-hidden="true">↗</span></div></button>
      <button data-panel-reveal="home-stock" className={styles.metric} onClick={()=>navigate('reports')}><div className={styles.metricLabel}><span>Alertas de stock</span><SummaryIcon kind="stock"/></div><strong>{data.low_stock_count.toLocaleString('es-CL')}</strong><div className={styles.metricFoot}><small>Hasta 5 unidades · {data.empty_stock_count} sin stock</small><span aria-hidden="true">↗</span></div></button>
     </div>
     <div data-panel-reveal="home-stock-list" className={styles.attention}>

@@ -5,3 +5,5 @@
 @media(pointer:coarse){.summary input,.summary select{font-size:1rem;min-height:44px}.quantity button{width:40px;height:44px}.quantity input{height:44px;font-size:1rem;width:60px}.remove{min-height:44px;padding:8px}.dialog button{touch-action:manipulation}.dialog button:not(:disabled):active:not(:focus-visible){transform:scale(.97)}}
 @media(prefers-reduced-motion:reduce){.dialog button{transition:none}.dialog button:not(:disabled):active:not(:focus-visible){transform:none}}
 @media(prefers-contrast:more){.summary,.image,.quantity{border:1px solid var(--nexo-ink)}}
+
+.summary .remember{display:flex;align-items:flex-start;gap:9px;font-size:12px;line-height:1.6}.summary .remember input{width:auto;margin:3px 0 0;flex-shrink:0}

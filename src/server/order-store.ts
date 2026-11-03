@@ -1,3 +1,4 @@
+import {localCustomerAccess} from './local-customer-access';
 import { randomUUID } from 'node:crypto';
 import type { PoolClient } from 'pg';
 import { ensure } from './errors';
@@ -9,7 +10,7 @@ export type Order = {
   id: string; company_id: string; customer_id: string | null; created_by: string;
   channel: 'ONLINE' | 'LOCAL'; fulfillment: 'PICKUP' | 'SHIP' | 'LOCAL';
   location_id: string; status: OrderStatus; currency: string; total_minor: string;
-  goods_minor: string; shipping_minor: string; shipping_quote_id: string|null; shipping_address: ShippingAddress|null;
+  goods_minor: string; shipping_minor: string; shipping_quote_id: string|null; shipping_rate_id?:string|null; shipping_address: ShippingAddress|null;
   payment_source: 'MANUAL'|'SIMULATOR'|null;
   expires_at: Date; payment_method: string | null; payment_reference: string | null;
   paid_by: string | null; paid_at: Date | null; fulfilled_at: Date | null;
@@ -28,7 +29,7 @@ export async function lockCompany(db: PoolClient, companyId: string) {
 }
 
 export async function currentActor(db: PoolClient, actor: Actor) {
-  const { rows } = await db.query('SELECT role FROM users WHERE company_id=$1 AND id=$2 AND active AND (NOT email_verification_required OR email_verified_at IS NOT NULL)', [actor.company_id, actor.id]);
+  const { rows } = await db.query(`SELECT role FROM users WHERE company_id=$1 AND id=$2 AND active AND (NOT email_verification_required OR email_verified_at IS NOT NULL OR ($3 AND role='CUSTOMER'))`, [actor.company_id, actor.id,localCustomerAccess()]);
   ensure(rows[0]?.role === actor.role, 403, 'FORBIDDEN', 'Cuenta inactiva o permisos modificados');
 }
 
@@ -36,7 +37,7 @@ export async function findOrder(db: PoolClient, companyId: string, id: string): 
   const { rows } = await db.query<Order>(`SELECT id,company_id,customer_id,created_by,channel,fulfillment,
     location_id,status,currency,total_minor::text,expires_at,payment_method,payment_reference,paid_by,
     paid_at,fulfilled_at,cancellation_reason,sale_operation_id,created_at,updated_at,
-    goods_minor::text,shipping_minor::text,shipping_quote_id,shipping_address,payment_source
+    goods_minor::text,shipping_minor::text,shipping_quote_id,shipping_address,shipping_rate_id,payment_source
     FROM orders WHERE company_id=$1 AND id=$2`, [companyId, id]);
   ensure(rows[0], 404, 'ORDER_NOT_FOUND', 'Pedido inexistente');
   return rows[0];
@@ -63,7 +64,8 @@ export async function orderResult(db: PoolClient, order: Order) {
   const items = await orderItems(db, order);
   const { rows: events } = await db.query<OrderEvent>(`SELECT id,type,actor_id,reason,created_at FROM order_events
     WHERE company_id=$1 AND order_id=$2 ORDER BY created_at,id`, [order.company_id, order.id]);
-  return { ...order, items, events };
+  const payment=(await db.query(`SELECT c.method,c.card_id,c.card_label,c.card_brand,c.card_last_four FROM test_payment_choices c JOIN payment_intents i ON i.company_id=c.company_id AND i.id=c.intent_id WHERE i.company_id=$1 AND i.order_id=$2`,[order.company_id,order.id])).rows[0]??null;
+  return { ...order, items, events, testPayment:payment };
 }
 
 export async function event(db: PoolClient, order: Order, type: OrderEvent['type'], actorId: string | null, reason: string) {

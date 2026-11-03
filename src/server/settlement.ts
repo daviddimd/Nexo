@@ -15,7 +15,7 @@ type Settlement = {
 // signature and payment amount first; never expose this function directly as a route.
 export async function settleReservedOrder(db: PoolClient, order: Order, payment: Settlement) {
   ensure(order.status==='RESERVED',409,'INVALID_ORDER_STATE','El pedido no admite confirmación');
-  ensure(order.fulfillment!=='SHIP'||order.shipping_quote_id,409,'SHIPPING_QUOTE_REQUIRED','El pedido antiguo de envío debe recrearse con cotización');
+  ensure(order.fulfillment!=='SHIP'||order.shipping_quote_id||order.shipping_rate_id,409,'SHIPPING_QUOTE_REQUIRED','El pedido de envío no tiene un costo confirmado');
   ensure(!await isExpired(db,order),409,'RESERVATION_EXPIRED','La reserva venció');
   const operationId=randomUUID();
   await db.query(`INSERT INTO inventory_operations(id,company_id,actor_id,idempotency_key,request_hash,kind,reason)

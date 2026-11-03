@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { uuid } from './schemas';
+import {addressSchema} from './shipping-address';
 
 export const itemsSchema = z.array(z.object({
   productId: uuid,
@@ -14,6 +15,9 @@ export const onlineOrderSchema = z.object({
   fulfillment: z.enum(['PICKUP', 'SHIP']),
   locationId: uuid.optional(),
   shippingQuoteId: uuid.optional(),
+  shippingRateId: uuid.optional(),
+  address: addressSchema.optional(),
+  expectedTotalMinor:z.string().regex(/^(0|[1-9][0-9]{0,15})$/).optional(),
   items: itemsSchema,
 }).strict().superRefine((input, context) => {
   if (input.fulfillment === 'PICKUP' && !input.locationId) {
@@ -22,9 +26,12 @@ export const onlineOrderSchema = z.object({
   if (input.fulfillment === 'SHIP' && input.locationId) {
     context.addIssue({ code: 'custom', message: 'El servidor selecciona el origen del envío' });
   }
-  if (input.fulfillment === 'SHIP' && !input.shippingQuoteId) {
-    context.addIssue({ code: 'custom', message: 'El envío requiere una cotización aprobada' });
+  if (input.fulfillment === 'SHIP' && !input.shippingQuoteId && !input.shippingRateId) {
+    context.addIssue({ code: 'custom', message: 'Selecciona un destino de envío habilitado' });
   }
+  if(input.fulfillment==='SHIP'&&input.shippingRateId&&(!input.address||!input.expectedTotalMinor||input.shippingQuoteId))context.addIssue({code:'custom',message:'Selecciona destino, dirección y total confirmado'});
+  if(input.fulfillment==='SHIP'&&!input.shippingRateId&&(input.address||input.expectedTotalMinor))context.addIssue({code:'custom',message:'El envío directo requiere una tarifa'});
+  if(input.fulfillment==='PICKUP'&&(input.shippingRateId||input.address||input.expectedTotalMinor))context.addIssue({code:'custom',message:'El retiro no admite datos de envío'});
   if (input.fulfillment === 'PICKUP' && input.shippingQuoteId) {
     context.addIssue({ code: 'custom', message: 'El retiro no admite cotización de envío' });
   }
