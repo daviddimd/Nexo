@@ -226,3 +226,8 @@ Nueva venta registra venta local cobrada y entregada, con carrito multilínea y 
 ## Versión 0.19: operación empresarial y compra local
 
 Posventa operativa (dinero y stock separados), reportes por sucursal/fechas de Chile, alertas de stock bajo, resolución de capturas simuladas, imágenes de producto en PostgreSQL, carrito y checkout de retiro/envío cotizado, registro/verificación/recuperación y cambio de contraseña. La tienda aplica nombre, contacto, color y logotipo de empresa. Guía: [Funciones 0.19](docs/FUNCIONES-019.md). Reiniciar npm run dev para habilitar simulador y correo cifrado local; jamás son proveedores de producción.
+
+
+## Colaboradores
+
+Para descargar el repositorio privado y ejecutarlo por primera vez en Windows, sigue [Empezar como colaborador](docs/EMPEZAR-COLABORADOR.md).

@@ -1,4 +1,5 @@
 'use client';
+import {recordLabel} from '../../catalog/record-label';
 import {IconButton} from '../action-icon';
 import {useEffect,useRef,useState,type FormEvent} from 'react';
 import Modal from './modal';
@@ -69,7 +70,7 @@ export default function SalesOrders({role,view,products,locations,busy,setBusy,r
  {selected.status==='RESERVED'&&<><p>Reserva hasta {new Date(selected.expires_at).toLocaleString('es-CL')}. Actualiza antes de confirmar el pago si ha pasado ese plazo.</p><h3>Registrar pago recibido</h3><form onSubmit={e=>act(e,'manual-payment')}><fieldset disabled={busy}><label>Monto recibido CLP<input name="amount" inputMode="numeric" pattern="(0|[1-9][0-9]{0,15})" defaultValue={selected.total_minor} required/></label><label>Medio de pago<select name="method"><option value="CASH">Efectivo</option><option value="CARD">Tarjeta</option><option value="TRANSFER">Transferencia</option></select></label><label>Referencia del pago<input name="reference" minLength={3} maxLength={120} required/></label><label><input type="checkbox" required/> Confirmo que el pago ya fue recibido.</label><button>Registrar pago recibido</button></fieldset></form><details><summary>Cancelar reserva</summary><form onSubmit={e=>act(e,'cancel')}><fieldset disabled={busy}><label>Motivo de cancelación<textarea name="reason" required minLength={3} maxLength={500}/></label><button>Cancelar reserva y liberar unidades</button></fieldset></form></details></>}
  {selected.status==='PAID'&&after?.refundState==='NONE'&&!after.withdrawn&&<form onSubmit={e=>act(e,'fulfill')}><fieldset disabled={busy}><label><input type="checkbox" required/> Confirmo que el pedido fue {selected.fulfillment==='SHIP'?'despachado':'entregado'}.</label><button>{selected.fulfillment==='SHIP'?'Marcar despachado':'Marcar entregado'}</button></fieldset></form>}
  {after&&<AftersalesManager key={selected.id} order={selected} summary={after} role={role} locations={locations} busy={busy} setBusy={setBusy} request={request} reload={async()=>{await detail(selected.id);await list();await reload();}}/>}
- <h3>Historial del pedido</h3><ul>{selected.events?.map(e=><li key={e.id}>{new Date(e.created_at).toLocaleString('es-CL')} · {labels[e.type]??e.type}{e.reason?` · ${e.reason}`:''}</li>)}</ul></div></Modal>}</OrdersWorkspace></div>
+ <h3>Historial del pedido</h3><ul>{selected.events?.map(e=><li key={e.id}>{new Date(e.created_at).toLocaleString('es-CL')} · {labels[e.type]??e.type}{e.reason?` · ${recordLabel(e.reason)}`:''}</li>)}</ul></div></Modal>}</OrdersWorkspace></div>
  </div>;
 }
 

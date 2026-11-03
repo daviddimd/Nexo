@@ -1,4 +1,5 @@
 'use client';
+import {recordLabel} from '../../catalog/record-label';
 import {useState,type FormEvent} from 'react';
 import {IconButton} from '../action-icon';
 import Modal from './modal';
@@ -33,7 +34,7 @@ export default function MovementsWorkspace({movements,products,locations,page,pr
      <td className={styles.location}>{m.location_name}</td>
      <td><span className={`${styles.typeBadge} ${m.kind==='RECEIPT'||m.kind==='RETURN'?styles.receipt:m.kind==='TRANSFER'?styles.transfer:m.kind==='ADJUSTMENT'?styles.adjustment:styles.sale}`}><MovementSymbol kind={m.kind}/>{labels[m.kind]??m.kind}</span></td>
      <td className={`${styles.units} ${m.delta>0?styles.positive:styles.negative}`}>{m.delta>0?'+':''}{m.delta.toLocaleString('es-CL')}</td>
-     <td className={styles.reason}>{m.reason}</td>
+     <td className={styles.reason}>{recordLabel(m.reason)}</td>
     </tr>;})}</tbody>
    </table></div>:<div className={styles.empty}><MovementSymbol kind="TRANSFER"/><h3>{page===0?'Tu historial comienza aquí':'No hay más movimientos'}</h3><p>{page===0?'Las entradas, ajustes, transferencias y ventas registradas aparecerán en este espacio.':'Vuelve a la página anterior para consultar los registros.'}</p>{page>0&&<button disabled={busy} onClick={()=>onPage(page-1)}>Volver a la página anterior</button>}</div>}
    <div className={styles.pagination}><span>Hasta 50 registros por página</span><nav aria-label="Páginas del historial de movimientos"><IconButton icon="previous" label="Movimientos anteriores" disabled={busy||page===0} onClick={()=>onPage(page-1)}/><span>Página {page+1}</span><IconButton icon="next" label="Movimientos siguientes" disabled={busy||movements.length<50} onClick={()=>onPage(page+1)}/></nav></div>

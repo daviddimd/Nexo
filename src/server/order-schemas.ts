@@ -33,7 +33,7 @@ export const onlineOrderSchema = z.object({
 export const manualPaymentSchema = z.object({
   amountMinor: z.string().regex(/^(0|[1-9][0-9]{0,15})$/),
   method: z.enum(['CASH', 'CARD', 'TRANSFER']),
-  reference: z.string().trim().min(3).max(120).refine(value => !value.startsWith('simulator:'), 'Referencia reservada para el simulador'),
+  reference: z.string().trim().min(3).max(120).refine(value => !value.startsWith('simulator:'), 'Referencia reservada por el sistema'),
 }).strict();
 
 export const localSaleSchema = z.object({

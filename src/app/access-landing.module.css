@@ -26,8 +26,8 @@
 
 /* Header */
 .header { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 88px; }
-.logo { color: var(--landing-ink); font-family: var(--landing-display); font-size: 42px; font-weight: 700; line-height: 1; letter-spacing: -.06em; text-decoration: none; }
-.logo span { color: var(--landing-accent); }
+.logo { color: var(--nexo-ink); font-family: var(--nexo-font), -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, sans-serif; font-size: 42px; font-weight: 800; line-height: 1; letter-spacing: -.057692em; text-decoration: none; }
+.logo span { color: var(--nexo-accent); }
 .landingNav { display: flex; align-items: center; gap: clamp(16px, 2.6vw, 36px); margin: 0; }
 .landingNav a:not(.navCta) { position: relative; padding: 14px 0; color: var(--landing-ink); font-size: 15px; font-weight: 500; text-decoration: none; }
 .landingNav a:not(.navCta)::after { content: ''; position: absolute; bottom: 8px; left: 0; right: 0; height: 2px; background: var(--landing-label); transform: scaleX(0); transform-origin: left; transition: transform 220ms cubic-bezier(.23,1,.32,1); }
@@ -64,13 +64,9 @@
 
 /* Page chrome: decorative only, native pointer and keyboard access stay intact. */
 .progress { position: fixed; top: 0; left: 0; right: 0; height: 4px; z-index: 90; background: var(--landing-label); transform: scaleX(0); transform-origin: left; pointer-events: none; }
-.cursor { display: none; position: fixed; top: 0; left: 0; width: 0; height: 0; z-index: 100; pointer-events: none; opacity: 0; transition: opacity 160ms ease; }
-.cursor>span { display: block; position: absolute; left: -14px; top: -14px; width: 28px; height: 28px; border: 2px solid var(--landing-ink); border-radius: 50%; transition: transform 180ms cubic-bezier(.23,1,.32,1); }
-.cursor[data-visible=true] { opacity: .6; }
-.cursor[data-active=true]>span { transform: scale(1.8); }
 .preloader { position: fixed; inset: 0; z-index: 110; display: grid; place-content: center; gap: 22px; background: var(--landing-ink); color: white; pointer-events: none; animation: loaderExit 340ms cubic-bezier(.77,0,.175,1) 380ms both; }
-.preloader strong { font-family: var(--landing-display); font-size: 64px; font-weight: 700; letter-spacing: -.06em; line-height: 1; }
-.preloader strong span { color: var(--landing-label); }
+.preloader strong { font-family: var(--nexo-font), -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, sans-serif; font-size: 64px; font-weight: 800; letter-spacing: -.057692em; line-height: 1; }
+.preloader strong span { color: var(--nexo-accent); }
 .preloader i { height: 3px; background: var(--landing-label); transform-origin: left; animation: loaderLine 380ms cubic-bezier(.23,1,.32,1) both; }
 .skip { position: fixed; top: 8px; left: 8px; transform: translateY(-150%); z-index: 120; background: white; color: var(--landing-ink); font-size: 15px; padding: 13px 18px; }
 .skip:focus { transform: translateY(0); }
@@ -82,7 +78,6 @@
  .navCta:hover { background: var(--landing-ink); color: white; }
  .access:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--landing-ink); }
  .discover:hover { text-decoration-color: var(--landing-ink); }
- .cursor { display: block; }
 }
 .access:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(--landing-ink); }
 
@@ -103,6 +98,8 @@
  .footer { font-size: 13px; }
 }
 @media (prefers-reduced-motion: reduce) {
- .preloader, .cursor { display: none; }
+ .preloader { display: none; }
  .page * { animation: none !important; transition: none !important; }
 }
+
+@media (max-width: 700px) { .landingNav a.plansLink { display: inline-flex; align-items: center; } }

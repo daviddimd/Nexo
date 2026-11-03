@@ -1,5 +1,6 @@
 'use client';
 import TechnologySignature from './technology-signature';
+import Link from 'next/link';
 import LandingStory from './landing-story';
 import LandingLivePreview from './landing-live-preview';
 import useLandingExperience from './use-landing-experience';
@@ -22,10 +23,9 @@ export default function Home(){
  return <main id="contenido" ref={experience} className={`${styles.page} ${displayFont.variable}`}>
   <a className={styles.skip} href="#producto">Saltar al contenido del producto</a>
   <div className={styles.progress} data-scroll-progress aria-hidden="true"/>
-  <div className={styles.cursor} data-cursor aria-hidden="true"><span/></div>
   <div className={styles.preloader} aria-hidden="true"><strong>nexo<span>.</span></strong><i/></div>
   <div className={styles.wrap}>
-   <header className={styles.header}><a className={styles.logo} href="/" aria-label="Nexo, inicio">nexo<span>.</span></a><nav className={styles.landingNav} aria-label="Navegación principal"><a href="#producto">Producto</a><a href="#planes">Planes</a><a href="#preguntas">Preguntas frecuentes</a><a className={styles.navCta} href={panel}>Entrar</a></nav></header>
+   <header className={styles.header}><a className={styles.logo} href="/" aria-label="Nexo, inicio">nexo<span>.</span></a><nav className={styles.landingNav} aria-label="Navegación principal"><a href="#producto">Producto</a><Link className={styles.plansLink} href="/planes">Planes</Link><a href="#preguntas">Preguntas frecuentes</a><a className={styles.navCta} href={panel}>Entrar</a></nav></header>
    <section className={styles.hero} data-hero aria-labelledby="landing-title">
     <div className={styles.copy}>
      <span data-hero-detail className={styles.eyebrow}>Diseñado para empresas que viven la tecnología</span>

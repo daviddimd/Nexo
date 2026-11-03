@@ -4,11 +4,11 @@ import { simulatorEventSchema } from './payment-schemas';
 
 export function simulatorSecret(companyId: string) {
   ensure(process.env.NODE_ENV !== 'production' && process.env.NEXO_SIMULATOR_ENABLED === 'true',
-    404, 'SIMULATOR_DISABLED', 'Simulador no habilitado');
+    404, 'SIMULATOR_DISABLED', 'El registro de pagos no está habilitado');
   let secrets: Record<string, unknown>;
   try { secrets = JSON.parse(process.env.NEXO_SIMULATOR_SECRETS ?? '{}'); }
   catch { secrets = {}; }
-  ensure(secrets && typeof secrets === 'object' && !Array.isArray(secrets),503,'SIMULATOR_UNCONFIGURED','Configura el simulador');
+  ensure(secrets && typeof secrets === 'object' && !Array.isArray(secrets),503,'SIMULATOR_UNCONFIGURED','El registro de pagos no está configurado');
   const configured = Object.hasOwn(secrets,companyId) ? secrets[companyId] : null;
   const localSeed=process.env.NEXO_LOCAL_SETUP_ENABLED==='true'?process.env.NEXO_LOCAL_SIMULATOR_SECRET:null;
   const secret=configured??(localSeed&&/^[a-f0-9]{64}$/.test(localSeed)?createHmac('sha256',localSeed).update(companyId).digest('hex'):null);

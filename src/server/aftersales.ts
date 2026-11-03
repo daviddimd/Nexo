@@ -42,7 +42,7 @@ export async function refundPayment(pool:Pool,actor:Actor,key:string,target:{cap
     let maximum:bigint;let currency:string;let reference:string;
     if(capture){
       simulatorSecret(actor.company_id);
-      ensure(input.reference===undefined,400,'SIMULATOR_REFERENCE','El simulador genera la referencia');
+      ensure(input.reference===undefined,400,'SIMULATOR_REFERENCE','La referencia se genera automáticamente');
       maximum=BigInt(capture.amount_minor);currency=capture.currency;reference=`sim-refund:${randomUUID()}`;
     }else{
       ensure(order.payment_source==='MANUAL'&&['PAID','FULFILLED'].includes(order.status),409,'MANUAL_PAYMENT_REQUIRED','Requiere un pago manual registrado');

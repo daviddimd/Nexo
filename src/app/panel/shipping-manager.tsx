@@ -34,9 +34,20 @@ export default function ShippingManager({locations,busy,setBusy,request}:Props){
   }
   const items=selected?.priced_items??selected?.itemDetails??[];
   const subtotal=items.reduce((sum,item)=>sum+BigInt(item.lineTotal),0n).toString();
+  const requested=quotes.filter(q=>q.status==='REQUESTED').length;
+  const approved=quotes.filter(q=>q.status==='APPROVED').length;
+  const used=quotes.filter(q=>q.status==='USED').length;
+  const quotedFees=quotes.filter(q=>q.status==='APPROVED'||q.status==='USED').reduce((sum,q)=>sum+BigInt(q.shipping_minor??'0'),0n);
   return <div className={styles.workspace}>
     <div data-panel-reveal="shipping-manager-0" className={styles.heading}><div><h2>Envíos</h2><p>Revisa las solicitudes y cotiza el envío antes del pago.</p></div><div className={styles.headingActions}><IconButton icon="refresh" label="Actualizar solicitudes de envío" disabled={busy} onClick={()=>refresh()}/></div></div>
     {notice&&<p className={styles.notice} role="status" aria-live="polite">{notice}</p>}
+    <div data-panel-reveal="shipping-overview" className={styles.overview} aria-label="Resumen de las cotizaciones de esta página" aria-busy={busy}>
+     <div><span>Por cotizar</span><strong>{!loaded||busy?'—':requested}</strong><small>Solicitudes que requieren revisión</small></div>
+     <div><span>Aprobadas</span><strong>{!loaded||busy?'—':approved}</strong><small>Aún sin convertir en pedido</small></div>
+     <div><span>Convertidas en pedido</span><strong>{!loaded||busy?'—':used}</strong><small>No implica entrega confirmada</small></div>
+     <div><span>Envíos cotizados</span><strong>{!loaded||busy?'—':money(quotedFees.toString())}</strong><small>Aprobadas y utilizadas · sin confirmar cobro</small></div>
+    </div>
+    <p className={styles.scopeNote}>Resumen de la página {page+1} · {quotes.length} solicitudes. El detalle de cada solicitud incluye destino, productos y condiciones.</p>
     <div data-panel-reveal="shipping-manager-1" className={styles.panel}><div className={styles.panelHeading}><h3>Cotizaciones de envío</h3><span>{quotes.length} {quotes.length===1?'solicitud':'solicitudes'} en esta página</span></div>
     <div className={styles.tableScroll} tabIndex={0} role="region" aria-label="Solicitudes de envío" aria-busy={busy}><table className={styles.table}><thead><tr><th scope="col">Solicitud</th><th scope="col">Origen</th><th scope="col">Estado</th><th scope="col" className={styles.amount}>Costo de envío</th><th scope="col">Vigencia</th><th scope="col" className={styles.menuCell}><span className={styles.srOnly}>Opciones de cotización</span></th></tr></thead><tbody>
       {quotes.map(quote=><tr key={quote.id}><td><span className={styles.record}>#{quote.id.slice(0,8)}</span><small>{new Date(quote.created_at).toLocaleString('es-CL',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</small></td><td><strong>{locations.find(l=>l.id===quote.location_id)?.name??'Ubicación de origen'}</strong></td><td><span className={`${styles.badge} ${quote.status==='REQUESTED'?styles.warning:quote.status==='APPROVED'?styles.positive:quote.status==='USED'?styles.info:styles.neutral}`}>{labels[quote.status]}</span></td><td className={styles.amount}>{quote.shipping_minor===null?<span className={styles.muted}>Por cotizar</span>:money(quote.shipping_minor)}</td><td><span className={styles.muted}>{quote.expires_at?new Date(quote.expires_at).toLocaleString('es-CL',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'—'}</span></td><td className={styles.menuCell}><RowActions name={`cotización ${quote.id.slice(0,8)}`} disabled={busy} editLabel={quote.status==='REQUESTED'?'Revisar solicitud':'Ver cotización'} onEdit={()=>void open(quote.id)}/></td></tr>)}

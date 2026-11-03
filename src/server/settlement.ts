@@ -20,7 +20,7 @@ export async function settleReservedOrder(db: PoolClient, order: Order, payment:
   const operationId=randomUUID();
   await db.query(`INSERT INTO inventory_operations(id,company_id,actor_id,idempotency_key,request_hash,kind,reason)
     VALUES($1,$2,$3,$4,$5,'SALE',$6)`,[operationId,order.company_id,payment.actorId,`order:${order.id}`,
-      digest(JSON.stringify(payment)),`Pago ${payment.source==='MANUAL'?'manual':'simulado'} de pedido ${order.id}`]);
+      digest(JSON.stringify(payment)),`Pago ${payment.source==='MANUAL'?'manual':'registrado'} de pedido ${order.id}`]);
   for(const item of await orderItems(db,order)) {
     const changed=await db.query<{on_hand:number}>(`UPDATE stock SET on_hand=on_hand-$4,reserved=reserved-$4,updated_at=clock_timestamp()
       WHERE company_id=$1 AND product_id=$2 AND location_id=$3 AND reserved>=$4 AND on_hand>=$4 RETURNING on_hand`,
@@ -35,5 +35,5 @@ export async function settleReservedOrder(db: PoolClient, order: Order, payment:
     [order.company_id,order.id,payment.method,payment.reference,payment.source,payment.actorId,operationId]);
   await event(db,order,'PAYMENT_RECORDED',payment.actorId,payment.source==='MANUAL'
     ?'Pago registrado manualmente por agente; no verificado por pasarela'
-    :'Pago del simulador firmado; no se movió dinero real');
+    :'Registro de pago; sin transferencia de dinero');
 }

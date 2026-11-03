@@ -23,7 +23,7 @@ export default function LandingLivePreview(){
  },[playing,visible]);
  const pause=()=>{manual.current=true;setPlaying(false);};
  const reserved=phase===2,sold=phase===3;
- return <figure ref={root} className={styles.stage} data-phase={phase} data-running={playing&&visible} aria-label="Demostración animada: un pedido reserva una unidad de bodega y una venta confirmada la descuenta" onFocusCapture={event=>{if(!(event.target as HTMLElement).closest('[data-play-control]'))pause();}}>
+ return <figure ref={root} className={styles.stage} data-phase={phase} data-running={playing&&visible} aria-label="Flujo de compra: un pedido reserva una unidad de bodega y una venta confirmada la descuenta" onFocusCapture={event=>{if(!(event.target as HTMLElement).closest('[data-play-control]'))pause();}}>
   <div className={styles.atmosphere} aria-hidden="true"><div/><div/></div>
   <div className={styles.orbit} aria-hidden="true"><span/><span/><span/></div>
   <div className={styles.connection} aria-hidden="true"><span/><span/><span/></div>
@@ -42,7 +42,7 @@ export default function LandingLivePreview(){
   <div className={styles.order} aria-hidden="true"><span className={styles.orderIcon}>↗</span><div><small>Tu tienda online</small><strong>Nuevo pedido</strong><span>SSD NV3 · 1 unidad</span></div><b>01</b></div>
   <div className={styles.reservation} aria-hidden="true"><span>↗</span><div><strong>Unidad reservada</strong><small>Disponible: 24 → 23</small></div></div>
   <div className={styles.confirmation} aria-hidden="true"><span className={styles.confirmIcon}>✓</span><div><small>Pago y venta confirmados</small><strong>Todo quedó registrado.</strong><span>Stock físico: 23 · Reservas: 0</span></div><svg viewBox="0 0 40 25" fill="none"><path d="m1 22 8-6 7 3 8-12 6 3 9-9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></div>
-  <figcaption className={styles.caption}><div className={styles.timeline} role="group" aria-label="Secuencia de la demostración">{phases.map((label,index)=><button key={label} title={label} aria-label={label} aria-pressed={phase===index} onClick={()=>{pause();setPhase(index);}}><span/></button>)}</div><span className={styles.phaseLabel}>{phases[phase]}</span><button data-play-control className={styles.play} aria-label={playing?'Pausar animación':'Reproducir animación'} onClick={()=>{manual.current=true;setPlaying(value=>!value);}}>{playing?'Ⅱ':'▷'}</button></figcaption>
-  <span className={styles.disclaimer}>Demostración visual · Datos de ejemplo</span>
+  <figcaption className={styles.caption}><div className={styles.timeline} role="group" aria-label="Etapas del pedido">{phases.map((label,index)=><button key={label} title={label} aria-label={label} aria-pressed={phase===index} onClick={()=>{pause();setPhase(index);}}><span/></button>)}</div><span className={styles.phaseLabel}>{phases[phase]}</span><button data-play-control className={styles.play} aria-label={playing?'Pausar animación':'Reproducir animación'} onClick={()=>{manual.current=true;setPlaying(value=>!value);}}>{playing?'Ⅱ':'▷'}</button></figcaption>
+  <span className={styles.disclaimer}>Pedido, reserva y stock conectados</span>
  </figure>;
 }

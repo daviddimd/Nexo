@@ -56,13 +56,13 @@ try{
    if(mode==='--images'||existing.has(product.sku))continue;
    added++;
    const id=randomUUID(),categoryId=categoryIds.get(product.category)!;
-   await db.query('INSERT INTO products(id,company_id,sku,name,description,price_minor,category_id,specifications) VALUES($1,$2,$3,$4,$5,$6,$7,$8)',[id,actor.company_id,product.sku,product.name,'Producto de demostración. Precio y existencias simulados; no constituyen una oferta comercial.',product.price,categoryId,JSON.stringify(product.specifications)]);
+   await db.query('INSERT INTO products(id,company_id,sku,name,description,price_minor,category_id,specifications) VALUES($1,$2,$3,$4,$5,$6,$7,$8)',[id,actor.company_id,product.sku,product.name,`${product.name}. Consulta sus características técnicas y disponibilidad por ubicación.`,product.price,categoryId,JSON.stringify(product.specifications)]);
    for(const [position,location] of locations.entries()){
     const quantity=location.kind==='WEB'?product.base*2:(index+position)%11===0?0:Math.max(1,Math.floor(product.base*[.35,.7,.45,.3,.5,.25][(position-1+6)%6])-(index+position)%3);
     await db.query('INSERT INTO stock(company_id,product_id,location_id,on_hand) VALUES($1,$2,$3,$4)',[actor.company_id,id,location.id,quantity]);
     if(quantity>0){
      const operation=randomUUID(),body={productId:id,locationId:location.id,quantity};
-     await db.query("INSERT INTO inventory_operations(id,company_id,actor_id,idempotency_key,request_hash,kind,reason) VALUES($1,$2,$3,$4,$5,'RECEIPT','DEMO: recepción inicial de catálogo categorizado')",[operation,actor.company_id,actor.id,`categorized-seed-${id}-${location.id}`,createHash('sha256').update(JSON.stringify(body)).digest('hex')]);
+     await db.query("INSERT INTO inventory_operations(id,company_id,actor_id,idempotency_key,request_hash,kind,reason) VALUES($1,$2,$3,$4,$5,'RECEIPT','Recepción inicial de catálogo categorizado')",[operation,actor.company_id,actor.id,`categorized-seed-${id}-${location.id}`,createHash('sha256').update(JSON.stringify(body)).digest('hex')]);
      await db.query('INSERT INTO stock_movements(id,company_id,operation_id,product_id,location_id,delta,on_hand_after) VALUES($1,$2,$3,$4,$5,$6,$6)',[randomUUID(),actor.company_id,operation,id,location.id,quantity]);
     }
     units+=quantity;

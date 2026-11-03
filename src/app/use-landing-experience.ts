@@ -64,14 +64,6 @@ export default function useLandingExperience(){
     });
    },element);
    if(desktop){
-    const cursor=element.querySelector<HTMLElement>('[data-cursor]');
-    if(cursor){
-     const x=gsap.quickTo(cursor,'x',{duration:0.18,ease:'power3.out'}),y=gsap.quickTo(cursor,'y',{duration:0.18,ease:'power3.out'});
-     const move=(event:PointerEvent)=>{if(event.pointerType!=='mouse')return;x(event.clientX);y(event.clientY);cursor.dataset.visible='true';cursor.dataset.active=String(Boolean((event.target as HTMLElement).closest('a,button,summary')));};
-     const hide=()=>{delete cursor.dataset.visible;};
-     window.addEventListener('pointermove',move,{passive:true});document.documentElement.addEventListener('pointerleave',hide);
-     cleanups.push(()=>{window.removeEventListener('pointermove',move);document.documentElement.removeEventListener('pointerleave',hide);hide();gsap.killTweensOf(cursor);});
-    }
     element.querySelectorAll<HTMLElement>('[data-magnetic]').forEach(button=>{
      const move=(event:PointerEvent)=>{if(event.pointerType!=='mouse')return;const rect=button.getBoundingClientRect();gsap.to(button,{x:(event.clientX-rect.left-rect.width/2)/rect.width*LANDING_MOTION.magnet,y:(event.clientY-rect.top-rect.height/2)/rect.height*LANDING_MOTION.magnet,duration:0.3,ease:'power3.out',overwrite:true});};
      const reset=()=>gsap.to(button,{x:0,y:0,duration:0.3,ease:'power3.out',overwrite:true});
