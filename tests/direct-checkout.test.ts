@@ -10,12 +10,14 @@ import {createUser,createProduct,createLocation,patchLocation} from '../src/serv
 import {applyOperation} from '../src/server/inventory';
 import {saveShippingRate,publicDeliveryRates,deliveryEstimate} from '../src/server/shipping-rates';
 import {customerProfile} from '../src/server/customer-profile';
-import {saveTestCard,listTestCards,removeTestCard} from '../src/server/test-payment-methods';
+import {saveTestCard as saveCardRecord,listTestCards,removeTestCard} from '../src/server/test-payment-methods';
 import {createOnlineOrder,getOrder,listOrders,cancelOrder,fulfillOrder} from '../src/server/orders';
 import {createPaymentIntent} from '../src/server/payments';
 import {simulateCheckout} from '../src/server/demo-checkout';
 import {testCardBrand} from '../src/catalog/test-card';
 
+const cardFields={holder:'Cliente Uno',expiryMonth:12,expiryYear:2090,cvv:'123'};
+const saveTestCard=(pool:Pool,actor:Actor,raw:Record<string,unknown>)=>saveCardRecord(pool,actor,{...cardFields,...raw});
 test('fictitious card branding recognizes prefixes without validity checks',()=>{assert.equal(testCardBrand('400000'),'Visa');assert.equal(testCardBrand('510000'),'Mastercard');assert.equal(testCardBrand('222100'),'Mastercard');assert.equal(testCardBrand('340000'),'American Express');assert.equal(testCardBrand('999999'),'Tarjeta');});
 
 describe('Direct shipping, persistent customer profile and local payment cards',{skip:!process.env.TEST_DATABASE_URL,concurrency:false},()=>{
@@ -73,7 +75,7 @@ describe('Direct shipping, persistent customer profile and local payment cards',
   const number='4000000000000010';const card=await saveTestCard(pool,buyer,{label:'Tarjeta local',number});assert.equal(card.brand,'Visa');assert.equal(card.prefix,'400000');assert.equal(card.last_four,'0010');
   const saved=await saveTestCard(pool,buyer,{label:'Tarjeta local',number});assert.equal(saved.id,card.id);assert.equal((await listTestCards(pool,buyer)).items.length,1);assert.equal((await listTestCards(pool,second)).items.length,0);
   const row=(await pool.query('SELECT * FROM test_payment_cards WHERE id=$1',[card.id])).rows[0];assert.ok(!JSON.stringify(row).includes(number));assert.ok(!Object.hasOwn(row,'number'));
-  await assert.rejects(()=>saveTestCard(pool,buyer,{label:'Tarjeta',number,cvv:'123'}));await assert.rejects(()=>removeTestCard(pool,second,card.id));
+  await assert.rejects(()=>saveTestCard(pool,buyer,{label:'Tarjeta',number,cvv:'12'}));await assert.rejects(()=>removeTestCard(pool,second,card.id));
  });
  test('simulated payment uses saved card, repeated payment and dispatch deduct stock only once',async()=>{
   const card=(await listTestCards(pool,buyer)).items[0];const order=await createOnlineOrder(pool,buyer,key(),draft());const intent=await createPaymentIntent(pool,buyer,key(),{orderId:order.id});
@@ -94,7 +96,7 @@ describe('Direct shipping, persistent customer profile and local payment cards',
   assert.equal((await GET(request('customer/profile',undefined,''),context('customer/profile'))).status,401);
   const profile=await GET(request('customer/profile'),context('customer/profile'));assert.equal(profile.status,200);assert.equal((await profile.json()).defaultAddress.commune,'Curicó');
   const estimate=await POST(request(`public/${slug}/shipping-estimate`,{rateId:rate.id,items:items()}),context(`public/${slug}/shipping-estimate`));assert.equal(estimate.status,200);assert.equal((await estimate.json()).shippingMinor,'3990');
-  const cardResponse=await POST(request('customer/test-cards',{label:'Tarjeta HTTP',number:'4000000000000010'}),context('customer/test-cards'));assert.equal(cardResponse.status,201);const card=await cardResponse.json();assert.equal(card.last_four,'0010');assert.equal(card.number,undefined);
+  const cardResponse=await POST(request('customer/test-cards',{...cardFields,label:'Tarjeta HTTP',number:'4000000000000010'}),context('customer/test-cards'));assert.equal(cardResponse.status,201);const card=await cardResponse.json();assert.equal(card.last_four,'0010');assert.equal(card.number,undefined);
   const created=await POST(request('orders',draft()),context('orders'));assert.equal(created.status,201);const order=await created.json();assert.equal(order.shipping_quote_id,null);
   const pay=await POST(request('payments/intents',{orderId:order.id}),context('payments/intents'));assert.equal(pay.status,201);const intent=await pay.json();
   const paid=await POST(request(`payments/intents/${intent.id}/simulate`,{method:'CARD',cardId:card.id}),context(`payments/intents/${intent.id}/simulate`));assert.equal(paid.status,200);

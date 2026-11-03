@@ -92,3 +92,34 @@
 .eyeSlash{stroke-dasharray:1;stroke-dashoffset:1;opacity:0;transition:stroke-dashoffset 280ms cubic-bezier(.77,0,.175,1),opacity 180ms ease}
 .eyeSlash[data-visible=true]{stroke-dashoffset:0;opacity:1}
 @media(prefers-reduced-motion:reduce){.eyeSlash{transition:none}}
+
+/* Customer workspace: quiet navigation and a distinct content surface. */
+.profileDialog{width:min(1040px,calc(100vw - 40px));max-height:calc(100dvh - 48px);background:white;border-radius:20px;border:1px solid var(--store-line);box-shadow:0 24px 90px rgb(36 28 50 / .2)}
+.profileDialog>div>header{padding:24px 28px;border-bottom:1px solid var(--store-line);align-items:center}
+.profileDialog>div>header h2{font-size:19px;font-weight:600;letter-spacing:-.035em;outline:none}
+.profileDialog>div>header button{display:grid;place-items:center;width:34px;height:34px;padding:0;margin:0;background:transparent;border:0;border-radius:50%;color:var(--store-muted);box-shadow:none}
+.profileDialog>div>div{padding:0}
+.profileLayout{grid-template-columns:224px minmax(0,1fr);gap:0;min-height:510px}
+.sidebar{margin:0;padding:28px 16px;border:0;border-right:1px solid var(--store-line);border-radius:0;background:var(--nexo-surface);outline:none}
+.person{padding:0 12px 24px}
+.avatar{width:44px;height:44px;border-radius:13px;margin-bottom:14px}
+.person strong{font-size:14px;font-weight:600;line-height:1.5}
+.person small{font-size:11px}
+.sidebar nav{gap:4px}
+.sidebar nav button{position:relative;padding:12px;gap:10px;font-size:12px;font-weight:450;min-height:44px}
+.sidebar nav button[aria-pressed=true]{background:white;color:var(--nexo-primary);font-weight:550}
+.sidebar nav button[aria-pressed=true]::before{content:'';position:absolute;left:0;top:13px;bottom:13px;width:2px;border-radius:2px;background:var(--nexo-primary)}
+.sidebar nav button:focus-visible{outline:2px solid var(--nexo-primary);outline-offset:-2px}
+.profileContent{padding:30px;min-width:0}
+@media(max-width:680px){
+ .profileDialog{width:calc(100vw - 20px);max-height:calc(100dvh - 24px);border-radius:16px}
+ .profileDialog>div>header{padding:20px}
+ .profileLayout{grid-template-columns:minmax(0,1fr);min-height:0}
+ .sidebar{padding:16px 16px 12px;border:0;border-bottom:1px solid var(--store-line)}
+ .person{display:none}
+ .sidebar nav{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:6px;padding-bottom:4px}
+ .sidebar nav button{flex:0 0 auto;white-space:nowrap;padding:10px;font-size:11px}
+ .sidebar nav button svg{width:16px;height:16px}
+ .sidebar nav button[aria-pressed=true]::before{top:auto;bottom:0;left:10px;right:10px;width:auto;height:2px}
+ .profileContent{padding:22px 18px}
+}

@@ -46,7 +46,7 @@ export default function Storefront({children,initialCompany,initialCategories=[]
 
  async function sendPending(){if(!pending.current)return;await run(async()=>{const p=pending.current;if(!p)return;let result:any;try{result=await api(p.path,{method:'POST',headers:{'idempotency-key':p.key},body:p.body});}catch(error){setUnknown(!(error as {status?:number}).status);throw error;}pending.current=null;setUnknown(false);setCart([]);setNotice('Pedido creado. Revisa el resumen y elige cómo pagar.');setDetail({...result,kind:p.path==='orders'?'orders':'shipping/quotes'});setModal('detail');
   const payload=JSON.parse(p.body);
-  if(rememberAddress.current&&payload.address&&profileData){try{await api('customer/profile',{method:'PATCH',body:JSON.stringify({name:profileData.name,phone:payload.address.phone,defaultAddress:payload.address,paymentPreference:profileData.paymentPreference})});}catch{setNotice('Pedido creado. No se pudo guardar la dirección en tu cuenta.');}}rememberAddress.current=false;
+  if(rememberAddress.current&&payload.address&&profileData){try{await api('customer/profile',{method:'PATCH',body:JSON.stringify({phone:payload.address.phone,defaultAddress:payload.address})});}catch{setNotice('Pedido creado. No se pudo guardar la dirección en tu cuenta.');}}rememberAddress.current=false;
   try{await personal(0,0);await catalog();}catch{setNotice('Pedido registrado. No se pudo actualizar la vista; revisa tus pedidos antes de repetirlo.');}
  });}
 

@@ -1,6 +1,6 @@
-import {listTestCards,saveTestCard,removeTestCard} from '../../../server/test-payment-methods';
+import {listTestCards,saveTestCard,removeTestCard,revealTestCard} from '../../../server/test-payment-methods';
 import {listShippingRates,saveShippingRate,publicDeliveryRates,deliveryEstimate} from '../../../server/shipping-rates';
-import {customerProfile} from '../../../server/customer-profile';
+import {customerProfile,saveCustomerAddress,removeCustomerAddress} from '../../../server/customer-profile';
 import {managedProductDetail,publicProductDetail} from '../../../server/product-detail';
 import {listCategories,createCategory,renameCategory} from '../../../server/categories';
 import {simulateCheckout} from '../../../server/demo-checkout';
@@ -78,6 +78,10 @@ async function handle(request:Request,context:Context) {
     if(route==='customer/test-cards'&&method==='GET')return json(await listTestCards(pool,actor));
     if(route==='customer/test-cards'&&method==='POST')return json(await saveTestCard(pool,actor,await body(request)),201);
     if(path.length===3&&path[0]==='customer'&&path[1]==='test-cards'&&method==='PATCH')return json(await removeTestCard(pool,actor,uuid.parse(path[2])));
+    if(path.length===4&&path[0]==='customer'&&path[1]==='test-cards'&&path[3]==='reveal'&&method==='POST')return json(await revealTestCard(pool,actor,uuid.parse(path[2]),await body(request)));
+    if(route==='customer/addresses'&&method==='POST')return json(await saveCustomerAddress(pool,actor,null,await body(request)),201);
+    if(path.length===3&&path[0]==='customer'&&path[1]==='addresses'&&method==='PATCH')return json(await saveCustomerAddress(pool,actor,uuid.parse(path[2]),await body(request)));
+    if(path.length===3&&path[0]==='customer'&&path[1]==='addresses'&&method==='DELETE')return json(await removeCustomerAddress(pool,actor,uuid.parse(path[2])));
     if(route==='customer/profile'&&method==='GET')return json(await customerProfile(pool,actor));
     if(route==='customer/profile'&&method==='PATCH')return json(await customerProfile(pool,actor,await body(request)));
     if(route==='settings/shipping-rates'&&method==='GET')return json(await listShippingRates(pool,actor));
@@ -189,4 +193,4 @@ async function handle(request:Request,context:Context) {
     throw new AppError(404,'NOT_FOUND','Ruta inexistente');
   }catch(error){return failure(error);}
 }
-export {handle as GET,handle as POST,handle as PATCH};
+export {handle as GET,handle as POST,handle as PATCH,handle as DELETE};

@@ -23,7 +23,7 @@ try{
  for(const [i,buyer] of accounts.entries()){
   const profile=await customerProfile(pool,buyer);
   if(!profile.defaultAddress)await customerProfile(pool,buyer,{name:profile.name,phone:profile.phone||'+56900000000',defaultAddress:{recipient:profile.name,phone:'+56900000000',line1:`Dirección de pruebas ${100+i}`,commune:destinations[i][0],region:destinations[i][1],country:'CL'},paymentPreference:profile.paymentPreference??'CARD'});
-  await saveTestCard(pool,buyer,{label:'Tarjeta Visa local',number:'4000000000000010'});await saveTestCard(pool,buyer,{label:'Tarjeta Mastercard local',number:'5100000000000022'});customers++;
+  await saveTestCard(pool,buyer,{label:'Visa',holder:buyer.name,expiryMonth:12,expiryYear:2035,cvv:'123',number:'4000000000000010'});await saveTestCard(pool,buyer,{label:'Mastercard',holder:buyer.name,expiryMonth:12,expiryYear:2035,cvv:'123',number:'5100000000000022'});customers++;
  }
  const result={ratesAdded:added,customersPrepared:customers,backup,appliedAt:new Date().toISOString()};await writeFile(marker,JSON.stringify(result,null,2)+'\n',{flag:'wx'});console.log(JSON.stringify(result));
 }finally{await pool.end();}
