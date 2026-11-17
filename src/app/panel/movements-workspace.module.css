@@ -24,9 +24,14 @@
 .formActions>button:not(.primary){border-color:transparent;color:var(--nexo-muted)}
 .formFields input,.formFields select,.formFields textarea{border-color:var(--nexo-ink)}
 .view .table thead th{background:var(--nexo-tint);color:var(--nexo-ink);border-bottom:1px solid var(--nexo-line);font-family:var(--nexo-heading);font-weight:600;letter-spacing:0}
-.view .primary,.formActions .primary{background:var(--nexo-label);color:var(--nexo-ink);border:2px solid var(--nexo-ink);border-radius:999px;font-weight:700;box-shadow:3px 3px 0 var(--nexo-ink);}
-.view .primary:hover:not(:disabled),.formActions .primary:hover:not(:disabled){background:var(--nexo-label);color:var(--nexo-ink);border-color:var(--nexo-ink);transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--nexo-ink)}
-.view .primary:active:not(:disabled),.formActions .primary:active:not(:disabled){transform:translate(2px,2px);box-shadow:1px 1px 0 var(--nexo-ink)}
+.view .primary,.formActions .primary{background:var(--nexo-label);color:var(--nexo-ink);border:2px solid var(--nexo-ink);border-radius:8px;font-weight:700;box-shadow:none;}
+.view .primary:hover:not(:disabled),.formActions .primary:hover:not(:disabled){background:var(--nexo-label);color:var(--nexo-ink);border-color:var(--nexo-ink);transform:none;box-shadow:none}
+.view .primary:active:not(:disabled),.formActions .primary:active:not(:disabled){transform:none;box-shadow:none}
 
 .types .typeOption[aria-pressed=true]{background:var(--nexo-tint);border-color:var(--nexo-accent);box-shadow:none}
 .formFields input,.formFields select,.formFields textarea{border-color:var(--nexo-line)}
+
+.view .history { border-color: var(--workspace-border, #dde3e8); }
+.view .table :is(th,td) { padding-block: 10px; }
+.view .table tbody tr:focus-within { background: var(--nexo-hover); }
+.view .primary,.formActions .primary { min-height: 40px; padding-block: 8px; }

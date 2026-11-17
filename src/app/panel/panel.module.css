@@ -144,3 +144,29 @@
 .panel :global(.icon-button[aria-label]),.panel :global(.profile-trigger[aria-label]){border:1px solid var(--nexo-line);background:white}
 .panel :global(.profile-popup[popover]){border:1px solid var(--nexo-line);box-shadow:0 16px 48px #132b461c}
 .panel :global(.profile-identity){border-bottom:1px solid var(--nexo-line)}
+
+/* Shared controls for operational sections of the panel. */
+.quietWorkspace { --workspace-border: #dde3e8; }
+.quietWorkspace section {
+ border: 1px solid var(--workspace-border);
+ box-shadow: none;
+}
+.quietWorkspace button {
+ border-width: 1px;
+ border-color: var(--workspace-border);
+ border-radius: 8px;
+ box-shadow: none;
+}
+.quietWorkspace :is(input, select, textarea) { border: 1px solid var(--workspace-border); border-radius: 8px; }
+.quietWorkspace :is(button, a, input, textarea, select, summary):focus-visible {
+ outline: 2px solid var(--nexo-ink);
+ outline-offset: 2px;
+}
+.quietWorkspace thead th { background: #f3f6f8; border-bottom: 1px solid var(--workspace-border); }
+.quietWorkspace :global(.icon-button) { box-shadow: none; }
+.quietWorkspace :global(.icon-button)[aria-label^="Actualizar"] { background: transparent; border-color: transparent; }
+.quietWorkspace :global(.icon-button)[aria-label^="Actualizar"]:hover:not(:disabled) { background: var(--nexo-hover); }
+.quietWorkspace .settingsContent > section { padding: 0; border: 0; border-radius: 0; background: transparent; }
+.quietWorkspace .settingsSidebar nav button { border-color: transparent; border-radius: 8px; }
+.quietWorkspace .settingsSidebar nav button[aria-pressed=true] { border-color: var(--workspace-border); }
+.quietWorkspace .modalHeader button { background: transparent; }

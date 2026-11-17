@@ -21,24 +21,27 @@ export async function verifyPassword(password: string, encoded: string) {
 }
 // Same expensive operation for a missing account to reduce account enumeration by timing.
 const dummyHash = `scrypt:${'0'.repeat(32)}:${'0'.repeat(128)}`;
-export async function login(pool: Pool, input: {company: string; email: string; password: string}) {
+export async function login(pool: Pool, input: {company?: string; email: string; password: string}) {
+  const attemptScope = input.company ?? '';
   const count = await pool.query(`INSERT INTO login_attempts(company_slug,email,attempts,window_started_at) VALUES($1,$2,1,now())
     ON CONFLICT(company_slug,email) DO UPDATE SET
     attempts=CASE WHEN login_attempts.window_started_at < now()-interval '15 minutes' THEN 1 ELSE login_attempts.attempts+1 END,
-    window_started_at=CASE WHEN login_attempts.window_started_at < now()-interval '15 minutes' THEN now() ELSE login_attempts.window_started_at END RETURNING attempts`, [input.company,input.email]);
+    window_started_at=CASE WHEN login_attempts.window_started_at < now()-interval '15 minutes' THEN now() ELSE login_attempts.window_started_at END RETURNING attempts`, [attemptScope,input.email]);
   ensure(count.rows[0].attempts <= 10, 429, 'LOGIN_LIMIT', 'Demasiados intentos. Espera 15 minutos.');
-  const {rows} = await pool.query(`SELECT u.* FROM users u JOIN companies c ON c.id=u.company_id WHERE c.slug=$1 AND u.email=$2 AND u.active`, [input.company,input.email]);
-  const user = rows[0];
+  const {rows} = input.company
+    ? await pool.query('SELECT u.* FROM users u JOIN companies c ON c.id=u.company_id WHERE c.slug=$1 AND u.email=$2 AND u.active', [input.company,input.email])
+    : await pool.query("SELECT * FROM users WHERE email=$1 AND active AND role IN ('OWNER','AGENT') LIMIT 2", [input.email]);
+  const user = rows.length === 1 ? rows[0] : undefined;
   const valid = await verifyPassword(input.password, user?.password_hash ?? dummyHash);
   ensure(user && valid && (!user.email_verification_required||user.email_verified_at||(localCustomerAccess()&&user.role==='CUSTOMER')), 401, 'INVALID_CREDENTIALS', 'Credenciales incorrectas o cuenta no habilitada');
   const token = randomBytes(32).toString('base64url');
   await transaction(pool, async db => {
     await db.query('SELECT id FROM companies WHERE id=$1 FOR UPDATE',[user.company_id]);
-    const fresh=await db.query('SELECT password_hash,role,active,email_verification_required,email_verified_at FROM users WHERE company_id=$1 AND id=$2',[user.company_id,user.id]);
-    ensure(fresh.rows[0]?.active&&fresh.rows[0].password_hash===user.password_hash&&fresh.rows[0].role===user.role,
+    const fresh=await db.query('SELECT email,password_hash,role,active,email_verification_required,email_verified_at FROM users WHERE company_id=$1 AND id=$2',[user.company_id,user.id]);
+    ensure(fresh.rows[0]?.active&&fresh.rows[0].email===input.email&&fresh.rows[0].password_hash===user.password_hash&&fresh.rows[0].role===user.role,
       401,'INVALID_CREDENTIALS','La cuenta cambió durante el acceso; vuelve a iniciar sesión');
     ensure(!fresh.rows[0].email_verification_required||fresh.rows[0].email_verified_at||(localCustomerAccess()&&fresh.rows[0].role==='CUSTOMER'),401,'INVALID_CREDENTIALS','Cuenta no habilitada');
-    await db.query('DELETE FROM login_attempts WHERE company_slug=$1 AND email=$2',[input.company,input.email]);
+    await db.query('DELETE FROM login_attempts WHERE company_slug=$1 AND email=$2',[attemptScope,input.email]);
     await db.query(`INSERT INTO sessions(token_hash,company_id,user_id,expires_at) VALUES($1,$2,$3,now()+interval '8 hours')`, [digest(token),user.company_id,user.id]);
   });
   return {token, user: {id:user.id, company_id:user.company_id, name:user.name, role:user.role}};

@@ -7,13 +7,13 @@ import {expireCompanyReservations} from './reservations';
 import type {Attribute,Specifications} from '../catalog/taxonomy';
 export type ProductDetail={
  company:{id:string;slug:string;name:string;logo_url:string|null;primary_color:string|null};
- product:{id:string;sku:string;name:string;description:string;price_minor:string;currency:string;image_url:string|null;active:boolean;category_id:string|null;specifications:Specifications};
+ product:{id:string;sku:string;name:string;description:string;price_minor:string;currency:string;image_url:string|null;active:boolean;minimum_stock?:number;category_id:string|null;specifications:Specifications};
  categoryPath:string;categoryTrail:{id:string;name:string}[];fields:Attribute[];
  availability:{locationId:string;name:string;kind:'WEB'|'STORE';active:boolean;shippingEnabled:boolean;available:number;onHand?:number;reserved?:number}[];
 };
 async function detail(pool:Pool,companyId:string,id:string,actor?:Actor):Promise<ProductDetail>{
  const company=(await pool.query('SELECT id,slug,name,logo_url,primary_color FROM companies WHERE id=$1',[companyId])).rows[0];
- const product=(await pool.query(`SELECT id,sku,name,description,price_minor::text,currency,image_url,active,category_id,specifications FROM products WHERE company_id=$1 AND id=$2 AND ($3::boolean OR active)`,[companyId,id,Boolean(actor)])).rows[0];
+ const product=(await pool.query(`SELECT id,sku,name,description,price_minor::text,currency,image_url,active,category_id,specifications,${actor?"minimum_stock":"NULL AS minimum_stock"} FROM products WHERE company_id=$1 AND id=$2 AND ($3::boolean OR active)`,[companyId,id,Boolean(actor)])).rows[0];
  ensure(company&&product,404,'PRODUCT_NOT_FOUND','Producto inexistente o no disponible');
  await expireCompanyReservations(pool,companyId);
  const {rows}=await pool.query(`SELECT l.id,l.name,l.kind,l.active,l.shipping_enabled,

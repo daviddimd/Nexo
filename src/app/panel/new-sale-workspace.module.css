@@ -20,11 +20,15 @@
 .table .remove:hover:not(:disabled){color:var(--nexo-bad-ink)}
 .cart,.layout .checkout{background:white;border:1px solid var(--nexo-line);border-radius:16px;box-shadow:none}
 .workspace .table thead th{background:var(--nexo-tint);color:var(--nexo-ink);border-bottom:1px solid var(--nexo-line);font-family:var(--nexo-heading);font-weight:600;letter-spacing:0}
-.checkoutForm .submit{background:var(--nexo-label);color:var(--nexo-ink);border:2px solid var(--nexo-ink);border-radius:999px;font-weight:700;box-shadow:3px 3px 0 var(--nexo-ink);min-height:50px}
-.checkoutForm .submit:hover:not(:disabled){background:var(--nexo-label);color:var(--nexo-ink);border-color:var(--nexo-ink);transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--nexo-ink)}
-.checkoutForm .submit:active:not(:disabled){transform:translate(2px,2px);box-shadow:1px 1px 0 var(--nexo-ink)}
+.checkoutForm .submit{background:var(--nexo-label);color:var(--nexo-ink);border:2px solid var(--nexo-ink);border-radius:8px;font-weight:700;box-shadow:none;min-height:40px}
+.checkoutForm .submit:hover:not(:disabled){background:var(--nexo-label);color:var(--nexo-ink);border-color:var(--nexo-ink);transform:none;box-shadow:none}
+.checkoutForm .submit:active:not(:disabled){transform:none;box-shadow:none}
 
 .total{background:var(--nexo-tint)}
 .picker input,.checkoutForm input,.checkoutForm select{border-color:var(--nexo-line)}
 .picker .add{border:1px solid var(--nexo-line)}
 .picker .add:hover:not(:disabled){background:var(--nexo-tint)}
+
+.workspace .cart,.workspace .layout .checkout { border-color: var(--workspace-border, #dde3e8); }
+.workspace .table :is(th,td) { padding-block: 9px; }
+.workspace .table tbody tr:focus-within { background: var(--nexo-hover); }

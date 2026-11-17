@@ -8,11 +8,11 @@ import {z} from 'zod';
 const productFilters=z.object({q:z.string().trim().max(200).default(''),status:z.enum(['all','active','inactive']).default('all'),categoryId:z.union([z.literal(''),z.uuid()]).default('')}).strict();
 const priceFilter=z.string().max(13).regex(/^\d*$/).refine(v=>v===''||BigInt(v)<=1000000000000n).default('');
 const specificationFilter=z.string().max(6000).default('{}').transform((value,ctx)=>{try{return z.record(z.string().regex(/^[a-z][a-z0-9_]{0,39}$/),z.union([z.string().trim().min(1).max(200),z.number().finite(),z.boolean()])).refine(v=>Object.keys(v).length<=40).parse(JSON.parse(value));}catch{ctx.addIssue({code:'custom',message:'Características inválidas'});return z.NEVER;}});
-const inventoryFilters=z.object({q:z.string().trim().max(200).default(''),locationId:z.union([z.literal(''),z.uuid()]).default(''),availability:z.enum(['all','available','empty','low']).default('all'),sort:z.enum(['name_asc','name_desc','sku_asc','sku_desc','stock_asc','stock_desc']).default('name_asc'),categoryId:z.union([z.literal(''),z.uuid()]).default(''),priceMin:priceFilter,priceMax:priceFilter,specs:specificationFilter}).strict().refine(v=>v.priceMin===''||v.priceMax===''||BigInt(v.priceMin)<=BigInt(v.priceMax),'El precio mínimo no puede superar el máximo');
+const inventoryFilters=z.object({brand:z.string().trim().max(200).default(''),status:productFilters.shape.status,metric:z.enum(['available','on_hand','reserved']).default('available'),sortLocation:productFilters.shape.categoryId,q:z.string().trim().max(200).default(''),locationId:z.union([z.literal(''),z.uuid()]).default(''),availability:z.enum(['all','available','empty','low']).default('all'),sort:z.enum(['name_asc','name_desc','sku_asc','sku_desc','stock_asc','stock_desc']).default('name_asc'),categoryId:z.union([z.literal(''),z.uuid()]).default(''),priceMin:priceFilter,priceMax:priceFilter,specs:specificationFilter}).strict().refine(v=>v.priceMin===''||v.priceMax===''||BigInt(v.priceMin)<=BigInt(v.priceMax),'El precio mínimo no puede superar el máximo');
 export async function managedProducts(pool:Pool,actor:Actor,limit=50,offset=0,raw:unknown={}){
   staff(actor);const f=productFilters.parse(raw);
   const {rows}=await pool.query(`WITH RECURSIVE branch AS (SELECT id FROM categories WHERE company_id=$1 AND id=$6::uuid UNION ALL SELECT c.id FROM categories c JOIN branch b ON c.parent_id=b.id WHERE c.company_id=$1)
-    SELECT id,sku,name,description,price_minor::text,currency,image_url,active,category_id,specifications,
+    SELECT id,sku,name,description,price_minor::text,currency,image_url,active,category_id,specifications,minimum_stock,
     (SELECT name FROM categories c WHERE c.company_id=products.company_id AND c.id=products.category_id) AS category_name FROM products
     WHERE company_id=$1 AND ($4='' OR strpos(lower(name),lower($4))>0 OR strpos(lower(sku),lower($4))>0)
     AND ($5='all' OR active=($5='active')) AND ($6::uuid IS NULL OR category_id IN(SELECT id FROM branch)) ORDER BY name,id LIMIT $2 OFFSET $3`,[actor.company_id,limit,offset,f.q,f.status,f.categoryId||null]);
@@ -60,33 +60,55 @@ export async function inventoryMatrix(pool:Pool,actor:Actor,limit=50,offset=0,ra
   staff(actor);
   const f=inventoryFilters.parse(raw);
   await transaction(pool,db=>validateProductMetadata(db,actor.company_id,f.categoryId||null,f.specs));
-  const order={name_asc:'p.name ASC,p.id',name_desc:'p.name DESC,p.id',sku_asc:'p.sku ASC,p.name,p.id',sku_desc:'p.sku DESC,p.name,p.id',stock_asc:'p.total_available ASC,p.name,p.id',stock_desc:'p.total_available DESC,p.name,p.id'}[f.sort];
+  const order = {
+    name_asc:'p.name ASC,p.id', name_desc:'p.name DESC,p.id',
+    sku_asc:'p.sku ASC,p.name,p.id', sku_desc:'p.sku DESC,p.name,p.id',
+    stock_asc:'p.sort_units ASC,p.name,p.id', stock_desc:'p.sort_units DESC,p.name,p.id',
+  }[f.sort];
   await expireCompanyReservations(pool,actor.company_id);
-  const {rows}=await pool.query(`WITH RECURSIVE branch AS (
+  type MatrixCell={product_id:string;sku:string;product_name:string;minimum_stock:number;price_minor:string;active:boolean;location_id:string;location_name:string;on_hand:number;reserved:number;available:number};
+  const {rows:[result]}=await pool.query<{total:number;counts:Record<string,number>;brands:string[];items:MatrixCell[]}>(`WITH RECURSIVE branch AS (
     SELECT id FROM categories WHERE company_id=$1 AND id=$9::uuid
     UNION ALL SELECT c.id FROM categories c JOIN branch b ON c.parent_id=b.id WHERE c.company_id=$1
   ), visible_locations AS (
     SELECT l.id,l.name FROM locations l WHERE l.company_id=$1 AND ($7::uuid IS NULL OR l.id=$7)
     AND ($2='OWNER' OR EXISTS(SELECT 1 FROM agent_locations a WHERE a.company_id=l.company_id AND a.user_id=$3 AND a.location_id=l.id))
   ), candidates AS (
-    SELECT p.id,p.sku,p.name,(SELECT COALESCE(sum(s.on_hand::bigint-s.reserved),0) FROM stock s
-      JOIN visible_locations vl ON vl.id=s.location_id WHERE s.company_id=$1 AND s.product_id=p.id) AS total_available
-    FROM products p WHERE p.company_id=$1
+    SELECT p.id,p.sku,p.name,p.minimum_stock,p.price_minor::text AS price_minor,p.active, units.*
+    FROM products p CROSS JOIN LATERAL (
+      SELECT count(*)>0 AS has_location,
+        bool_or(available=0) AS empty,
+        bool_or(available>0 AND available<=p.minimum_stock) AS low,
+        bool_or(available>0) AS available,
+        COALESCE(sum(CASE $15 WHEN 'on_hand' THEN on_hand WHEN 'reserved' THEN reserved ELSE available END)
+          FILTER(WHERE $16::uuid IS NULL OR location_id=$16),0) AS sort_units
+      FROM (
+        SELECT l.id AS location_id,COALESCE(s.on_hand,0) AS on_hand,COALESCE(s.reserved,0) AS reserved,
+          COALESCE(s.on_hand-s.reserved,0) AS available
+        FROM visible_locations l LEFT JOIN stock s ON s.company_id=$1 AND s.product_id=p.id AND s.location_id=l.id
+      ) amounts
+    ) units
+    WHERE p.company_id=$1 AND units.has_location
     AND ($6='' OR strpos(lower(p.name),lower($6))>0 OR strpos(lower(p.sku),lower($6))>0)
     AND ($9::uuid IS NULL OR p.category_id IN(SELECT id FROM branch))
     AND ($10::bigint IS NULL OR p.price_minor >= $10) AND ($11::bigint IS NULL OR p.price_minor <= $11)
     AND p.specifications @> $12::jsonb
-    AND EXISTS(SELECT 1 FROM visible_locations l LEFT JOIN stock s ON s.company_id=$1 AND s.product_id=p.id AND s.location_id=l.id
-      WHERE $8='all' OR ($8='available' AND COALESCE(s.on_hand-s.reserved,0)>0)
-      OR ($8='empty' AND COALESCE(s.on_hand-s.reserved,0)=0)
-      OR ($8='low' AND COALESCE(s.on_hand-s.reserved,0) BETWEEN 1 AND 5))
-  ), page AS (SELECT * FROM candidates p ORDER BY ${order} LIMIT $4 OFFSET $5) SELECT p.id AS product_id,p.sku,p.name AS product_name,l.id AS location_id,l.name AS location_name,
-    COALESCE(s.on_hand,0) AS on_hand,COALESCE(s.reserved,0) AS reserved,
-    COALESCE(s.on_hand-s.reserved,0) AS available
-    FROM page p CROSS JOIN visible_locations l
-    LEFT JOIN stock s ON s.company_id=$1 AND s.product_id=p.id AND s.location_id=l.id
-    ORDER BY ${order},l.name,l.id`,[actor.company_id,actor.role,actor.id,limit,offset,f.q,f.locationId||null,f.availability,f.categoryId||null,f.priceMin||null,f.priceMax||null,JSON.stringify(f.specs)]);
-  return {items:rows,productCount:new Set(rows.map(row=>row.product_id)).size,limit,offset};
+    AND ($13='' OR lower(p.specifications->>'brand')=lower($13))
+    AND ($14='all' OR p.active=($14='active'))
+  ), matches AS (
+    SELECT * FROM candidates WHERE $8='all' OR ($8='available' AND available) OR ($8='empty' AND empty) OR ($8='low' AND low)
+  ), page AS (SELECT * FROM matches p ORDER BY ${order} LIMIT $4 OFFSET $5)
+  SELECT (SELECT count(*)::int FROM matches) AS total,
+    (SELECT jsonb_build_object('all',count(*),'empty',count(*) FILTER(WHERE empty),'low',count(*) FILTER(WHERE low),'available',count(*) FILTER(WHERE available)) FROM candidates) AS counts,
+    ARRAY(SELECT DISTINCT p.specifications->>'brand' FROM products p WHERE p.company_id=$1 AND NULLIF(p.specifications->>'brand','') IS NOT NULL ORDER BY 1) AS brands,
+    ARRAY(SELECT row_to_json(cell) FROM (
+      SELECT p.id AS product_id,p.sku,p.name AS product_name,p.minimum_stock,p.price_minor,p.active,l.id AS location_id,l.name AS location_name,
+        COALESCE(s.on_hand,0) AS on_hand,COALESCE(s.reserved,0) AS reserved,COALESCE(s.on_hand-s.reserved,0) AS available
+      FROM page p CROSS JOIN visible_locations l
+      LEFT JOIN stock s ON s.company_id=$1 AND s.product_id=p.id AND s.location_id=l.id
+      ORDER BY ${order},l.name,l.id
+    ) cell) AS items`,[actor.company_id,actor.role,actor.id,limit,offset,f.q,f.locationId||null,f.availability,f.categoryId||null,f.priceMin||null,f.priceMax||null,JSON.stringify(f.specs),f.brand,f.status,f.metric,f.sortLocation||null]);
+  return {...result,productCount:new Set(result.items.map((row:{product_id:string})=>row.product_id)).size,limit,offset};
 }
 export async function history(pool: Pool,actor: Actor,limit=50,offset=0) {
   staff(actor);

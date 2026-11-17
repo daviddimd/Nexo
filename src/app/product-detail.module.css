@@ -28,3 +28,18 @@
 .page:not(.storeTheme) .card{border:2px solid var(--nexo-ink);border-radius:16px;box-shadow:5px 5px 0 var(--nexo-ink);background:white}
 .page:not(.storeTheme) .card h2{font-family:var(--nexo-heading);letter-spacing:-.04em}
 .page:not(.storeTheme) .specifications>div,.page:not(.storeTheme) .locations li{border-bottom:1px solid var(--nexo-line)}
+
+.locations .staffLocation { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 16px; }
+.locations .locationAlert { display: inline-flex; align-items: center; gap: 5px; color: var(--nexo-warn-ink); font-weight: 600; }
+.locations .locationAlert[data-empty=true] { color: var(--nexo-bad-ink); }
+.restock { grid-column: 1 / -1; }
+.restock summary { cursor: pointer; width: fit-content; padding-block: 5px; color: var(--nexo-primary); font-size: 13px; font-weight: 600; }
+.restock form { margin-top: 8px; padding: 12px; background: var(--nexo-tint); border-radius: 8px; }
+.restock form fieldset { min-width: 0; }
+.restock p { margin: 8px 0 0; font-size: 13px; }
+.restock p:empty { margin: 0; }
+.restock [role=alert] { color: var(--nexo-bad-ink); }
+.restock [role=status] { color: var(--nexo-ok-ink); }
+
+.restock { scroll-margin-top: 100px; }
+.page .restock select { width: 100%; }

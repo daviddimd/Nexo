@@ -90,3 +90,6 @@ input[type=checkbox],input[type=radio]{accent-color:var(--field-accent,var(--nex
 .profile-identity{border-bottom:2px solid var(--nexo-ink)}
 .profile-popup .profile-option:hover{background:var(--nexo-label-soft)}
 .profile-error{color:var(--nexo-bad-ink)}
+
+.profile-legal { display: grid; gap: 3px; border-top: 1px solid var(--nexo-line); margin-top: 8px; padding-top: 8px; }
+.profile-legal a { color: var(--nexo-muted); font-size: 12px; padding: 4px 8px; }

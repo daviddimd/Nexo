@@ -19,10 +19,15 @@
 .filters .clear,.editorForm .save button[type=button]{border-color:transparent;color:var(--nexo-muted)}
 .empty{color:var(--nexo-muted)}
 .workspace .table thead th{background:var(--nexo-tint);color:var(--nexo-ink);border-bottom:1px solid var(--nexo-line);font-family:var(--nexo-heading);font-weight:600;letter-spacing:0}
-.workspace .primary,.filters .apply,.editorForm .save button[type=submit]{background:var(--nexo-label);color:var(--nexo-ink);border:2px solid var(--nexo-ink);border-radius:999px;font-weight:700;box-shadow:3px 3px 0 var(--nexo-ink);}
-.workspace .primary:hover:not(:disabled),.filters .apply:hover:not(:disabled),.editorForm .save button[type=submit]:hover:not(:disabled){background:var(--nexo-label);color:var(--nexo-ink);border-color:var(--nexo-ink);transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--nexo-ink)}
-.workspace .primary:active:not(:disabled),.filters .apply:active:not(:disabled),.editorForm .save button[type=submit]:active:not(:disabled){transform:translate(2px,2px);box-shadow:1px 1px 0 var(--nexo-ink)}
+.workspace .primary,.filters .apply,.editorForm .save button[type=submit]{background:var(--nexo-label);color:var(--nexo-ink);border:2px solid var(--nexo-ink);border-radius:8px;font-weight:700;box-shadow:none;}
+.workspace .primary:hover:not(:disabled),.filters .apply:hover:not(:disabled),.editorForm .save button[type=submit]:hover:not(:disabled){background:var(--nexo-label);color:var(--nexo-ink);border-color:var(--nexo-ink);transform:none;box-shadow:none}
+.workspace .primary:active:not(:disabled),.filters .apply:active:not(:disabled),.editorForm .save button[type=submit]:active:not(:disabled){transform:none;box-shadow:none}
 
 .filters .apply,.filters .apply:hover:not(:disabled),.filters .apply:active:not(:disabled){background:var(--nexo-ink);color:white;border:1px solid var(--nexo-ink);box-shadow:none;transform:none}
 .filters input,.filters select{border-color:var(--nexo-line)}
 .productLink:hover strong{text-decoration-color:var(--nexo-accent);text-decoration-thickness:1px}
+
+.workspace .catalog { border-color: var(--workspace-border, #dde3e8); }
+.workspace .table :is(th,td) { padding-block: 9px; }
+.workspace .table tbody tr:focus-within { background: var(--nexo-hover); }
+.workspace .primary,.editorForm .save button[type=submit] { min-height: 40px; padding-block: 8px; }

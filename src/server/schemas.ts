@@ -1,10 +1,10 @@
 import { z } from 'zod';
 export const uuid = z.string().uuid().transform(value => value.toLowerCase());
 const text = z.string().trim().min(1).max(200);
-export const loginSchema = z.object({ company: z.string().trim().min(2).max(63), email: z.email().max(254).transform(v => v.toLowerCase()), password: z.string().min(1).max(128) }).strict();
+export const loginSchema = z.object({ company: z.string().trim().min(2).max(63).optional(), email: z.email().max(254).transform(v => v.toLowerCase()), password: z.string().min(1).max(128) }).strict();
 export const productSchema = z.object({ sku: text, name: text, description: z.string().max(5000).default(''),
   categoryId:uuid.nullable().default(null),specifications:z.record(z.string().regex(/^[a-z][a-z0-9_]{0,39}$/),z.union([z.string().trim().min(1).max(200),z.number().finite(),z.boolean()])).refine(v=>Object.keys(v).length<=40).default({}),
-  priceMinor: z.number().int().min(0).max(1e12), imageUrl: z.url().refine(v => v.startsWith('https://'), 'HTTPS requerido').nullable().default(null) }).strict();
+  priceMinor: z.number().int().min(0).max(1e12), minimumStock: z.number().int().min(0).max(1000000).optional(), imageUrl: z.url().refine(v => v.startsWith('https://'), 'HTTPS requerido').nullable().default(null) }).strict();
 export const productPatchSchema = productSchema.partial().extend({
   description:productSchema.shape.description.removeDefault().optional(),
   imageUrl:productSchema.shape.imageUrl.removeDefault().optional(),

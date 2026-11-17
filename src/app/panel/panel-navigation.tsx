@@ -2,7 +2,7 @@
 import {useLayoutEffect,useRef,useState} from 'react';
 import styles from './panel.module.css';
 
-const sections=[['inventory','Inventario'],['movements','Movimientos'],['products','Productos'],['locations','Ubicaciones'],['orders','Pedidos'],['reports','Reportes'],['shipping','Envíos']] as const;
+const sections=[['home','Inicio'],['inventory','Inventario'],['movements','Movimientos'],['products','Productos'],['locations','Ubicaciones'],['orders','Pedidos'],['reports','Reportes'],['shipping','Envíos']] as const;
 type Section=typeof sections[number][0];
 
 export default function PanelNavigation({selected,disabled,onNavigate}:{selected:string;disabled:boolean;onNavigate:(section:Section)=>void}){

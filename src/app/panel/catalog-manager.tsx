@@ -8,7 +8,7 @@ import CategoryManager from './category-manager';
 import ProductsWorkspace,{type ProductFilters} from './products-workspace';
 import productStyles from './products-workspace.module.css';
 import type {Category,Specifications} from '../../catalog/taxonomy';
-export type ManagedProduct={id:string;sku:string;name:string;active:boolean;description:string;price_minor:string;image_url:string|null;category_id?:string|null;category_name?:string|null;specifications?:Specifications};
+export type ManagedProduct={id:string;sku:string;name:string;active:boolean;description:string;price_minor:string;minimum_stock?:number;image_url:string|null;category_id?:string|null;category_name?:string|null;specifications?:Specifications};
 export type ManagedLocation={id:string;name:string;active:boolean;kind:'WEB'|'STORE';shipping_enabled:boolean};
 type Props={categories:Category[];filters:ProductFilters;onFilter:(values:ProductFilters)=>Promise<boolean>;role:string;view:'products'|'locations';products:ManagedProduct[];locations:ManagedLocation[];busy:boolean;group:number;
   request:(path:string,options?:RequestInit)=>Promise<unknown>;reload:()=>Promise<void>;setBusy:(value:boolean)=>void;changeGroup:(page:number)=>Promise<void>};
@@ -23,7 +23,7 @@ export default function CatalogManager({categories,filters,onFilter,role,view,pr
     const category=categories.find(c=>c.id===data.get('categoryId'));
     const specifications:Specifications={};
     for(const field of category?.fields??[]){const value=String(data.get(`spec_${field.key}`)??'').trim();if(value!=='')specifications[field.key]=field.type==='number'?Number(value):field.type==='boolean'?value==='true':value;}
-    const payload=entity==='products'?{categoryId:category?.id??null,specifications,sku:data.get('sku'),name:data.get('name'),description:data.get('description'),priceMinor:Number(data.get('price')),...(data.has('removeImage')?{imageUrl:null}:String(data.get('image')??'').trim()?{imageUrl:String(data.get('image')).trim()}:product?.image_url?.startsWith('/')?{}:{imageUrl:null}),...(product?{active:data.has('active')}:{})}:
+    const payload=entity==='products'?{categoryId:category?.id??null,specifications,sku:data.get('sku'),name:data.get('name'),description:data.get('description'),priceMinor:Number(data.get('price')),minimumStock:Number(data.get('minimumStock')),...(data.has('removeImage')?{imageUrl:null}:String(data.get('image')??'').trim()?{imageUrl:String(data.get('image')).trim()}:product?.image_url?.startsWith('/')?{}:{imageUrl:null}),...(product?{active:data.has('active')}:{})}:
       owner?{name:data.get('name'),...(location?{active:data.has('active')}:{kind}),...(kind==='STORE'?{shippingEnabled:data.has('shipping')}:{})}:{shippingEnabled:data.has('shipping')};
     try{
       await request(`${entity}${selected?`/${selected.id}`:''}`,{method:selected?'PATCH':'POST',body:JSON.stringify(payload)});
@@ -39,7 +39,7 @@ export default function CatalogManager({categories,filters,onFilter,role,view,pr
       <form className={productStyles.editorForm} key={`product-${product?.id??'new'}-${revision}`} onSubmit={e=>save(e,'products')}><fieldset disabled={busy}>
         <div className={productStyles.editorBlock}><h3>Información del producto</h3><div className={productStyles.identityFields}><label>SKU<input name="sku" required maxLength={200} defaultValue={product?.sku??''}/></label>
         <label>Nombre del producto<input name="name" required maxLength={200} defaultValue={product?.name??''}/></label></div>
-        <label>Precio CLP<input name="price" type="number" required min={0} max={1e12} step={1} defaultValue={product?.price_minor??''}/></label>
+        <label>Mínimo por ubicación<input name="minimumStock" type="number" required min={0} max={1000000} step={1} defaultValue={product?.minimum_stock??5}/></label><label>Precio CLP<input name="price" type="number" required min={0} max={1e12} step={1} defaultValue={product?.price_minor??''}/></label>
         </div><div className={productStyles.editorBlock}><h3>Clasificación y especificaciones</h3><ProductClassification categories={categories} categoryId={product?.category_id} specifications={product?.specifications}/></div>
         <div className={productStyles.editorBlock}><h3>Descripción e imagen</h3>
         <label>Descripción<textarea name="description" maxLength={5000} defaultValue={product?.description??''}/></label>

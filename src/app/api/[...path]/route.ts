@@ -89,7 +89,7 @@ async function handle(request:Request,context:Context) {
     if(route==='settings/shipping-rates'&&method==='GET')return json(await listShippingRates(pool,actor));
     if(route==='settings/shipping-rates'&&method==='POST')return json(await saveShippingRate(pool,actor,null,await body(request)),201);
     if(path.length===3&&path[0]==='settings'&&path[1]==='shipping-rates'&&method==='PATCH')return json(await saveShippingRate(pool,actor,uuid.parse(path[2]),await body(request)));
-    if(route==='dashboard'&&method==='GET')return json(await dashboardSummary(pool,actor));
+    if(route==='dashboard'&&method==='GET')return json(await dashboardSummary(pool,actor,Object.fromEntries(new URL(request.url).searchParams)));
     if(route==='reports'&&method==='GET')return json(await businessReport(pool,actor,Object.fromEntries(new URL(request.url).searchParams)));
     if(route==='auth/me'&&method==='GET')return json({user:actor});
     if(route==='licenses'&&method==='GET'){
@@ -169,7 +169,7 @@ async function handle(request:Request,context:Context) {
     if(route==='settings/orders'&&method==='PATCH')return json(await updateOrderSettings(pool,actor,await body(request)));
     if(route==='inventory'&&method==='GET'){const p=pagination(new URL(request.url));return json(await inventory(pool,actor,p.limit,p.offset));}
     if(route==='inventory/facets'&&method==='GET')return json(await inventoryFacets(pool,actor,new URL(request.url).searchParams.get('categoryId')??''));
-    if(route==='inventory/matrix'&&method==='GET'){const url=new URL(request.url),p=pagination(url);return json(await inventoryMatrix(pool,actor,p.limit,p.offset,{q:url.searchParams.get('q')??'',locationId:url.searchParams.get('locationId')??'',availability:url.searchParams.get('availability')??'all',sort:url.searchParams.get('sort')??'name_asc',categoryId:url.searchParams.get('categoryId')??'',priceMin:url.searchParams.get('priceMin')??'',priceMax:url.searchParams.get('priceMax')??'',specs:url.searchParams.get('specs')??'{}'}));}
+    if(route==='inventory/matrix'&&method==='GET'){const url=new URL(request.url),p=pagination(url);return json(await inventoryMatrix(pool,actor,p.limit,p.offset,{brand:url.searchParams.get('brand')??'',status:url.searchParams.get('status')??'all',metric:url.searchParams.get('metric')??'available',sortLocation:url.searchParams.get('sortLocation')??'',q:url.searchParams.get('q')??'',locationId:url.searchParams.get('locationId')??'',availability:url.searchParams.get('availability')??'all',sort:url.searchParams.get('sort')??'name_asc',categoryId:url.searchParams.get('categoryId')??'',priceMin:url.searchParams.get('priceMin')??'',priceMax:url.searchParams.get('priceMax')??'',specs:url.searchParams.get('specs')??'{}'}));}
     if(route==='inventory/movements'&&method==='GET'){const p=pagination(new URL(request.url));return json(await history(pool,actor,p.limit,p.offset));}
     if(route==='inventory/operations'&&method==='POST')return json(await applyOperation(pool,actor,request.headers.get('idempotency-key')??'',operationSchema.parse(await body(request))));
     if(path.length===3&&path[0]==='products'&&path[2]==='image'&&method==='POST')return json(await uploadProductImage(pool,actor,uuid.parse(path[1]),request));

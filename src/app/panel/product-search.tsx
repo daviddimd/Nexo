@@ -2,7 +2,7 @@
 import {useEffect,useId,useRef,useState} from 'react';
 import styles from './panel.module.css';
 type Suggestion={id:string;name:string;sku:string;active:boolean};
-export default function ProductSearch({defaultValue,request,onSelect,onValueChange}:{defaultValue:string;onValueChange?:(value:string)=>void;request:(path:string,options?:RequestInit)=>Promise<any>;onSelect:(sku:string,form:HTMLFormElement,item:Suggestion)=>void}){
+export default function ProductSearch({defaultValue,request,onSelect,onValueChange,ariaLabel}:{defaultValue:string;ariaLabel?:string;onValueChange?:(value:string)=>void;request:(path:string,options?:RequestInit)=>Promise<any>;onSelect:(sku:string,form:HTMLFormElement,item:Suggestion)=>void}){
   const [value,setValue]=useState(defaultValue),[open,setOpen]=useState(false),[items,setItems]=useState<Suggestion[]>([]),[loading,setLoading]=useState(false),[active,setActive]=useState(-1),[error,setError]=useState('');
   const input=useRef<HTMLInputElement>(null),listId=useId();
   useEffect(()=>{setValue(defaultValue);},[defaultValue]);
@@ -16,7 +16,7 @@ export default function ProductSearch({defaultValue,request,onSelect,onValueChan
   function choose(item:Suggestion){setValue(item.sku);onValueChange?.(item.sku);setOpen(false);setActive(-1);if(input.current?.form)onSelect(item.sku,input.current.form,item);}
   return <div className={styles.searchInput}>
     <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
-    <input ref={input} name="q" maxLength={200} value={value} placeholder="Nombre o SKU…" autoComplete="off" role="combobox" aria-autocomplete="list" aria-expanded={expanded} aria-controls={expanded?listId:undefined} aria-activedescendant={expanded&&active>=0?`${listId}-${active}`:undefined}
+    <input ref={input} name="q" aria-label={ariaLabel} maxLength={200} value={value} placeholder="Nombre o SKU…" autoComplete="off" role="combobox" aria-autocomplete="list" aria-expanded={expanded} aria-controls={expanded?listId:undefined} aria-activedescendant={expanded&&active>=0?`${listId}-${active}`:undefined}
       onChange={event=>{setValue(event.target.value);onValueChange?.(event.target.value);setOpen(true);setActive(-1);}} onFocus={()=>setOpen(true)} onBlur={()=>setOpen(false)}
       onKeyDown={event=>{if(event.key==='Escape'){event.preventDefault();setOpen(false);setActive(-1);}else if(event.key==='ArrowDown'||event.key==='ArrowUp'){event.preventDefault();setOpen(true);if(items.length)setActive(index=>event.key==='ArrowDown'?(index+1)%items.length:(index<=0?items.length-1:index-1));}else if(event.key==='Enter'&&expanded&&active>=0&&items[active]){event.preventDefault();choose(items[active]);}}}/>
     {expanded&&<div className={styles.suggestions}>

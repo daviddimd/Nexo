@@ -89,6 +89,15 @@ describe('Reports, product images and customer simulator',{skip:!process.env.TES
   assert.equal((await inventoryMatrix(pool,owner,1,0,{q:'SORT-',sort:'stock_desc'})).items[0].product_id,ids[0]);
   assert.equal((await inventoryMatrix(pool,agent,1,0,{q:'SORT-',sort:'stock_desc'})).items[0].product_id,ids[1]);
   assert.equal((await inventoryMatrix(pool,owner,1,0,{q:'SORT-',locationId:branch,sort:'stock_asc'})).items[0].product_id,ids[0]);
+  const byBranch=await inventoryMatrix(pool,owner,1,0,{q:'SORT-',sort:'stock_desc',sortLocation:branch,metric:'on_hand'});
+  assert.equal(byBranch.total,3);
+  assert.equal(byBranch.items[0].product_id,ids[1]);
+  await patchProduct(pool,owner,ids[0],{minimumStock:0});
+  const low=await inventoryMatrix(pool,owner,1,0,{q:'SORT-',locationId:branch,availability:'low'});
+  assert.equal(low.total,2);
+  assert.equal(low.counts.low,2);
+  assert.notEqual(low.items[0].product_id,ids[0]);
+  assert.equal((await inventoryMatrix(pool,agent,1,0,{q:'SORT-',locationId:otherBranch})).total,0);
   await assert.rejects(()=>inventoryMatrix(pool,owner,50,0,{sort:'DROP TABLE products'}));
  });
  test('dashboard totals cover all authorized data and exclude refunded pending deliveries',async()=>{

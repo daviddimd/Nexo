@@ -15,13 +15,18 @@ export default function ProfileMenu({name,role,disabled=false,onSettings}:{name:
   }
   return <div className="profile-control">
     <button ref={trigger} type="button" className="icon-button profile-trigger" aria-label="Abrir perfil" title="Perfil" aria-expanded={expanded} aria-controls={id} popoverTarget={id} disabled={disabled||busy}
-      onClick={()=>{const rect=trigger.current!.getBoundingClientRect();setPosition({top:Math.min(rect.bottom+10,Math.max(8,window.innerHeight-260)),right:Math.max(12,window.innerWidth-rect.right)});}}>
+      onClick={()=>{const rect=trigger.current!.getBoundingClientRect();setPosition({top:Math.min(rect.bottom+10,Math.max(8,window.innerHeight-330)),right:Math.max(12,window.innerWidth-rect.right)});}}>
       <ActionIcon name="profile" size={24}/>
     </button>
     <div id={id} ref={popup} popover="auto" className="profile-popup" style={position} role="group" aria-label="Opciones de perfil" onToggle={event=>setExpanded(event.newState==='open')}>
       <div className="profile-identity"><strong>{name}</strong><span>{roleLabel}</span></div>
       <a className="profile-option" href="/panel?seccion=settings" onClick={event=>{if(disabled||busy){event.preventDefault();return;}close();if(onSettings){event.preventDefault();onSettings();}}}><ActionIcon name="settings"/>Configuración</a>
       <button className="profile-option" disabled={disabled||busy} onClick={logout}><ActionIcon name="logout"/>{busy?'Cerrando sesión…':'Cerrar sesión'}</button>
+      <nav className="profile-legal" aria-label="Documentos legales">
+       <a href="/legal/privacidad">Privacidad</a>
+       <a href="/legal/cookies">Cookies</a>
+       <a href="/legal/terminos">Términos y condiciones</a>
+      </nav>
       {error&&<p className="profile-error" role="alert">{error}</p>}
     </div>
   </div>;

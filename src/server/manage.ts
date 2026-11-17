@@ -11,14 +11,14 @@ export async function createProduct(pool:Pool,actor:Actor,raw:unknown) {
   staff(actor); const v=productSchema.parse(raw);
   return stockTransaction(pool,actor,async db=>{
     await validateProductMetadata(db,actor.company_id,v.categoryId,v.specifications);
-    const {rows}=await db.query(`INSERT INTO products(id,company_id,sku,name,description,price_minor,image_url,category_id,specifications) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)
-      RETURNING id,sku,name,description,price_minor::text,currency,image_url,active,category_id,specifications`,[randomUUID(),actor.company_id,v.sku,v.name,v.description,v.priceMinor,v.imageUrl,v.categoryId,JSON.stringify(v.specifications)]);
+    const {rows}=await db.query(`INSERT INTO products(id,company_id,sku,name,description,price_minor,image_url,category_id,specifications,minimum_stock) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+      RETURNING id,sku,name,description,price_minor::text,currency,image_url,active,category_id,specifications,minimum_stock`,[randomUUID(),actor.company_id,v.sku,v.name,v.description,v.priceMinor,v.imageUrl,v.categoryId,JSON.stringify(v.specifications),v.minimumStock??5]);
     return rows[0];
   });
 }
 export async function patchProduct(pool:Pool,actor:Actor,id:string,raw:unknown) {
   staff(actor);const input=productPatchSchema.parse(raw);
-  const columns:Record<string,string>={sku:'sku',name:'name',description:'description',priceMinor:'price_minor',imageUrl:'image_url',active:'active',categoryId:'category_id',specifications:'specifications'};
+  const columns:Record<string,string>={sku:'sku',name:'name',description:'description',priceMinor:'price_minor',minimumStock:'minimum_stock',imageUrl:'image_url',active:'active',categoryId:'category_id',specifications:'specifications'};
   return stockTransaction(pool,actor,async db=>{
     const before=(await db.query('SELECT category_id,specifications FROM products WHERE company_id=$1 AND id=$2',[actor.company_id,id])).rows[0];
     ensure(before,404,'PRODUCT_NOT_FOUND','Producto inexistente');
@@ -30,7 +30,7 @@ export async function patchProduct(pool:Pool,actor:Actor,id:string,raw:unknown) 
     }
     const entries=Object.entries(input);
     const {rows}=await db.query(`UPDATE products SET ${entries.map(([k],i)=>`${columns[k]}=$${i+3}`).join(',')}${Object.hasOwn(input,'imageUrl')?',image_data=NULL':''}
-      WHERE company_id=$1 AND id=$2 RETURNING id,sku,name,description,price_minor::text,currency,image_url,active,category_id,specifications`,[actor.company_id,id,...entries.map(([k,v])=>k==='specifications'?JSON.stringify(v):v)]);
+      WHERE company_id=$1 AND id=$2 RETURNING id,sku,name,description,price_minor::text,currency,image_url,active,category_id,specifications,minimum_stock`,[actor.company_id,id,...entries.map(([k,v])=>k==='specifications'?JSON.stringify(v):v)]);
     ensure(rows[0],404,'PRODUCT_NOT_FOUND','Producto inexistente'); return rows[0];
   });
 }
