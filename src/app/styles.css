@@ -93,3 +93,10 @@ input[type=checkbox],input[type=radio]{accent-color:var(--field-accent,var(--nex
 
 .profile-legal { display: grid; gap: 3px; border-top: 1px solid var(--nexo-line); margin-top: 8px; padding-top: 8px; }
 .profile-legal a { color: var(--nexo-muted); font-size: 12px; padding: 4px 8px; }
+
+.local-recovery{margin-top:24px;padding-top:20px;border-top:1px solid var(--nexo-line)}
+.local-recovery h3{margin:0 0 8px;font-size:17px}
+.local-recovery p,.local-recovery small{color:var(--nexo-muted);font-size:13px;line-height:1.6}
+.local-recovery fieldset{margin-top:18px}
+.local-recovery .secondary{margin-left:10px}
+

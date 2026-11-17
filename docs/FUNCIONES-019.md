@@ -2,6 +2,8 @@
 
 Reinicia el proceso actual con Ctrl+C y después ejecuta `npm run dev` desde la carpeta del proyecto. El arranque único aplica migraciones y habilita pago simulado y correo local. Conserva las empresas y los datos existentes.
 
+Si se pierde el acceso al administrador local de PrismaByte, abre `/configurar` y usa “Restablecer acceso de la demo”. La llave está en `.nexo/demo-runtime.json`, propiedad `credentialResetKey`; no la compartas ni la agregues a Git. Esta recuperación solo funciona con `npm run dev`, restablece `admin@prismabyte.cl` y cierra sus sesiones. No está habilitada en producción ni con `npm run dev:web`.
+
 ## Empresa
 
 - Inicio autenticado con accesos a inventario, productos, ubicaciones, ventas, pedidos, equipo, configuración, cotizaciones y reportes.
@@ -49,3 +51,4 @@ Tipos y compilación correctos. Suite de 179 pruebas sin fallos y recorrido HTTP
 Los formularios conservan las claves de reintento mientras permanecen montados. Si recargas tras perder una respuesta, consulta pedidos/cotizaciones/historial antes de repetir. El carrito no se conserva después de recargar.
 
 La revisión visual interactiva de las nuevas pantallas sigue pendiente. Para operar comercialmente faltan escoger y conectar proveedores reales de pago/correo, preparar dominio y alojamiento, y validar la instalación de producción. Esta entrega completa el conjunto funcional local descrito arriba; no constituye un despliegue comercial.
+

@@ -57,11 +57,13 @@ try{
   if(!existsSync('.env'))await writeFile('.env',`# Entorno local Nexo; no usar en producción ni compartir.\nDATABASE_URL=${url}\nNEXO_MIGRATION_DATABASE_URL=${url}\nNEXO_OPERATOR_DATABASE_URL=${url}\nAPP_ORIGIN=http://localhost:${webPort}\nNEXO_SIMULATOR_ENABLED=false\nNEXO_LOCAL_MAIL_ENABLED=false\n`,{flag:'wx',mode:0o600});
   console.log(`\nNexo: http://localhost:${webPort}/panel\nPostgreSQL local persistente + web + worker. Ctrl+C detiene este entorno.\n`);
   const demoPath=join(root,'demo-runtime.json');
-  let demo;if(existsSync(demoPath))demo=JSON.parse(await readFile(demoPath,'utf8'));else{demo={simulatorSecret:randomBytes(32).toString('hex'),mailKey:randomBytes(32).toString('hex')};await writeFile(demoPath,JSON.stringify(demo),{flag:'wx',mode:0o600});}
+  let demo;if(existsSync(demoPath))demo=JSON.parse(await readFile(demoPath,'utf8'));else demo={simulatorSecret:randomBytes(32).toString('hex'),mailKey:randomBytes(32).toString('hex')};
   if(!/^[a-f0-9]{64}$/.test(demo.simulatorSecret)||!/^[a-f0-9]{64}$/.test(demo.mailKey))throw new Error('Configuración demo inválida');
-  const runtime={...env,NEXO_LOCAL_SETUP_ENABLED:'true',NEXO_LOCAL_CUSTOMER_ACCESS:'true',NEXO_SIMULATOR_ENABLED:'true',NEXO_LOCAL_SIMULATOR_SECRET:demo.simulatorSecret,NEXO_LOCAL_MAIL_ENABLED:'true',NEXO_LOCAL_MAIL_KEY:env.NEXO_LOCAL_MAIL_KEY??demo.mailKey};delete runtime.NEXO_MIGRATION_DATABASE_URL;delete runtime.NEXO_OPERATOR_DATABASE_URL;
+  if(!/^[a-f0-9]{64}$/.test(demo.credentialResetKey)){demo.credentialResetKey=randomBytes(32).toString('hex');await writeFile(demoPath,JSON.stringify(demo,null,2)+'\n',{mode:0o600});}
+  const runtime={...env,NEXO_LOCAL_SETUP_ENABLED:'true',NEXO_LOCAL_CUSTOMER_ACCESS:'true',NEXO_LOCAL_CREDENTIAL_RESET_KEY:demo.credentialResetKey,NEXO_SIMULATOR_ENABLED:'true',NEXO_LOCAL_SIMULATOR_SECRET:demo.simulatorSecret,NEXO_LOCAL_MAIL_ENABLED:'true',NEXO_LOCAL_MAIL_KEY:env.NEXO_LOCAL_MAIL_KEY??demo.mailKey};delete runtime.NEXO_MIGRATION_DATABASE_URL;delete runtime.NEXO_OPERATOR_DATABASE_URL;
   for(const args of [['node_modules/next/dist/bin/next','dev','--hostname','127.0.0.1','--port',String(webPort)],['--import','tsx','scripts/expire-orders.ts','--watch']]){
     if(stopping)break;const child=spawn(process.execPath,args,{env:runtime,stdio:'inherit',windowsHide:true});children.push(child);
     child.once('error',()=>void stop(1));child.once('exit',code=>{if(!stopping)void stop(code??1);});
   }
 }catch(error){console.error(error.message?.startsWith('El puerto')||error.message?.startsWith('Existe DATABASE_URL')?error.message:'No se pudo iniciar el entorno local. Revisa PostgreSQL instalado, puertos y configuración .nexo.');await stop(1);}
+
