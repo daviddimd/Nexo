@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import {notFound} from 'next/navigation';
-import TechnologySignature from '../../technology-signature';
+import NexoFooter from '../../nexo-footer';
 import styles from '../legal.module.css';
 
 const documents={
@@ -29,5 +29,5 @@ export async function generateMetadata({params}:{params:Promise<{documento:strin
 export default async function LegalPage({params}:{params:Promise<{documento:string}>}){
  const {documento}=await params;if(!Object.hasOwn(documents,documento))notFound();
  const content=documents[documento as DocumentKey];
- return <main className={styles.page}><header className={styles.header}><Link className={styles.logo} href="/">nexo<span>.</span></Link><Link href="/">Volver a Nexo</Link></header><span className={styles.label}>INFORMACIÓN DEL SERVICIO · 27 OCTUBRE 2026</span><h1>{content.title}</h1><p className={styles.intro}>{content.intro}</p><p className={styles.notice}>Información provisional del servicio. La contratación comercial aún no está habilitada.</p>{content.sections.map(([title,text])=><article key={title}><h2>{title}</h2><p>{text}</p></article>)}<nav className={styles.nav} aria-label="Documentos de Nexo">{Object.entries(documents).map(([key,item])=><Link key={key} href={`/legal/${key}`} aria-current={key===documento?'page':undefined}>{item.title}</Link>)}</nav><footer><TechnologySignature/></footer></main>;
+ return <main className={styles.page}><header className={styles.header}><Link className={styles.logo} href="/">nexo<span>.</span></Link><Link href="/">Volver a Nexo</Link></header><span className={styles.label}>INFORMACIÓN DEL SERVICIO · 27 OCTUBRE 2026</span><h1>{content.title}</h1><p className={styles.intro}>{content.intro}</p><p className={styles.notice}>Información provisional del servicio. La contratación comercial aún no está habilitada.</p>{content.sections.map(([title,text])=><article key={title}><h2>{title}</h2><p>{text}</p></article>)}<NexoFooter currentDocument={`/legal/${documento}`}/></main>;
 }

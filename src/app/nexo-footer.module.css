@@ -1,0 +1,28 @@
+.footer.footer {
+ display: flex;
+ align-items: center;
+ justify-content: flex-start;
+ border-top: 1px solid var(--nexo-line);
+ flex-wrap: wrap;
+ gap: 12px 24px;
+}
+.footer .links {
+ display: flex;
+ flex-wrap: wrap;
+ justify-content: flex-start;
+ gap: 4px 20px;
+ margin: 0;
+}
+.links a {
+ display: inline-flex;
+ align-items: center;
+ min-height: 32px;
+ color: #536577;
+ text-decoration: none;
+ font-size: 14px;
+ text-underline-offset: 4px;
+}
+
+.links a:hover, .links a:focus-visible {
+ text-decoration: underline;
+}

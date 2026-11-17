@@ -1,3 +1,4 @@
+import {requestDemo} from '../../../server/demo-requests';
 import {listTestCards,saveTestCard,removeTestCard,revealTestCard} from '../../../server/test-payment-methods';
 import {listShippingRates,saveShippingRate,publicDeliveryRates,deliveryEstimate} from '../../../server/shipping-rates';
 import {customerProfile,saveCustomerAddress,removeCustomerAddress} from '../../../server/customer-profile';
@@ -45,6 +46,7 @@ async function handle(request:Request,context:Context) {
     }
     sameOrigin(request);
     const pool=database();
+    if(route==='public/demo-requests'&&method==='POST')return json(await requestDemo(pool,await body(request)),202);
     if(route==='setup'&&method==='GET')return json(await initialSetupStatus(pool));
     if(route==='setup'&&method==='POST')return json(await initialSetup(pool,await body(request)),201);
     if(route==='public/start'&&method==='GET'){

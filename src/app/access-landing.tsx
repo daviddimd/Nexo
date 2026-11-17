@@ -1,6 +1,8 @@
 'use client';
-import TechnologySignature from './technology-signature';
 import Link from 'next/link';
+import {plans, clp} from './planes/plans-data';
+import NexoFooter from './nexo-footer';
+import PublicHeader from './public-header';
 import LandingStory from './landing-story';
 import LandingLivePreview from './landing-live-preview';
 import useLandingExperience from './use-landing-experience';
@@ -9,6 +11,8 @@ import {useEffect,useState} from 'react';
 import styles from './access-landing.module.css';
 import 'lenis/dist/lenis.css';
 
+const demoHref='/planes?demo=1#pedir-demo';
+const startingPrice=Math.min(...plans.map(plan=>plan.price));
 const displayFont=localFont({src:'../../public/fonts/SpaceGroteskVariable.ttf',weight:'300 700',display:'swap',variable:'--nexo-display'});
 export default function Home(){
  const experience=useLandingExperience();
@@ -24,28 +28,28 @@ export default function Home(){
   <a className={styles.skip} href="#producto">Saltar al contenido del producto</a>
   <div className={styles.progress} data-scroll-progress aria-hidden="true"/>
   <div className={styles.preloader} aria-hidden="true"><strong>nexo<span>.</span></strong><i/></div>
+  <PublicHeader panel={panel} demoAction={<Link className={styles.demoCta} href={demoHref}>Pedir demo</Link>}/>
   <div className={styles.wrap}>
-   <header className={styles.header}><a className={styles.logo} href="/" aria-label="Nexo, inicio">nexo<span>.</span></a><nav className={styles.landingNav} aria-label="Navegación principal"><a href="#producto">Producto</a><Link className={styles.plansLink} href="/planes">Planes</Link><a href="#preguntas">Preguntas frecuentes</a><a className={styles.navCta} href={panel}>Entrar</a></nav></header>
    <section className={styles.hero} data-hero aria-labelledby="landing-title">
     <div className={styles.copy}>
-     <span data-hero-detail className={styles.eyebrow}>Diseñado para empresas que viven la tecnología</span>
+     <span data-hero-detail className={styles.eyebrow}>Diseñado para empresas de tecnología</span>
      <h1 id="landing-title"><span className={styles.line}><span data-hero-line>Tus ventas y tu stock,</span></span><span className={styles.line}><span data-hero-line>en el mismo lugar.</span></span></h1>
-     <div className={styles.intro}><p data-hero-detail>Administra tus productos y precios, registra ventas y consulta cuánto stock queda en cada sucursal o en tu bodega web.</p>
-      <div className={styles.actions}><a data-hero-detail data-magnetic className={styles.access} href={panel}>Entrar a mi empresa</a><a data-hero-detail className={styles.discover} href="#producto">Conoce cómo funciona</a></div>
+     <div className={styles.intro}><p data-hero-detail>Administra productos, precios y existencias por sucursal o bodega web.</p>
+      <div data-hero-detail className={styles.conversionActions}><ConversionActions/></div>
       {error&&<p className={styles.error} role="alert">{error}</p>}</div>
     </div>
-    <div className={styles.showcase} data-hero-art><p className={styles.showcaseLabel}>Tu inventario, sucursal por sucursal</p><LandingLivePreview/></div>
+    <div className={styles.showcase} data-hero-art><LandingLivePreview/></div>
    </section>
   </div>
   <div className={styles.wrap}>
-  <div className={styles.benefits} aria-label="Lo que puedes hacer con Nexo">
-   <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="m12 3 9 5v8l-9 5-9-5V8l9-5Z M3 8l9 5 9-5 M12 13v8 M7.5 5.5l9 5"/></svg><div><h2>Inventario por sucursal</h2><p>Consulta las unidades disponibles y reservadas.</p></div></div>
-   <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="M7 3h10v18l-2-1-3 1-3-1-2 1V3Z M10 8h4 M10 12h4 M10 16h2"/></svg><div><h2>Registro de ventas</h2><p>Vende desde el panel y descuenta el stock correspondiente.</p></div></div>
-   <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3 M16 5a3 3 0 0 1 0 6 M17 15a5 5 0 0 1 4 5"/></svg><div><h2>Accesos para tu equipo</h2><p>Define en qué sucursales puede trabajar cada agente.</p></div></div>
-  </div>
-  <LandingStory panel={panel}/>
-  {setup&&<div className={styles.setup}><span>¿Es tu primera vez en Nexo?</span><a href="/configurar">Configurar mi empresa</a></div>}
-  <footer className={styles.footer}><span><TechnologySignature/></span>{store&&<a href={`/tienda?empresa=${encodeURIComponent(store.slug)}`}>Ver catálogo público</a>}</footer>
+  <LandingStory/>
+  {setup&&<div className={styles.setup}><a href="/configurar">Configurar mi empresa</a></div>}
+  <section className={styles.closing} aria-labelledby="closing-title"><div><h2 id="closing-title">¿Listo para ordenar tu stock?</h2><p>Desde <strong>{clp(startingPrice)} al mes</strong> · IVA incluido</p></div><div className={styles.conversionActions}><ConversionActions/></div></section>
+  <NexoFooter className={styles.footer} extra={<div className={styles.footerContact}><Link href="/preguntas#contacto">Contacto</Link><span>© {new Date().getFullYear()} Nexo</span></div>}/>
  </div>
  </main>;
+}
+
+function ConversionActions(){
+ return <><Link className={`${styles.demoCta} ${styles.mainCta}`} href={demoHref}>Pedir demo</Link><Link className={`${styles.navCta} ${styles.mainCta}`} href="/planes">Ver planes</Link></>;
 }

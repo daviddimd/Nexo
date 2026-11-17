@@ -57,3 +57,19 @@
 @media(max-width:900px){.stage{height:510px}.stage .confirmation{top:355px}}
 @media(max-width:700px){.stage{height:525px}.stage .confirmation{top:365px}.stage .reservation{top:280px}}
 @media(max-width:380px){.stage{height:520px}.stage .confirmation{top:358px}}
+
+.stage[data-decorative] .reservation { left: auto; right: 4%; top: auto; bottom: 44px; }
+
+.stage .board { transform: rotateZ(-2deg); }
+.stage[data-phase="2"] .board { transform: rotateZ(-1deg); }
+.stage[data-phase="3"] .board { transform: none; }
+.stage .order { right: 3%; transform: translateY(-12px) rotate(2deg); min-width: 0; }
+.stage[data-phase="3"] .order { transform: translateY(-12px); }
+.stage .timeline button { width: 32px; height: 36px; }
+.stage .timeline span { background: #657c84; }
+.stage .reservation, .stage[data-decorative] .reservation { top: auto; left: auto; right: 4%; bottom: 62px; transform: translateY(10px); }
+.stage[data-phase="2"] .reservation { transform: none; }
+@media(max-width:700px) {
+ .stage[data-phase] .board { transform: none; }
+ .stage[data-phase] .order { transform: none; }
+}
