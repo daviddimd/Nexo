@@ -79,9 +79,9 @@ export default function DashboardHome({name,navigate,request,onMovement}:{onMove
         const href=`/panel/productos/${alert.product_id}?desde=home`;
         return <tr key={`${alert.product_id}-${alert.location_id}`}>
          <th scope="row"><Link className={styles.productLink} href={href} prefetch={false}>{alert.name}</Link><small>{alert.sku}</small></th>
-         <td><Link href={`/panel?seccion=inventory&locationId=${alert.location_id}&availability=${alert.available===0?'empty':'low'}`} prefetch={false}>{alert.location}</Link></td><td>{alert.physical.toLocaleString('es-CL')}</td><td>{alert.reserved.toLocaleString('es-CL')}</td>
+         <td><Link className={styles.productLink} href={`/panel?seccion=inventory&locationId=${alert.location_id}&availability=${alert.available===0?'empty':'low'}`} prefetch={false}>{alert.location}</Link></td><td>{alert.physical.toLocaleString('es-CL')}</td><td>{alert.reserved.toLocaleString('es-CL')}</td>
          <td><span className={`${styles.stockBadge} ${alert.available===0?styles.emptyStock:styles.lowStock}`}>{alert.available} / {alert.minimum_stock}</span></td>
-         <td><Link href={`${href}&reponer=${alert.location_id}#reponer-${alert.location_id}`} prefetch={false} aria-label={`Reponer ${alert.name} en ${alert.location}`}>Reponer</Link></td>
+         <td><Link className={styles.replenish} href={`${href}&reponer=${alert.location_id}#reponer-${alert.location_id}`} prefetch={false} aria-label={`Reponer ${alert.name} en ${alert.location}`}><span aria-hidden="true">+</span> Reponer</Link></td>
         </tr>;
        })}</tbody>
       </table>

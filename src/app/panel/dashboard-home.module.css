@@ -59,6 +59,22 @@
 .alertTable tbody th small { display: block; margin-top: 2px; color: var(--nexo-muted); font-weight: 400; }
 .alertTable .productLink { color: var(--nexo-ink); font-weight: 500; text-decoration: none; }
 .alertTable .productLink:is(:hover,:focus-visible) { text-decoration: underline; text-underline-offset: 3px; }
+.alertTable .replenish {
+ display: inline-flex;
+ align-items: center;
+ justify-content: center;
+ gap: 6px;
+ min-height: 32px;
+ padding: 0 10px;
+ border: 1px solid var(--nexo-ink);
+ border-radius: 8px;
+ background: var(--nexo-label-soft);
+ color: var(--nexo-ink);
+ font-weight: 650;
+ text-decoration: none;
+}
+.alertTable .replenish:hover { background: var(--nexo-label); }
+.alertTable .replenish > span { font-size: 16px; line-height: 1; }
 .stockBadge { display: inline-block; padding: 3px 6px; border-radius: 6px; font-weight: 600; }
 .emptyStock { background: var(--nexo-bad-bg); color: var(--nexo-bad-ink); }
 .lowStock { color: #87520e; }
