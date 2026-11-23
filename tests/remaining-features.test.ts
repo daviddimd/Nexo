@@ -45,6 +45,11 @@ describe('Reports, product images and customer simulator',{skip:!process.env.TES
   const period={from:new Date(Date.now()-86400000).toISOString().slice(0,10),to:new Date(Date.now()+86400000).toISOString().slice(0,10),threshold:9};
   const report=await businessReport(pool,agent,period);assert.equal(report.sales.length,1);assert.equal(report.sales[0].gross,'20000');assert.ok(report.lowStock.every(r=>r.location==='Centro'));assert.equal((await businessReport(pool,foreign,period)).sales.length,0);
   await assert.rejects(()=>businessReport(pool,buyer,period),(e:any)=>e.code==='FORBIDDEN');
+  const few=await createProduct(pool,owner,{sku:'REPORT-MIN',name:'Reporte mínimo',priceMinor:1000});
+  await applyOperation(pool,owner,randomUUID(),{kind:'RECEIPT',productId:few.id,locationId:branch,quantity:3,reason:'Umbral por producto'});
+  const {threshold:_,...byProduct}=period;
+  assert.ok((await businessReport(pool,agent,byProduct)).lowStock.some(r=>r.id===few.id),'sin umbral usa el mínimo de cada producto (5)');
+  assert.ok(!(await businessReport(pool,agent,{...byProduct,threshold:2})).lowStock.some(r=>r.id===few.id),'el umbral explícito reemplaza al mínimo');
  });
  test('customer simulator applies once and remains unavailable in production',async()=>{
   const order=await createOnlineOrder(pool,buyer,randomUUID(),{fulfillment:'PICKUP',locationId:branch,items:[{productId:product,quantity:1}]});

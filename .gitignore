@@ -22,5 +22,8 @@ coverage/
 .next-team-check/
 .next-ui-check/
 
+# Respaldos comprimidos y credenciales empaquetadas (nunca versionar)
+*.zip
+
 # Notas de trabajo locales del asistente
 /HANDOFF.md
