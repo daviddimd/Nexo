@@ -20,12 +20,12 @@ const images=await loadDemoImages();
 const root=resolve('.nexo');
 const config=JSON.parse(await readFile(join(root,'dev.json'),'utf8'));
 const access=JSON.parse(await readFile(join(root,'prismabyte-access.json'),'utf8'));
-if(config.port!==55440||config.user!=='nexo_local_admin'||access.company!=='prismabyte'||access.email!=='admin@prismabyte.example'||access.environment!=='local-demo')throw new Error('La instalación no es la demostración local de PrismaByte');
+if(config.port!==55440||config.user!=='nexo_local_admin'||access.company!=='prismabyte'||access.email!=='admin@prismabyte.cl'||access.environment!=='local-demo')throw new Error('La instalación no es la demostración local de PrismaByte');
 const url=new URL('postgresql://127.0.0.1:55440/nexo_dev');url.username=config.user;url.password=config.password;
 const pool=new Pool({connectionString:url.toString(),connectionTimeoutMillis:5000});
 const tables=['return_items','return_receipts','refunds','capture_resolutions','payment_events','payment_captures','payment_intents','order_events','order_items','orders','shipping_quote_items','shipping_quotes','stock_movements','inventory_operations','stock','products'] as const;
 try{
- const ownerResult=await pool.query("SELECT u.id,u.company_id,u.name,u.role FROM users u JOIN companies c ON c.id=u.company_id WHERE c.slug='prismabyte' AND u.email='admin@prismabyte.example' AND u.active AND u.role='OWNER'");
+ const ownerResult=await pool.query("SELECT u.id,u.company_id,u.name,u.role FROM users u JOIN companies c ON c.id=u.company_id WHERE c.slug='prismabyte' AND u.email='admin@prismabyte.cl' AND u.active AND u.role='OWNER'");
  if(ownerResult.rowCount!==1)throw new Error('No se encontró al administrador de demostración');
  const actor=ownerResult.rows[0] as Actor;
  await mkdir(join(root,'backups'),{recursive:true});
