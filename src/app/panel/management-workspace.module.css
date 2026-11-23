@@ -39,7 +39,7 @@
 /* Operational overviews: counts are scoped to the page; reports cover the selected period. */
 .overview{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:0 0 20px;flex-shrink:0}
 .overview>div{background:white;border:1px solid var(--nexo-line);border-radius:14px;padding:18px 20px;min-width:0}
-.overview span{display:block;font-size:12px;color:var(--nexo-muted);line-height:1.5}
+.overview > div > span{display:block;font-size:12px;color:var(--nexo-muted);line-height:1.5}
 .overview strong{display:block;font-family:var(--nexo-heading);font-size:clamp(23px,2.1vw,32px);font-weight:600;letter-spacing:-.04em;line-height:1.25;margin:13px 0 10px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
 .overview small{display:block;font-size:12px;color:var(--nexo-muted);line-height:1.5}
 .scopeNote{margin:-8px 0 18px;font-size:12px;color:var(--nexo-muted);flex-shrink:0}

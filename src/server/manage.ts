@@ -37,7 +37,7 @@ export async function patchProduct(pool:Pool,actor:Actor,id:string,raw:unknown) 
 export async function createLocation(pool:Pool,actor:Actor,raw:unknown) {
   owner(actor);const v=locationSchema.parse(raw);
   return stockTransaction(pool,actor,async db=>{
-    const {rows}=await db.query(`INSERT INTO locations(id,company_id,name,kind,shipping_enabled) VALUES($1,$2,$3,$4,$5) RETURNING *`,[randomUUID(),actor.company_id,v.name,v.kind,v.shippingEnabled]);
+    const {rows}=await db.query(`INSERT INTO locations(id,company_id,name,kind,shipping_enabled,address) VALUES($1,$2,$3,$4,$5,$6) RETURNING *`,[randomUUID(),actor.company_id,v.name,v.kind,v.shippingEnabled,v.address??null]);
     await audit(db,actor,'LOCATION_CREATED',rows[0].id,{name:v.name,kind:v.kind,shippingEnabled:v.shippingEnabled});
     return rows[0];
   });
@@ -52,12 +52,12 @@ export async function patchLocation(pool:Pool,actor:Actor,id:string,raw:unknown)
       const reserved=await db.query('SELECT 1 FROM stock WHERE company_id=$1 AND location_id=$2 AND reserved>0 LIMIT 1',[actor.company_id,id]);
       ensure(!reserved.rowCount,409,'RESERVATIONS_EXIST','La ubicación tiene reservas pendientes');
     }
-    const columns:Record<string,string>={name:'name',shippingEnabled:'shipping_enabled',active:'active'};
-    const before=(await db.query('SELECT name,shipping_enabled,active FROM locations WHERE company_id=$1 AND id=$2',[actor.company_id,id])).rows[0];
+    const columns:Record<string,string>={name:'name',address:'address',shippingEnabled:'shipping_enabled',active:'active'};
+    const before=(await db.query('SELECT name,address,shipping_enabled,active FROM locations WHERE company_id=$1 AND id=$2',[actor.company_id,id])).rows[0];
     const entries=Object.entries(v);
     const {rows}=await db.query(`UPDATE locations SET ${entries.map(([k],i)=>`${columns[k]}=$${i+3}`).join(',')} WHERE company_id=$1 AND id=$2 RETURNING *`,[actor.company_id,id,...entries.map(([,value])=>value)]);
     ensure(rows[0],404,'LOCATION_NOT_FOUND','Ubicación inexistente');
-    await audit(db,actor,'LOCATION_UPDATED',id,{before,after:{name:rows[0].name,shipping_enabled:rows[0].shipping_enabled,active:rows[0].active}});
+    await audit(db,actor,'LOCATION_UPDATED',id,{before,after:{name:rows[0].name,address:rows[0].address,shipping_enabled:rows[0].shipping_enabled,active:rows[0].active}});
     return rows[0];
   });
 }

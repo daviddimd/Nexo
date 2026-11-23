@@ -9,7 +9,7 @@ import ProductsWorkspace,{type ProductFilters} from './products-workspace';
 import productStyles from './products-workspace.module.css';
 import type {Category,Specifications} from '../../catalog/taxonomy';
 export type ManagedProduct={id:string;sku:string;name:string;active:boolean;description:string;price_minor:string;minimum_stock?:number;image_url:string|null;category_id?:string|null;category_name?:string|null;specifications?:Specifications};
-export type ManagedLocation={id:string;name:string;active:boolean;kind:'WEB'|'STORE';shipping_enabled:boolean};
+export type ManagedLocation={id:string;name:string;address?:string|null;active:boolean;kind:'WEB'|'STORE';shipping_enabled:boolean};
 type Props={categories:Category[];filters:ProductFilters;onFilter:(values:ProductFilters)=>Promise<boolean>;role:string;view:'products'|'locations';products:ManagedProduct[];locations:ManagedLocation[];busy:boolean;group:number;
   request:(path:string,options?:RequestInit)=>Promise<unknown>;reload:()=>Promise<void>;setBusy:(value:boolean)=>void;changeGroup:(page:number)=>Promise<void>};
 export default function CatalogManager({categories,filters,onFilter,role,view,products,locations,busy,group,request,reload,setBusy,changeGroup}:Props){
@@ -24,7 +24,7 @@ export default function CatalogManager({categories,filters,onFilter,role,view,pr
     const specifications:Specifications={};
     for(const field of category?.fields??[]){const value=String(data.get(`spec_${field.key}`)??'').trim();if(value!=='')specifications[field.key]=field.type==='number'?Number(value):field.type==='boolean'?value==='true':value;}
     const payload=entity==='products'?{categoryId:category?.id??null,specifications,sku:data.get('sku'),name:data.get('name'),description:data.get('description'),priceMinor:Number(data.get('price')),minimumStock:Number(data.get('minimumStock')),...(data.has('removeImage')?{imageUrl:null}:String(data.get('image')??'').trim()?{imageUrl:String(data.get('image')).trim()}:product?.image_url?.startsWith('/')?{}:{imageUrl:null}),...(product?{active:data.has('active')}:{})}:
-      owner?{name:data.get('name'),...(location?{active:data.has('active')}:{kind}),...(kind==='STORE'?{shippingEnabled:data.has('shipping')}:{})}:{shippingEnabled:data.has('shipping')};
+      owner?{name:data.get('name'),address:String(data.get('address')??'').trim()||null,...(location?{active:data.has('active')}:{kind}),...(kind==='STORE'?{shippingEnabled:data.has('shipping')}:{})}:{shippingEnabled:data.has('shipping')};
     try{
       await request(`${entity}${selected?`/${selected.id}`:''}`,{method:selected?'PATCH':'POST',body:JSON.stringify(payload)});
       setNotice(entity==='products'?'Producto guardado.':'Ubicación guardada.');
@@ -53,6 +53,7 @@ export default function CatalogManager({categories,filters,onFilter,role,view,pr
     {view==='locations'&&<LocationsWorkspace locations={locations} owner={owner} busy={busy} onRefresh={reload} onNew={()=>{setLocation(null);setKind('STORE');setRevision(r=>r+1);setNotice('');setEditorOpen(true);}} onEdit={selected=>{setLocation(selected);setKind(selected.kind);setNotice('');setEditorOpen(true);}}>
       {editorOpen&&(owner||location)&&<Modal title={location?`Editar ${location.name}`:'Crear ubicación'} busy={busy} onClose={()=>setEditorOpen(false)}><div className={managementStyles.detail}>{notice&&<p role="status" aria-live="polite">{notice}</p>}<form key={`location-${location?.id??'new'}-${revision}`} onSubmit={e=>save(e,'locations')}><fieldset disabled={busy}>
         {owner&&<><label>Nombre de ubicación<input name="name" required maxLength={200} defaultValue={location?.name??''}/></label>
+        <label>Dirección<input name="address" maxLength={240} defaultValue={location?.address??''} placeholder="Calle, número y comuna"/></label>
           <label>Tipo de ubicación<select value={kind} disabled={Boolean(location)} onChange={e=>setKind(e.target.value as 'WEB'|'STORE')}><option value="STORE">Sucursal</option><option value="WEB">Stock web</option></select></label></>}
         {kind==='STORE'&&<label><input name="shipping" type="checkbox" defaultChecked={location?.shipping_enabled??false}/> Permitir envío desde esta sucursal</label>}
         {owner&&location&&<label><input name="active" type="checkbox" defaultChecked={location.active}/> Ubicación activa</label>}

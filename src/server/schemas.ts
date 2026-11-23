@@ -12,8 +12,8 @@ export const productPatchSchema = productSchema.partial().extend({
   specifications:productSchema.shape.specifications.removeDefault().optional(),
   active: z.boolean().optional()
 }).strict().refine(v => Object.keys(v).length > 0);
-export const locationSchema = z.object({ name: text, kind: z.enum(['WEB','STORE']), shippingEnabled: z.boolean().default(false) }).strict();
-export const locationPatchSchema = z.object({name: text.optional(), shippingEnabled: z.boolean().optional(), active: z.boolean().optional()}).strict().refine(v => Object.keys(v).length > 0);
+export const locationSchema = z.object({ name: text, address: z.string().trim().min(1).max(240).nullable().optional(), kind: z.enum(['WEB','STORE']), shippingEnabled: z.boolean().default(false) }).strict();
+export const locationPatchSchema = z.object({name: text.optional(), address: locationSchema.shape.address, shippingEnabled: z.boolean().optional(), active: z.boolean().optional()}).strict().refine(v => Object.keys(v).length > 0);
 export const userSchema = z.object({ email: z.email().max(254).transform(v=>v.toLowerCase()), name: text,
   password: z.string().min(12).max(128), role: z.enum(['AGENT','CUSTOMER']), locationIds: z.array(uuid).max(100).default([]) }).strict();
 export const operationSchema = z.object({ kind: z.enum(['RECEIPT','ADJUSTMENT','SALE','TRANSFER']),
