@@ -1,6 +1,6 @@
 import type {ButtonHTMLAttributes} from 'react';
 
-type IconName='logout'|'previous'|'next'|'refresh'|'settings'|'profile'|'team'|'security'|'company'|'identity'|'clock'|'shipping';
+type IconName='logout'|'previous'|'next'|'refresh'|'settings'|'profile'|'team'|'security'|'company'|'identity'|'clock'|'shipping'|'location'|'card'|'lock'|'bell';
 export function ActionIcon({name,size=22}:{name:IconName;size?:number}){
   const paths:Record<IconName,string[]>={
     logout:['M9 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h4','M10 12h10','m16 8 4 4-4 4'],
@@ -13,6 +13,10 @@ export function ActionIcon({name,size=22}:{name:IconName;size?:number}){
     company:['M4 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16','M16 9h3a1 1 0 0 1 1 1v11','M2 21h20','M8 7h4M8 11h4M8 15h4','M9 21v-3h2v3'],
     identity:['M12 3a9 9 0 1 0 0 18h1a2 2 0 0 0 1.4-3.4l-.4-.4a1.8 1.8 0 0 1 1.3-3.1H17a4 4 0 0 0 4-4c0-4-4-7.1-9-7.1Z','M7.5 10h.01M10 6.5h.01M14 6.5h.01M17 9.5h.01'],
     shipping:['M2 5h12v12H2V5Z','M14 9h4l4 5v3h-8','M5 17v3m14-3v3'],
+    location:['M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z','M12 10h.01'],
+    card:['M3 5h18v14H3z','M3 10h18','M7 15h4'],
+    lock:['M5 10h14v11H5z','M8 10V7a4 4 0 1 1 8 0v3','M12 14v3'],
+    bell:['M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9','M10 21h4'],
     clock:['M12 7v5l3 2'],
     settings:['M9.5 4.5 10 2h4l.5 2.5 2 .9 2.4-.8 2 3.5-1.9 1.7v2.4l1.9 1.7-2 3.5-2.4-.8-2 .9L14 20h-4l-.5-2.5-2-.9-2.4.8-2-3.5L5 12.2V9.8L3.1 8.1l2-3.5 2.4.8 2-.9Z'],
   };

@@ -20,6 +20,8 @@ Las cotizaciones históricas se conservan para compatibilidad. La tienda no crea
 
 ## Mi cuenta
 
+La configuración usa la página /tienda/configuracion?empresa=... con secciones enlazables mediante seccion=info, address, payments, orders o security. Mantiene la cabecera de la tienda y el carrito compartido. Requiere una cuenta de cliente de esa misma empresa; una visita sin sesión vuelve a este destino después de acceder. Si se abre desde el pago de un pedido, conserva un enlace para volver a su detalle.
+
 - Información personal: nombre, correo de lectura y teléfono.
 - Mis direcciones: hasta veinte direcciones con nombre, edición, borrado y una predeterminada. El carrito permite elegir cualquiera de ellas; se mantiene la compatibilidad con la dirección guardada anterior.
 - Métodos de pago: preferencia de tarjeta o transferencia y hasta ocho tarjetas ficticias.

@@ -2,3 +2,5 @@
 @media(hover:hover) and (pointer:fine){.popup button:hover:not(:disabled){background:var(--store-soft,var(--nexo-tint));color:var(--nexo-primary)}}
 @media(max-width:600px){.popup[popover]{padding:18px;max-height:60dvh}.popup>ul{grid-template-columns:1fr;gap:4px}.heading strong{font-size:.9375rem}}
 @media(pointer:coarse){.popup button{min-height:44px;touch-action:manipulation}}
+
+@supports(backdrop-filter:blur(14px)){.popup[popover]{background:color-mix(in srgb,var(--nexo-surface,#faf8fc) 96%,transparent);backdrop-filter:blur(14px)}}

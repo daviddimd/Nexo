@@ -19,3 +19,32 @@
 .link{background:var(--nexo-primary);border-radius:12px;padding:14px 24px;box-shadow:0 10px 22px -12px color-mix(in srgb,var(--nexo-primary) 75%,transparent)}
 .link:hover{background:var(--nexo-primary);filter:brightness(.92)}
 .carousel{border-radius:24px}
+
+.carousel { margin: 14px 0 16px; }
+.slide { min-height: clamp(330px, 52vh, 450px); padding: 22px clamp(22px, 4vw, 58px) 58px; grid-template-columns: minmax(0,1fr) minmax(0,1.12fr); }
+.slide[data-variant] { background: radial-gradient(ellipse at 72% 40%,#fff9,transparent 65%),var(--store-banner,#e8f0f4); }
+.copy h1,.copy h2 { font-size: clamp(1.85rem, 3.05vw, 3.15rem); letter-spacing: -.035em; margin-bottom: 10px; }
+.category { color: var(--nexo-primary); margin-bottom: 8px; }
+.priceRow,.actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; }
+.priceRow > span { font-size: .75rem; color: var(--store-muted,var(--nexo-muted)); }
+.price { margin: 0; }
+.stock { margin: 7px 0 13px; font-size: .875rem; color: var(--nexo-ink); }
+.actions .link,.actions .add { display: inline-flex; justify-content: center; align-items: center; min-height: 42px; padding: 8px 14px; gap: 8px; border-radius: 9px; box-shadow: none; font-size: .84rem; }
+.actions .add { background: var(--nexo-primary); border: 1px solid var(--nexo-primary); color: white; }
+.actions .link { color: var(--nexo-ink); background: transparent; border: 1px solid color-mix(in srgb,var(--nexo-ink) 28%,transparent); }
+.actions .link:hover { background: #fff8; filter: none; }
+.photo { mix-blend-mode: multiply; }
+.photo img { max-height: clamp(210px, 39vh, 305px); filter: none; mix-blend-mode: normal; }
+.controls { bottom: 10px; }
+.dots button { width: 28px; height: 38px; }
+.dots button > span { width: 8px; height: 8px; background: #71667b; }
+.dots button[aria-current=true] > span,.dots button:hover > span { background: var(--nexo-primary); }
+@media(max-width:650px) {
+ .slide { display: flex; min-height: 0; gap: 5px; padding: 12px 17px 58px; }
+ .photo { flex-basis: 135px; }
+ .photo img { height: 135px; max-height: 135px; }
+ .copy h1,.copy h2 { font-size: clamp(1.5rem, 6vw, 2rem); }
+ .controls { left: 14px; right: 14px; }
+ .dots button { width: 24px; }
+ .arrows button { width: 36px; height: 36px; }
+}

@@ -7,15 +7,15 @@ import {cardExpiryValid,cardSecurityCodeValid} from '../catalog/card-format';
 import {ensure} from './errors';
 import {stockTransaction} from './stock-transaction';
 import {testCardBrand} from '../catalog/test-card';
-export function testMethodsEnabled(actor:Actor){ensure(process.env.NODE_ENV!=='production'&&process.env.NEXO_SIMULATOR_ENABLED==='true',404,'TEST_METHODS_DISABLED','Los métodos de prueba no están habilitados');ensure(actor.role==='CUSTOMER',403,'CUSTOMER_REQUIRED','Requiere una cuenta de cliente');}
-export async function listTestCards(pool:Pool,actor:Actor){testMethodsEnabled(actor);return stockTransaction(pool,actor,async db=>({items:(await db.query('SELECT id,label,brand,last_four,(holder IS NOT NULL) AS details_available FROM test_payment_cards WHERE company_id=$1 AND user_id=$2 AND active ORDER BY created_at',[actor.company_id,actor.id])).rows}));}
+export function testMethodsEnabled(actor:Actor){ensure(process.env.NODE_ENV!=='production'&&process.env.NEXO_SIMULATOR_ENABLED==='true',404,'TEST_METHODS_DISABLED','Los métodos de pago no están disponibles');ensure(actor.role==='CUSTOMER',403,'CUSTOMER_REQUIRED','Requiere una cuenta de cliente');}
+export async function listTestCards(pool:Pool,actor:Actor){testMethodsEnabled(actor);return stockTransaction(pool,actor,async db=>({items:(await db.query('SELECT id,label,brand,last_four,holder,expiry_month,expiry_year,funding_type,is_default FROM test_payment_cards WHERE company_id=$1 AND user_id=$2 AND active ORDER BY created_at',[actor.company_id,actor.id])).rows}));}
 export async function saveTestCard(pool:Pool,actor:Actor,raw:unknown){
  testMethodsEnabled(actor);
  const input=z.object({
   label:z.string().trim().min(1).max(80),holder:z.string().trim().min(2).max(100),
   number:z.string().max(32).transform(v=>v.replace(/[ -]/g,'')).pipe(z.string().regex(/^[0-9]{12,19}$/)),
   expiryMonth:z.number().int().min(1).max(12),expiryYear:z.number().int().min(2000).max(2199),
-  cvv:z.string().regex(/^[0-9]{3,4}$/)
+  cvv:z.string().regex(/^[0-9]{3,4}$/),fundingType:z.enum(['CREDIT','DEBIT']).default('CREDIT')
  }).strict().parse(raw);
  ensure(cardExpiryValid(input.expiryMonth,input.expiryYear),400,'CARD_EXPIRY','Revisa el mes y año de vencimiento');
  ensure(cardSecurityCodeValid(input.number,input.cvv),400,'CARD_CVV','Revisa el formato del código de seguridad');
@@ -24,8 +24,8 @@ export async function saveTestCard(pool:Pool,actor:Actor,raw:unknown){
  return stockTransaction(pool,actor,async db=>{
   const previous=(await db.query('SELECT id,active FROM test_payment_cards WHERE company_id=$1 AND user_id=$2 AND brand=$3 AND prefix=$4 AND last_four=$5',[actor.company_id,actor.id,brand,prefix,last])).rows[0];
   if(!previous?.active)ensure(Number((await db.query('SELECT count(*) FROM test_payment_cards WHERE company_id=$1 AND user_id=$2 AND active',[actor.company_id,actor.id])).rows[0].count)<8,409,'CARD_LIMIT','Puedes guardar hasta ocho tarjetas');
-  const result=previous?await db.query('UPDATE test_payment_cards SET label=$3,holder=$4,expiry_month=$5,expiry_year=$6,active=true WHERE company_id=$1 AND id=$2 RETURNING id,label,brand,prefix,last_four,true AS details_available',[actor.company_id,previous.id,input.label,input.holder,input.expiryMonth,input.expiryYear]):
-   await db.query('INSERT INTO test_payment_cards(id,company_id,user_id,label,brand,prefix,last_four,holder,expiry_month,expiry_year) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id,label,brand,prefix,last_four,true AS details_available',[randomUUID(),actor.company_id,actor.id,input.label,brand,prefix,last,input.holder,input.expiryMonth,input.expiryYear]);
+  const result=previous?await db.query('UPDATE test_payment_cards SET label=$3,holder=$4,expiry_month=$5,expiry_year=$6,funding_type=$7,active=true WHERE company_id=$1 AND id=$2 RETURNING id,label,brand,prefix,last_four,true AS details_available',[actor.company_id,previous.id,input.label,input.holder,input.expiryMonth,input.expiryYear,input.fundingType]):
+   await db.query('INSERT INTO test_payment_cards(id,company_id,user_id,label,brand,prefix,last_four,holder,expiry_month,expiry_year,funding_type,is_default) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,NOT EXISTS(SELECT 1 FROM test_payment_cards WHERE company_id=$2 AND user_id=$3 AND active AND is_default)) RETURNING id,label,brand,prefix,last_four,true AS details_available',[randomUUID(),actor.company_id,actor.id,input.label,brand,prefix,last,input.holder,input.expiryMonth,input.expiryYear,input.fundingType]);
   return result.rows[0];
  });
 }
@@ -41,7 +41,8 @@ export async function revealTestCard(pool:Pool,actor:Actor,id:string,raw:unknown
   return {brand:card.brand,lastFour:card.last_four,holder:card.holder,expiryMonth:card.expiry_month,expiryYear:card.expiry_year,expiresAt:new Date(Date.now()+30000).toISOString()};
  });
 }
-export async function removeTestCard(pool:Pool,actor:Actor,id:string){testMethodsEnabled(actor);return stockTransaction(pool,actor,async db=>{ensure((await db.query('UPDATE test_payment_cards SET active=false WHERE company_id=$1 AND user_id=$2 AND id=$3 RETURNING id',[actor.company_id,actor.id,id])).rowCount,404,'CARD_NOT_FOUND','Tarjeta inexistente');return {removed:true};});}
+export async function setDefaultTestCard(pool:Pool,actor:Actor,id:string){testMethodsEnabled(actor);return stockTransaction(pool,actor,async db=>{ensure((await db.query('SELECT 1 FROM test_payment_cards WHERE company_id=$1 AND user_id=$2 AND id=$3 AND active',[actor.company_id,actor.id,id])).rowCount,404,'CARD_NOT_FOUND','Tarjeta inexistente');await db.query('UPDATE test_payment_cards SET is_default=false WHERE company_id=$1 AND user_id=$2 AND is_default',[actor.company_id,actor.id]);await db.query('UPDATE test_payment_cards SET is_default=true WHERE company_id=$1 AND user_id=$2 AND id=$3',[actor.company_id,actor.id,id]);return {saved:true};});}
+export async function removeTestCard(pool:Pool,actor:Actor,id:string){testMethodsEnabled(actor);return stockTransaction(pool,actor,async db=>{const removed=(await db.query('UPDATE test_payment_cards SET active=false WHERE company_id=$1 AND user_id=$2 AND id=$3 RETURNING id,is_default',[actor.company_id,actor.id,id])).rows[0];ensure(removed,404,'CARD_NOT_FOUND','Tarjeta inexistente');if(removed.is_default)await db.query('UPDATE test_payment_cards SET is_default=true WHERE id=(SELECT id FROM test_payment_cards WHERE company_id=$1 AND user_id=$2 AND active ORDER BY created_at,id LIMIT 1)',[actor.company_id,actor.id]);return {removed:true};});}
 export async function selectTestPayment(pool:Pool,actor:Actor,id:string,raw:unknown){
  testMethodsEnabled(actor);const input=z.object({method:z.enum(['CARD','TRANSFER']).default('TRANSFER'),cardId:z.uuid().optional()}).strict().parse(raw);
  ensure(input.method==='CARD'?!!input.cardId:!input.cardId,400,'INVALID_PAYMENT_METHOD','Selecciona una tarjeta para este medio de pago');

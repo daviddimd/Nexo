@@ -74,3 +74,23 @@
 .productInfo>button:not(.added):hover:not(:disabled){filter:brightness(.92)}
 .productInfo>button.added{background:var(--nexo-ok-bg);color:var(--nexo-ok-ink)}
 .pagination button{border-radius:10px}
+
+.page::before { content: ''; position: fixed; inset: 0 0 auto; height: 3px; z-index: 45; pointer-events: none; background: var(--nexo-primary); }
+@supports (animation-timeline: scroll()) {
+ .page::before { transform-origin: left; animation: storeReadProgress linear both; animation-timeline: scroll(root block); }
+ @keyframes storeReadProgress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+}
+@media(prefers-reduced-motion:reduce) { .page::before { animation: none; } }
+.page .benefits { margin-bottom: 18px; padding: 11px 16px; gap: 12px 20px; background: color-mix(in srgb,var(--nexo-primary) 3%,white); border-color: color-mix(in srgb,var(--nexo-primary) 14%,white); }
+.benefits > a { display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; }
+.benefits > a:hover small { text-decoration: underline; }
+.page .catalogHeading { margin: 14px 0 8px; scroll-margin-top: 115px; }
+.page .catalogHeading h2 { margin: 0; }
+.page .catalogSort { appearance: none; padding-right: 34px; background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='%23494356' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 10px center / 16px; }
+.page .notice:empty { display: none; }
+.productInfo .taxNote { font-size: .75rem; color: var(--store-muted,var(--nexo-muted)); }
+.page dialog.filterSheet { display: none; }
+.page dialog.filterSheet[open] { display: block; position: fixed; inset: auto 0 0; margin: 0; width: 100%; max-width: none; max-height: min(82dvh, 660px); box-sizing: border-box; padding: 16px 20px max(16px,env(safe-area-inset-bottom)); overflow: auto; overscroll-behavior: contain; border: 1px solid var(--store-line); border-radius: 18px 18px 0 0; background: white; color: var(--nexo-ink); }
+.filterSheet::backdrop { background: rgb(36 28 50 / .50); }
+.page .filterSheet form { margin: 0 auto; }
+.page .filterSheet button[type=submit] { position: sticky; bottom: 0; width: 100%; }

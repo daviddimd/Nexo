@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {storeAccessPath,storeReturnPath,storeHome} from '../src/catalog/store-access-paths';
+import {storeAccessPath,storeReturnPath,storeHome,storeAccountPath,storeAccountSection} from '../src/catalog/store-access-paths';
 test('login and registration have separate URLs and preserve checkout context',()=>{
  const back='/tienda?empresa=prismabyte&categoria=abc&carrito=1&entrega=shipping#catalogo';
  const login=new URL(storeAccessPath('login','prismabyte',back),'https://nexo.local');
@@ -15,4 +15,16 @@ test('return URL keeps product and catalog navigation inside the current store',
  const product='/tienda/productos/12345678-1234-1234-1234-123456789abc?empresa=prismabyte';assert.equal(storeReturnPath(product,'prismabyte'),product);
  assert.equal(storeReturnPath('/tienda?marca=Apple','prismabyte'),'/tienda?marca=Apple&empresa=prismabyte');
  assert.equal(new URL(storeAccessPath('reset','prismabyte',product),'https://nexo.local').searchParams.get('modo'),'reset');
+});
+
+test('account page sections keep tenant and payment return context inside the store',()=>{
+ const order='12345678-1234-1234-1234-123456789abc';
+ const path=storeAccountPath('prismabyte','payments',order);
+ const url=new URL(path,'https://nexo.local');
+ assert.equal(url.pathname,'/tienda/configuracion');assert.equal(url.searchParams.get('seccion'),'payments');assert.equal(url.searchParams.get('pedido'),order);
+ assert.equal(storeReturnPath(path,'prismabyte'),path);
+ assert.equal(new URL(storeAccessPath('login','prismabyte',path),'https://nexo.local').searchParams.get('volver'),path);
+ assert.equal(storeReturnPath('/tienda/configuracion?empresa=otra','prismabyte'),storeHome('prismabyte'));
+ assert.equal(storeAccountSection('security'),'security');assert.equal(storeAccountSection('/panel'),'info');assert.equal(storeAccountSection(['payments']),'info');
+ assert.equal(new URL(storeAccountPath('prismabyte','info','https://other.test'),'https://nexo.local').searchParams.has('pedido'),false);
 });

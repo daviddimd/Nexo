@@ -1,5 +1,5 @@
 'use client';
-import {useEffect,useId,useRef,useState} from 'react';
+import {useEffect,useLayoutEffect,useId,useRef,useState} from 'react';
 import {productLabel} from '../../catalog/product-label';
 import {useRouter} from 'next/navigation';
 import type {StoreProduct} from './cart-context';
@@ -7,10 +7,35 @@ import styles from './store-search.module.css';
 
 const money=(value:string)=>new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0}).format(BigInt(value));
 type Results={query:string;items:StoreProduct[];loading:boolean;error:string};
-export default function StoreSearch({slug,value,disabled,className,onChange,onSearch}:{slug:string;value:string;disabled:boolean;className:string;onChange:(value:string)=>void;onSearch:()=>void}){
+export default function StoreSearch({slug,value,disabled,className,onChange,onSearch,collapsible=false,onExpandedChange}:{onExpandedChange?:(expanded:boolean)=>void;collapsible?:boolean;slug:string;value:string;disabled:boolean;className:string;onChange:(value:string)=>void;onSearch:()=>void}){
  const router=useRouter(),id=useId(),form=useRef<HTMLFormElement>(null),list=useRef<HTMLDivElement>(null);
+ const [searchOpen,setSearchOpen]=useState(!collapsible||Boolean(value));
+ useLayoutEffect(()=>{onExpandedChange?.(searchOpen);},[searchOpen,onExpandedChange]);
+ const input=useRef<HTMLInputElement>(null),trigger=useRef<HTMLButtonElement>(null),focusRequested=useRef(false);
+ useEffect(()=>{
+  if(!collapsible)return;
+  const media=window.matchMedia('(max-width:680px)');
+  const resize=()=>setSearchOpen(media.matches||document.activeElement===input.current||Boolean(input.current?.value));
+  resize();media.addEventListener('change',resize);return()=>media.removeEventListener('change',resize);
+ },[collapsible]);
+ useEffect(()=>{if(value.trim())setSearchOpen(true);},[value]);
+ useLayoutEffect(()=>{
+  if(searchOpen&&focusRequested.current){focusRequested.current=false;input.current?.focus({preventScroll:true});}
+ },[searchOpen]);
+ function revealSearch(){
+  if(disabled)return;
+  if(searchOpen){input.current?.focus({preventScroll:true});return;}
+  focusRequested.current=true;setSearchOpen(true);
+ }
+ function collapseSearch(restoreFocus=false){
+  setOpen(false);setActive(-1);
+  if(collapsible&&!window.matchMedia('(max-width:680px)').matches){
+   if(restoreFocus)trigger.current?.focus({preventScroll:true});
+   setSearchOpen(false);
+  }
+ }
  const [open,setOpen]=useState(false),[active,setActive]=useState(-1),[results,setResults]=useState<Results>({query:'',items:[],loading:false,error:''});
- const query=value.trim(),expanded=open&&!disabled&&query.length>0;
+ const query=value.trim(),expanded=searchOpen&&open&&!disabled&&query.length>0;
  const current=results.query===query,items=current?results.items:[],loading=!current||results.loading,error=current?results.error:'';
  useEffect(()=>{
   if(!expanded)return;
@@ -25,18 +50,19 @@ export default function StoreSearch({slug,value,disabled,className,onChange,onSe
   },180);
   return()=>{clearTimeout(timer);controller.abort();};
  },[query,slug,expanded]);
- useEffect(()=>{const close=(event:PointerEvent)=>{if(!form.current?.contains(event.target as Node))setOpen(false);};document.addEventListener('pointerdown',close);return()=>document.removeEventListener('pointerdown',close);},[]);
+ useEffect(()=>{const close=(event:PointerEvent)=>{if(!form.current?.contains(event.target as Node))collapseSearch();};document.addEventListener('pointerdown',close);return()=>document.removeEventListener('pointerdown',close);},[collapsible]);
  useEffect(()=>{if(active>=0)list.current?.querySelector<HTMLElement>(`[data-index="${active}"]`)?.scrollIntoView({block:'nearest'});},[active]);
  function choose(product:StoreProduct){if(disabled)return;setOpen(false);setActive(-1);router.push(`/tienda/productos/${encodeURIComponent(product.id)}?empresa=${encodeURIComponent(slug)}`);}
- return <form ref={form} className={`${className} ${styles.form}`} role="search" onSubmit={event=>{event.preventDefault();if(disabled)return;setOpen(false);setActive(-1);onSearch();}} onBlur={event=>{if(!event.currentTarget.contains(event.relatedTarget as Node|null))setOpen(false);}}>
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
-  <input type="search" role="combobox" aria-label="Buscar productos por nombre o SKU" aria-autocomplete="list" aria-expanded={expanded} aria-controls={id} aria-activedescendant={expanded&&active>=0&&items[active]?`${id}-${active}`:undefined} autoComplete="off" enterKeyHint="search" maxLength={200} placeholder="Buscar un producto o modelo…" value={value} disabled={disabled} onChange={event=>{onChange(event.target.value);setActive(-1);setOpen(true);}} onFocus={()=>setOpen(true)} onKeyDown={event=>{
+ return <form ref={form} className={`${className} ${styles.form}`} data-expandable={collapsible} data-search-open={searchOpen} role="search" onSubmit={event=>{event.preventDefault();if(disabled)return;setOpen(false);setActive(-1);onSearch();}} onBlur={event=>{if(!event.currentTarget.contains(event.relatedTarget as Node|null))collapseSearch();}}>
+  {collapsible?<span className={styles.iconTrack}><button ref={trigger} type="button" className={styles.expandButton} disabled={disabled} aria-label="Abrir búsqueda de productos" title="Buscar productos" aria-expanded={searchOpen} aria-controls={id+'-input'} onClick={revealSearch}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg></button></span>:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>}
+  <input ref={input} id={id+'-input'} type="search" role="combobox" aria-label="Buscar productos por nombre o SKU" aria-autocomplete="list" aria-expanded={expanded} aria-controls={id} aria-activedescendant={expanded&&active>=0&&items[active]?`${id}-${active}`:undefined} autoComplete="off" enterKeyHint="search" maxLength={200} placeholder="Buscar un producto o modelo…" value={value} disabled={disabled||!searchOpen} tabIndex={searchOpen?0:-1} onChange={event=>{onChange(event.target.value);setActive(-1);setOpen(true);}} onFocus={()=>setOpen(true)} onKeyDown={event=>{
    if(event.nativeEvent.isComposing)return;
-   if(event.key==='Escape'){event.preventDefault();setOpen(false);setActive(-1);}
+   if(event.key==='Escape'){event.preventDefault();collapseSearch(true);}
    else if(event.key==='ArrowDown'||event.key==='ArrowUp'){event.preventDefault();setOpen(true);if(items.length)setActive(index=>event.key==='ArrowDown'?(index+1)%items.length:index<=0?items.length-1:index-1);}
    else if(event.key==='Enter'&&expanded&&active>=0&&items[active]){event.preventDefault();choose(items[active]);}
   }}/>
-  <button type="submit" disabled={disabled}>Buscar</button>
+  <button type="submit" className={styles.submit} disabled={disabled||!searchOpen} tabIndex={searchOpen?0:-1}>Buscar</button>
+  {collapsible&&<button type="button" className={styles.closeSearch} disabled={disabled||!searchOpen} tabIndex={searchOpen?0:-1} aria-label="Cerrar búsqueda" onClick={()=>collapseSearch(true)}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>}
   {expanded&&<div className={styles.popup}>
    <div className={styles.heading}>Productos sugeridos <small>Nombre o SKU</small></div>
    <div ref={list} id={id} role="listbox" aria-label="Resultados de búsqueda" aria-busy={loading} className={styles.results}>

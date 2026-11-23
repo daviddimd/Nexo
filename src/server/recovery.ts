@@ -8,6 +8,7 @@ import {ensure} from './errors';
 import {lockCompany} from './order-store';
 import {assertLocalMail,encryptLocalMail} from './local-mail';
 import {accountRate} from './account-rate';
+import type {Actor} from './auth';
 
 const company=z.string().regex(/^[a-z0-9][a-z0-9-]{1,62}$/);
 const email=z.email().max(254).transform(v=>v.toLowerCase());
@@ -71,6 +72,23 @@ export async function requestAccountMail(pool:Pool,purpose:Purpose,raw:unknown){
     if(purpose==='VERIFY_EMAIL'&&(!user.email_verification_required||user.email_verified_at))return generic;
     if(purpose==='RESET_PASSWORD'&&user.email_verification_required&&!user.email_verified_at)return generic;
     await issue(db,user,purpose);return generic;
+  });
+}
+export async function changeCustomerEmail(pool:Pool,actor:Actor,raw:unknown){
+  ensure(actor.role==='CUSTOMER',403,'CUSTOMER_REQUIRED','Requiere una cuenta de cliente');
+  assertLocalMail();
+  const input=z.object({email}).strict().parse(raw);
+  await accountRate(pool,'CUSTOMER_EMAIL_CHANGE',JSON.stringify([actor.company_id,actor.id]),5);
+  return transaction(pool,async db=>{
+    await lockCompany(db,actor.company_id);
+    const {rows}=await db.query<Account>('SELECT * FROM users WHERE company_id=$1 AND id=$2 AND active FOR UPDATE',[actor.company_id,actor.id]);
+    const user=rows[0];ensure(user,404,'CUSTOMER_NOT_FOUND','Cuenta inexistente');
+    if(user.email===input.email)return {accepted:true,unchanged:true};
+    ensure(!(await db.query('SELECT 1 FROM users WHERE company_id=$1 AND email=$2 AND active',[actor.company_id,input.email])).rowCount,409,'EMAIL_IN_USE','Ese correo ya está asociado a una cuenta');
+    const updated=(await db.query<Account>('UPDATE users SET email=$3,email_verification_required=true WHERE company_id=$1 AND id=$2 RETURNING *',[actor.company_id,actor.id,input.email])).rows[0];
+    await issue(db,updated,'VERIFY_EMAIL');
+    await publicAccountEvent(db,updated,'CUSTOMER_EMAIL_CHANGE_REQUESTED',{verificationRequired:true});
+    return {accepted:true,verificationRequired:true};
   });
 }
 export async function consumeAccountToken(pool:Pool,purpose:Purpose,raw:unknown){

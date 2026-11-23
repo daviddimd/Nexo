@@ -1,5 +1,5 @@
 import {requestDemo} from '../../../server/demo-requests';
-import {listTestCards,saveTestCard,removeTestCard,revealTestCard} from '../../../server/test-payment-methods';
+import {listTestCards,saveTestCard,removeTestCard,revealTestCard,setDefaultTestCard} from '../../../server/test-payment-methods';
 import {listShippingRates,saveShippingRate,publicDeliveryRates,deliveryEstimate} from '../../../server/shipping-rates';
 import {customerProfile,saveCustomerAddress,removeCustomerAddress} from '../../../server/customer-profile';
 import {managedProductDetail,publicProductDetail} from '../../../server/product-detail';
@@ -21,7 +21,7 @@ import {requestShippingQuote,approveShippingQuote,rejectShippingQuote,getShippin
 import {createPaymentIntent,getPaymentIntent,listPaymentCaptures,processSimulatorWebhook} from '../../../server/payments';
 import {refundPayment,resolveZeroCapture,receiveReturn,aftersalesSummary} from '../../../server/aftersales';
 import {listUsers,patchUser,resetUserPassword,changePassword,companySettings,publicSettings,patchCompanySettings,listAdministrativeEvents} from '../../../server/accounts';
-import {registerCustomer,requestAccountMail,consumeAccountToken} from '../../../server/recovery';
+import {registerCustomer,requestAccountMail,consumeAccountToken,changeCustomerEmail} from '../../../server/recovery';
 import {createInvitation,listInvitations,revokeInvitation,acceptInvitation} from '../../../server/invitations';
 import {commercialSummary,commercialHistory} from '../../../server/commercial';
 import {initialSetup,initialSetupStatus} from '../../../server/initial-setup';
@@ -79,6 +79,7 @@ async function handle(request:Request,context:Context) {
     }
     if(route==='customer/test-cards'&&method==='GET')return json(await listTestCards(pool,actor));
     if(route==='customer/test-cards'&&method==='POST')return json(await saveTestCard(pool,actor,await body(request)),201);
+    if(path.length===4&&path[0]==='customer'&&path[1]==='test-cards'&&path[3]==='default'&&method==='PATCH')return json(await setDefaultTestCard(pool,actor,uuid.parse(path[2])));
     if(path.length===3&&path[0]==='customer'&&path[1]==='test-cards'&&method==='PATCH')return json(await removeTestCard(pool,actor,uuid.parse(path[2])));
     if(path.length===4&&path[0]==='customer'&&path[1]==='test-cards'&&path[3]==='reveal'&&method==='POST')return json(await revealTestCard(pool,actor,uuid.parse(path[2]),await body(request)));
     if(route==='customer/addresses'&&method==='POST')return json(await saveCustomerAddress(pool,actor,null,await body(request)),201);
@@ -86,6 +87,7 @@ async function handle(request:Request,context:Context) {
     if(path.length===3&&path[0]==='customer'&&path[1]==='addresses'&&method==='DELETE')return json(await removeCustomerAddress(pool,actor,uuid.parse(path[2])));
     if(route==='customer/profile'&&method==='GET')return json(await customerProfile(pool,actor));
     if(route==='customer/profile'&&method==='PATCH')return json(await customerProfile(pool,actor,await body(request)));
+    if(route==='customer/email-change'&&method==='POST')return json(await changeCustomerEmail(pool,actor,await body(request)),202);
     if(route==='settings/shipping-rates'&&method==='GET')return json(await listShippingRates(pool,actor));
     if(route==='settings/shipping-rates'&&method==='POST')return json(await saveShippingRate(pool,actor,null,await body(request)),201);
     if(path.length===3&&path[0]==='settings'&&path[1]==='shipping-rates'&&method==='PATCH')return json(await saveShippingRate(pool,actor,uuid.parse(path[2]),await body(request)));
@@ -183,7 +185,7 @@ async function handle(request:Request,context:Context) {
     if(route==='locations'&&method==='POST')return json(await createLocation(pool,actor,await body(request)),201);
     if(path[0]==='locations'&&path.length===2&&method==='PATCH')return json(await patchLocation(pool,actor,uuid.parse(path[1]),await body(request)));
     if(route==='locations'&&method==='GET') {
-      staff(actor);const {rows}=await pool.query(`SELECT id,name,kind,shipping_enabled,active FROM locations l WHERE company_id=$1
+      staff(actor);const {rows}=await pool.query(`SELECT id,name,kind,shipping_enabled,active,address FROM locations l WHERE company_id=$1
         AND ($2='OWNER' OR EXISTS(SELECT 1 FROM agent_locations a WHERE a.company_id=l.company_id AND a.location_id=l.id AND a.user_id=$3)) ORDER BY name`,[actor.company_id,actor.role,actor.id]);return json({items:rows});
     }
     if(route==='users'&&method==='POST')return json(await createUser(pool,actor,await body(request)),201);

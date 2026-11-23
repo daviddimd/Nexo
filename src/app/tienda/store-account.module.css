@@ -123,3 +123,101 @@
  .sidebar nav button[aria-pressed=true]::before{top:auto;bottom:0;left:10px;right:10px;width:auto;height:2px}
  .profileContent{padding:22px 18px}
 }
+/* Standalone account page under the shared store header. */
+.accountPage{width:min(1120px,calc(100% - 48px));margin:36px auto 56px;min-width:0}
+.accountHeading{display:flex;justify-content:space-between;align-items:center;gap:24px;padding:0;margin:0 0 28px;border:0}
+.accountHeading>div>span{font-size:10px;letter-spacing:.12em;color:var(--store-muted);font-weight:600}
+.accountHeading h1{font-size:32px;font-weight:600;letter-spacing:-.045em;line-height:1.2;margin:10px 0 0}
+.accountHeading>a{color:var(--nexo-primary);text-decoration:none;font-size:12px;display:flex;align-items:center;gap:10px;white-space:nowrap}
+.accountSurface{border:1px solid var(--store-line);border-radius:16px;overflow:hidden;background:white}
+.accountSurface .profileLayout{min-height:540px}
+.accountSurface .sidebar nav a{position:relative;display:flex;align-items:center;gap:10px;padding:12px;border:0;border-radius:9px;background:transparent;color:var(--store-muted);font-size:12px;font-weight:450;line-height:1.5;text-decoration:none;min-height:44px;box-sizing:border-box}
+.accountSurface .sidebar nav a[aria-current=page]{background:white;color:var(--nexo-primary);font-weight:550}
+.accountSurface .sidebar nav a[aria-current=page]::before{content:'';position:absolute;left:0;top:13px;bottom:13px;width:2px;border-radius:2px;background:var(--nexo-primary)}
+.accountSurface .sidebar nav a svg{flex-shrink:0}
+.accountSurface .sidebar nav a:focus-visible{outline:2px solid var(--nexo-primary);outline-offset:-2px}
+.accountSurface .profileLayout{grid-template-columns:250px minmax(0,1fr)}
+.accountSurface .profileLayout{min-height:0;align-items:stretch}
+.accountSurface .sidebar{position:sticky;top:20px;align-self:stretch;background:transparent}
+.accountSurface .sidebar nav a{color:#655a70}
+.accountSurface .sidebar nav a[aria-current=page]{background:var(--store-soft);border-radius:8px}
+.accountSurface .sidebar nav a[aria-current=page]::before{display:none}
+.accountSurface .logout{display:flex;align-items:center;gap:10px;margin:24px 12px 0;padding:12px 0;border:0;border-top:1px solid var(--store-line);background:transparent;color:#a33c50;font:inherit;font-size:12px;cursor:pointer}
+.accountSurface .logout{width:auto;margin:24px 0 0;box-sizing:border-box;padding:12px}
+.accountHeading h1{margin:0}
+.accountHeading h1+span{display:none}
+.sectionHeading{margin:0 0 10px;padding:0 0 14px;border-bottom:1px solid var(--store-line)}
+.sectionHeading h3{font-size:24px;font-weight:600;letter-spacing:-.04em;line-height:1.25;margin:0}
+.accountSurface .profileLayout{min-height:0}
+.accountSurface .sidebar{min-height:100%;box-sizing:border-box}
+@media(hover:hover) and (pointer:fine){.accountSurface .sidebar nav a:hover{color:var(--nexo-primary)}.accountHeading>a:hover{text-decoration:underline;text-underline-offset:3px}}
+@media(max-width:680px){.accountPage{width:calc(100% - 28px);margin:24px auto 36px}.accountHeading{align-items:flex-start;gap:16px;margin-bottom:22px}.accountHeading h1{font-size:27px}.accountHeading>a{font-size:11px;margin-top:24px}.accountSurface{border-radius:12px}.accountSurface .profileLayout{grid-template-columns:minmax(0,1fr);min-height:0}.accountSurface .sidebar{position:static}.accountSurface .sidebar nav{display:grid;grid-template-columns:1fr}.accountSurface .sidebar nav a{min-height:46px;padding:11px 12px;font-size:13px}.accountSurface .logout{margin-top:14px}}
+.confirmationDialog { width: min(520px, calc(100vw - 28px)); }
+.confirmationDialog > div > header { padding-block: 14px; }
+.confirmationHero { text-align: center; padding: 6px 0 20px; }
+.confirmationMark {
+ display: grid;
+ place-items: center;
+ width: 64px;
+ height: 64px;
+ margin: 0 auto 16px;
+ border-radius: 50%;
+ background: var(--nexo-ok-bg, #e3f2ee);
+ color: var(--nexo-ok-ink, #14625f);
+ font: 650 32px/1 var(--nexo-font), sans-serif;
+}
+.confirmationHero h3 { font-size: clamp(1.6rem, 4vw, 2.25rem); margin: 0 0 8px; }
+.confirmationHero p,.confirmationNext { font-size: .875rem; color: var(--store-muted); margin: 0; }
+.confirmationReceipt { background: white; border: 1px solid var(--store-line); border-radius: 12px; padding: 6px 16px; }
+.confirmationReceipt p { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; margin: 0; padding: 9px 0; font-size: .875rem; }
+.confirmationReceipt p + p { border-top: 1px solid var(--store-line); }
+.confirmationReceipt span { color: var(--store-muted); }
+.confirmationReceipt strong { font-size: 1.6rem; font-variant-numeric: tabular-nums; }
+.confirmationNext { margin-top: 14px; }
+.confirmationActions { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; margin-top: 16px; }
+.confirmationActions a { text-decoration: none; }
+.confirmationActions .primary { box-sizing: border-box; }
+.confirmationActions button,.confirmationActions a:not(.primary) { border: 0; background: transparent; color: var(--nexo-primary); padding: 8px 0; font-size: .8125rem; font-weight: 550; }
+.confirmationActions button:hover,.confirmationActions a:not(.primary):hover { text-decoration: underline; }
+
+.dialog.reviewDialog { width: min(880px, calc(100vw - 28px)); }
+.reviewDialog > div > header { padding-block: 14px; }
+.reviewReference { margin: 0 0 16px; font-size: .8125rem; color: var(--store-muted); }
+.reviewGrid { display: grid; grid-template-columns: minmax(0,1.15fr) minmax(0,1fr); align-items: start; gap: 22px; }
+.reviewGrid h3 { font-size: 1.05rem; margin: 0 0 12px; }
+.reviewSummary { min-width: 0; }
+.reviewItems { list-style: none; margin: 0; padding: 0; }
+.reviewItems li { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; border-top: 1px solid var(--store-line); padding: 10px 0; font-size: .875rem; }
+.reviewItems strong { overflow-wrap: anywhere; }
+.reviewItems b { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.reviewItems small { display: block; margin-top: 3px; color: var(--store-muted); }
+.reviewDelivery { margin-top: 6px; padding: 10px 0; border-block: 1px solid var(--store-line); }
+.reviewDelivery h4 { margin: 0; font-size: .875rem; }
+.reviewDelivery p { margin: 4px 0 0; color: var(--store-muted); font-size: .8125rem; line-height: 1.5; overflow-wrap: anywhere; }
+.reviewTotals { margin: 8px 0 0; }
+.reviewTotals > div { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding: 4px 0; font-size: .875rem; }
+.reviewTotals dd { margin: 0; font-variant-numeric: tabular-nums; }
+.reviewTotals > div:last-child { font-weight: 650; border-top: 1px solid var(--store-line); margin-top: 5px; }
+.reviewTotals > div:last-child dd { font-size: 1.5rem; }
+.reviewPayment { min-width: 0; padding: 16px; border: 1px solid var(--store-line); border-radius: 14px; background: white; }
+.reviewPayment p { font-size: .8125rem; color: var(--store-muted); margin: 6px 0; }
+.reviewPayment label { margin-block: 10px; }
+.reviewPayment .primary { margin-top: 14px; }
+.reviewPayment .muted { margin-top: 6px; }
+.reviewPayment .cancel { margin-top: 12px; padding-top: 10px; }
+@media(max-width: 650px) { .reviewGrid { grid-template-columns: minmax(0,1fr); gap: 14px; } }
+
+.purchasePage { width: min(100%, 960px); margin: 36px auto 56px; scroll-margin-top: 130px; color: var(--nexo-ink); }
+.purchasePage > h1 { margin: 0 0 12px; font-size: clamp(1.8rem, 4vw, 2.65rem); }
+.purchasePage .reviewGrid { gap: clamp(16px, 4vw, 40px); margin-top: 24px; }
+.purchasePage .reviewSummary { padding: 18px; border: 1px solid var(--store-line); border-radius: 14px; background: white; }
+.purchasePage .reviewPayment select { min-height: 44px; border: 1px solid var(--store-line); background: var(--nexo-surface); }
+.purchasePage:has(.confirmationHero) { max-width: 520px; }
+.purchasePage:has(.confirmationHero) > h1 { text-align: center; font-size: 1rem; color: var(--nexo-accent); letter-spacing: 0; margin-bottom: 20px; }
+
+.purchaseHistory { max-width: 1040px; margin: 32px auto 56px; scroll-margin-top: 130px; }
+.purchaseHistory .heading { margin-bottom: 24px; }
+.purchaseHistory .heading h1 { margin: 6px 0; font-size: clamp(2rem, 4vw, 3rem); }
+.historyBack { display: inline-block; font-size: .875rem; color: var(--nexo-primary); text-decoration: none; }
+.historyBack:hover { text-decoration: underline; }
+.purchaseHistory .purchaseRow { background: white; }
