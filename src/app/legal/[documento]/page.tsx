@@ -1,33 +1,60 @@
 import Link from 'next/link';
 import {notFound} from 'next/navigation';
 import NexoFooter from '../../nexo-footer';
+import PublicHeader from '../../public-header';
+import landing from '../../access-landing.module.css';
+import {legalDocuments, legalOperator, UPDATED_AT, type Block} from '../legal-content';
 import styles from '../legal.module.css';
 
-const documents={
- privacidad:{title:'Privacidad',intro:'Qué información utiliza Nexo y para qué.',sections:[
-  ['Información del sistema','Nexo utiliza los datos necesarios para operar las cuentas de una empresa, su catálogo, ubicaciones, inventario y pedidos. Según la función utilizada, esto puede incluir nombre, correo, datos de entrega e historial de operaciones.'],
-  ['Finalidad y acceso','Estos datos permiten iniciar sesión, administrar el negocio y dar seguimiento a compras y movimientos. El acceso al panel depende del rol y de las ubicaciones autorizadas de cada cuenta.'],
-  ['Uso de la información','Ingresa únicamente datos que tengas autorización para utilizar y mantén actualizada la información de tu empresa y de sus cuentas.'],
-  ['Antes de un servicio comercial','La identidad y los canales de contacto del responsable, los proveedores, los plazos de conservación y el procedimiento para solicitar acceso, corrección o eliminación de datos deben quedar definidos para cada despliegue antes de ofrecerlo comercialmente. Esta página todavía no establece una política comercial definitiva.'],
- ]},
- terminos:{title:'Términos y condiciones',intro:'Alcance de Nexo y de sus modalidades de servicio.',sections:[
-  ['Estado del producto','Nexo permite gestionar productos, stock, ventas y una tienda online. Sus funciones y diseño pueden actualizarse. Los precios de los planes son propuestas sujetas a las condiciones que se acuerden antes de contratar.'],
-  ['Uso del sistema','Utiliza únicamente las cuentas y empresas a las que tienes acceso autorizado. Las operaciones registradas pueden modificar productos, inventario y pedidos. Verifica la información antes de confirmar una operación.'],
-  ['Pagos y contratación','La suscripción y la instalación permanente se presentan como modalidades previstas. Esta web no activa contratos ni cobra suscripciones. El registro de pagos disponible no procesa cargos ni transferencias de dinero.'],
-  ['Condiciones por definir','El precio, alojamiento, licencia, límites de uso, actualizaciones, soporte, garantías y condiciones de término del servicio se acordarán y publicarán antes de contratar. No se establecen plazos de servicio ni garantías permanentes sin un acuerdo expreso.'],
-  ['Documento provisional','Este texto explica el alcance de las funciones disponibles. Los términos del servicio comercial deberán identificar al proveedor, sus datos de contacto y las condiciones efectivamente ofrecidas antes del lanzamiento.'],
- ]},
- cookies:{title:'Cookies y almacenamiento',intro:'Información sobre la sesión y el estado de navegación en Nexo.',sections:[
-  ['Inicio de sesión','Nexo utiliza una cookie de sesión denominada nexo_session para reconocer una sesión autenticada. Las funciones de la cuenta dependen de esta sesión. Cerrar sesión permite finalizar el acceso desde el navegador.'],
-  ['Estado de la interfaz','Durante la navegación, la aplicación conserva el estado necesario para sus formularios, filtros y carrito. Algunos filtros también aparecen en la dirección de la página para permitir compartir o volver a esa búsqueda.'],
-  ['Esta página de presentación','La presentación no añade herramientas de analítica, píxeles publicitarios ni reproductores de vídeo externos. Sus animaciones se ejecutan dentro de la propia página.'],
-  ['Configuración del navegador','Puedes gestionar y eliminar cookies desde tu navegador. Bloquear la sesión puede impedir iniciar sesión o utilizar las funciones de cuenta. La información sobre tecnologías adicionales deberá actualizarse si se incorporan a una versión posterior.'],
- ]},
-} as const;
-type DocumentKey=keyof typeof documents;
-export async function generateMetadata({params}:{params:Promise<{documento:string}>}){const {documento}=await params;return {title:documento in documents?`${documents[documento as DocumentKey].title} · Nexo`:'Documento no encontrado · Nexo'};}
-export default async function LegalPage({params}:{params:Promise<{documento:string}>}){
- const {documento}=await params;if(!Object.hasOwn(documents,documento))notFound();
- const content=documents[documento as DocumentKey];
- return <main className={styles.page}><header className={styles.header}><Link className={styles.logo} href="/">nexo<span>.</span></Link><Link href="/">Volver a Nexo</Link></header><span className={styles.label}>INFORMACIÓN DEL SERVICIO · 27 OCTUBRE 2026</span><h1>{content.title}</h1><p className={styles.intro}>{content.intro}</p><p className={styles.notice}>Información provisional del servicio. La contratación comercial aún no está habilitada.</p>{content.sections.map(([title,text])=><article key={title}><h2>{title}</h2><p>{text}</p></article>)}<NexoFooter currentDocument={`/legal/${documento}`}/></main>;
+export const dynamic = 'force-dynamic';
+
+type Params = {params: Promise<{documento: string}>};
+
+function titleOf(documento: string) {
+ const docs = legalDocuments(legalOperator());
+ return Object.hasOwn(docs, documento) ? docs[documento as keyof typeof docs].title : null;
+}
+export async function generateMetadata({params}: Params) {
+ const title = titleOf((await params).documento);
+ return {title: title ? `${title} · Nexo` : 'Documento no encontrado · Nexo'};
+}
+
+function Content({block}: {block: Block}) {
+ if (typeof block === 'string') return <p>{block}</p>;
+ if ('list' in block) return <ul>{block.list.map(item => <li key={item}>{item}</li>)}</ul>;
+ const {head, rows} = block.table;
+ return <div className={styles.tableScroll} tabIndex={0} role="region" aria-label="Tabla de información">
+  <table><thead><tr>{head.map(cell => <th key={cell} scope="col">{cell}</th>)}</tr></thead>
+   <tbody>{rows.map(row => <tr key={row[0]}>{row.map((cell, index) => index === 0 ? <th key={index} scope="row">{cell}</th> : <td key={index} data-label={head[index]}>{cell}</td>)}</tr>)}</tbody></table>
+ </div>;
+}
+
+export default async function LegalPage({params}: Params) {
+ const {documento} = await params;
+ const docs = legalDocuments(legalOperator());
+ if (!Object.hasOwn(docs, documento)) notFound();
+ const content = docs[documento as keyof typeof docs];
+ return <div className={`${landing.page} ${styles.page}`}>
+  <PublicHeader panel="/inicio" demoAction={<Link className={landing.demoCta} href="/planes?demo=1">Pedir demo</Link>}/>
+  <main className={`${landing.wrap} ${styles.content}`}>
+   <div className={styles.grid}>
+    <aside className={styles.aside}>
+     <span className={styles.badge}>Actualizado el {UPDATED_AT}</span>
+     <h1>{content.title}</h1>
+     <p className={styles.intro}>{content.intro}</p>
+     <nav className={styles.toc} aria-label="Contenido del documento"><h2>Contenido</h2>
+      <ol>{content.sections.map(section => <li key={section.id}><a href={`#${section.id}`}>{section.title}</a></li>)}</ol>
+     </nav>
+    </aside>
+    <div>
+     <section className={styles.summary} aria-labelledby="resumen"><h2 id="resumen">En resumen</h2><ul>{content.summary.map(item => <li key={item}>{item}</li>)}</ul></section>
+     {content.sections.map((section, index) => <article key={section.id} id={section.id} className={styles.section}>
+      <h2><span className={styles.number} aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>{section.title}</h2>
+      {section.blocks.map((block, position) => <Content key={position} block={block}/>)}
+     </article>)}
+    </div>
+   </div>
+   <NexoFooter className={landing.footer} currentDocument={`/legal/${documento}`}/>
+  </main>
+ </div>;
 }
