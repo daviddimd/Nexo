@@ -19,7 +19,7 @@ export default function useCartPopover(busy:boolean,onDismiss:()=>void){
   const previous=document.activeElement instanceof HTMLElement?document.activeElement:null;
   let frame:number|null=null;
   function position(){
-   const rect=anchor?.getBoundingClientRect(),width=Math.min(500,window.innerWidth-24);
+   const rect=anchor?.getBoundingClientRect(),width=Math.min(440,window.innerWidth-24);
    const top=Math.max(12,Math.min((rect?.bottom??12)+10,window.innerHeight-180));
    const right=Math.min(Math.max(12,window.innerWidth-(rect?.right??window.innerWidth-12)),window.innerWidth-width-12);
    element!.style.width=width+'px';element!.style.top=top+'px';element!.style.right=right+'px';

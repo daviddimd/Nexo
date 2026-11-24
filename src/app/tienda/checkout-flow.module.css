@@ -1,0 +1,170 @@
+/* Recorrido de compra: carrito -> pago -> confirmación. Piezas compartidas, movimiento y confirmación. */
+
+/* ── Indicador de pasos ─────────────────────────────────────────── */
+.steps{--half:36px;position:relative;display:flex;justify-content:space-between;align-items:flex-start;margin:0 auto 26px;padding:0;list-style:none;max-width:560px}
+.steps::before,.steps::after{content:"";position:absolute;top:15px;left:var(--half);right:var(--half);height:2px;border-radius:2px}
+.steps::before{background:var(--store-line,#e6dff0)}
+.steps::after{background:var(--nexo-primary);transform-origin:left;transform:scaleX(var(--progress,0));animation:stepsFill .7s .15s var(--nexo-ease,cubic-bezier(.23,1,.32,1)) both}
+@keyframes stepsFill{from{transform:scaleX(var(--from,0))}}
+.steps li{position:relative;z-index:1;display:grid;justify-items:center;gap:8px;min-width:72px;font-size:.8125rem;color:var(--store-muted)}
+.dot{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--nexo-surface,#faf8fc);border:2px solid var(--store-line,#e6dff0);font-size:.8125rem;font-weight:700;font-variant-numeric:tabular-nums;transition:background-color .35s,border-color .35s,color .35s,transform .35s var(--nexo-ease,ease)}
+.steps li[data-state=done] .dot{background:var(--nexo-primary);border-color:var(--nexo-primary);color:white}
+.steps li[data-state=current] .dot{border-color:var(--nexo-primary);color:var(--nexo-primary);background:white;box-shadow:0 0 0 5px color-mix(in srgb,var(--nexo-primary) 14%,transparent);animation:dotPulse .6s .35s var(--nexo-ease,ease) both}
+@keyframes dotPulse{from{transform:scale(.8)}60%{transform:scale(1.08)}}
+.steps li[data-state=current] .label,.steps li[data-state=done] .label{color:var(--nexo-ink);font-weight:600}
+.dot svg{width:15px;height:15px}
+
+/* ── Entrada escalonada de bloques ──────────────────────────────── */
+.reveal{animation:flowReveal .6s var(--nexo-ease,cubic-bezier(.23,1,.32,1)) both;animation-delay:calc(var(--i,0) * 70ms + 60ms)}
+@keyframes flowReveal{from{opacity:0;transform:translateY(14px)}}
+.fade{display:inline-block;animation:moneyFade .32s ease both}
+@keyframes moneyFade{from{opacity:0;transform:translateY(3px)}}
+
+/* ── Forma de pago ──────────────────────────────────────────────── */
+.methods{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 4px;padding:0;border:0;min-width:0}
+.methods legend{padding:0;margin:0 0 10px;font-size:.8125rem;font-weight:600;color:var(--nexo-ink)}
+.method{position:relative;display:grid;grid-template-columns:auto 1fr;align-items:center;gap:12px;margin:0!important;padding:14px;border:1.5px solid var(--store-line);border-radius:14px;background:white;color:var(--nexo-ink);cursor:pointer;transition:border-color .25s,background-color .25s,box-shadow .25s,transform .25s var(--nexo-ease,ease)}
+.method:hover{border-color:color-mix(in srgb,var(--nexo-primary) 45%,var(--store-line))}
+.method:has(input:checked){border-color:var(--nexo-primary);background:var(--store-soft,#f0eafa);box-shadow:0 0 0 3px color-mix(in srgb,var(--nexo-primary) 14%,transparent)}
+.method:has(input:focus-visible){outline:3px solid var(--nexo-primary);outline-offset:2px}
+.method:has(input:disabled){opacity:.6;cursor:default}
+.method input{position:absolute;opacity:0;pointer-events:none}
+.methodIcon{display:grid;place-items:center;width:38px;height:38px;border-radius:11px;background:var(--store-soft,#f0eafa);color:var(--nexo-primary);transition:background-color .25s,color .25s}
+.method:has(input:checked) .methodIcon{background:var(--nexo-primary);color:white}
+.method b{display:block;font-size:.9375rem;font-weight:600}
+.method small{display:block;margin-top:1px;font-size:.75rem;color:var(--store-muted);font-weight:400}
+
+.expand{display:grid;grid-template-rows:0fr;opacity:0;transition:grid-template-rows .4s var(--nexo-ease,ease),opacity .3s;margin-top:0}
+.expand[data-open=true]{grid-template-rows:1fr;opacity:1;margin-top:14px}
+.expand>div{overflow:hidden;min-height:0}
+.cards{display:grid;gap:8px;margin:0;padding:0;border:0;min-width:0}
+.cards legend{padding:0;margin:0 0 8px;font-size:.8125rem;font-weight:600}
+.cardOption{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;margin:0!important;padding:12px 14px;border:1.5px solid var(--store-line);border-radius:12px;background:white;cursor:pointer;transition:border-color .25s,background-color .25s}
+.cardOption:has(input:checked){border-color:var(--nexo-primary);background:var(--store-soft,#f0eafa)}
+.cardOption:has(input:focus-visible){outline:3px solid var(--nexo-primary);outline-offset:2px}
+.cardOption input{width:18px;height:18px;margin:0;accent-color:var(--nexo-primary)}
+.cardOption span{display:grid;gap:1px;font-size:.875rem}
+.cardOption span small{font-size:.75rem;color:var(--store-muted)}
+.cardOption em{font-style:normal;font-size:.75rem;font-weight:600;color:var(--nexo-primary)}
+.addCard{margin-top:8px;border:1.5px dashed var(--store-line);background:transparent;border-radius:12px;padding:12px;font-size:.8125rem;font-weight:600;color:var(--nexo-primary);width:100%}
+
+/* ── Cuenta regresiva de la reserva ─────────────────────────────── */
+.timer{display:grid;gap:8px;margin:0 0 18px;padding:12px 14px;border-radius:12px;background:var(--store-soft,#f0eafa)}
+.timerRow{display:flex;align-items:baseline;justify-content:space-between;gap:12px;font-size:.8125rem;color:var(--store-muted)}
+.timerRow strong{font-size:1.25rem;font-weight:700;color:var(--nexo-ink);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.bar{height:6px;border-radius:6px;background:color-mix(in srgb,var(--nexo-primary) 16%,white);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:6px;background:var(--nexo-primary);transform-origin:left;transition:transform 1s linear,background-color .4s}
+.timer[data-urgent=true]{background:var(--nexo-label-soft,#fff1b8)}
+.timer[data-urgent=true] .bar{background:#ead7a9}
+.timer[data-urgent=true] .bar i{background:#c58a00}
+.timer[data-lapsed=true]{background:var(--nexo-bad-bg,#fdecea);color:var(--nexo-bad-ink,#9b2c2c)}
+.timer[data-lapsed=true] .timerRow,.timer[data-lapsed=true] .timerRow strong{color:var(--nexo-bad-ink,#9b2c2c)}
+
+/* ── Confirmación ───────────────────────────────────────────────── */
+.success{display:grid;justify-items:center;text-align:center;gap:6px;padding:4px 0 22px}
+.successMark{position:relative;display:grid;place-items:center;width:84px;height:84px;margin-bottom:12px;border-radius:50%;background:var(--nexo-ok-bg,#e3f2ee);color:var(--nexo-ok-ink,#14625f);animation:markPop .6s .1s var(--nexo-ease,cubic-bezier(.23,1,.32,1)) both}
+.successMark::after{content:"";position:absolute;inset:-10px;border-radius:50%;border:2px solid var(--nexo-ok-ink,#14625f);opacity:0;animation:markRing 1s .45s ease-out both}
+.successMark svg{width:38px;height:38px}
+.successMark path{stroke-dasharray:30;stroke-dashoffset:30;animation:markDraw .5s .45s ease-out forwards}
+@keyframes markPop{from{opacity:0;transform:scale(.5)}}
+@keyframes markDraw{to{stroke-dashoffset:0}}
+@keyframes markRing{from{opacity:.5;transform:scale(.85)}to{opacity:0;transform:scale(1.35)}}
+.success h2{margin:0;font-size:clamp(1.7rem,4vw,2.3rem);letter-spacing:-.04em}
+.success p{margin:0;font-size:.9375rem;color:var(--store-muted)}
+.receipt{display:grid;gap:0;margin:0;padding:6px 18px;background:white;border:1px solid var(--store-line);border-radius:16px}
+.receipt>div{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:4px 14px;padding:11px 0;font-size:.9rem}
+.receipt>div+div{border-top:1px solid var(--store-line)}
+.receipt dt{color:var(--store-muted)}
+.receipt dd{margin:0;font-weight:600;text-align:right}
+.receipt .total dd{font-size:1.75rem;font-weight:700;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.itemsList{list-style:none;margin:12px 0 0;padding:4px 18px;background:white;border:1px solid var(--store-line);border-radius:16px}
+.itemsList li{display:flex;justify-content:space-between;gap:12px;padding:10px 0;font-size:.9rem}
+.itemsList li+li{border-top:1px solid var(--store-line)}
+.itemsList b{font-variant-numeric:tabular-nums;white-space:nowrap}
+.next{margin:22px 0 0;padding:0;list-style:none;display:grid;gap:0}
+.next h3{margin:0 0 12px;font-size:1rem}
+.next li{position:relative;display:grid;grid-template-columns:28px 1fr;gap:12px;padding-bottom:16px;font-size:.9rem;line-height:1.45}
+.next li:last-child{padding-bottom:0}
+.next li::before{content:"";position:absolute;left:13px;top:28px;bottom:2px;width:2px;background:var(--store-line)}
+.next li:last-child::before{display:none}
+.nextDot{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;border:2px solid var(--store-line);background:white;font-size:.75rem;font-weight:700;color:var(--store-muted)}
+.next li[data-done=true] .nextDot{background:var(--nexo-ok-ink,#14625f);border-color:var(--nexo-ok-ink,#14625f);color:white}
+.next li[data-done=true]::before{background:var(--nexo-ok-ink,#14625f)}
+.next strong{display:block;font-weight:600}
+.next span{color:var(--store-muted);font-size:.8125rem}
+
+/* ── Móvil ──────────────────────────────────────────────────────── */
+@media(max-width:560px){
+ .methods{grid-template-columns:minmax(0,1fr)}
+ .steps{--half:30px}
+ .steps li{min-width:60px;font-size:.75rem}
+ .receipt .total dd{font-size:1.5rem}
+}
+
+/* ── Sin movimiento ─────────────────────────────────────────────── */
+@media(prefers-reduced-motion:reduce){
+ .steps::after,.reveal,.fade,.successMark,.successMark::after,.successMark path,.dot{animation:none!important;transition:none!important}
+ .successMark path{stroke-dashoffset:0}
+ .expand,.bar i,.method,.cardOption{transition:none!important}
+}
+.srOnly{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@media(max-width:560px){
+ .cardOption{grid-template-columns:auto minmax(0,1fr)}
+ .cardOption em{grid-column:2}
+ .cardOption > span:empty{display:none}
+}
+
+/* ── Retroceder un paso ─────────────────────────────────────────── */
+.stepLink{display:grid;justify-items:center;gap:8px;color:inherit;text-decoration:none;border-radius:12px;outline-offset:4px}
+.stepLink:hover .dot{transform:scale(1.08);box-shadow:0 0 0 5px color-mix(in srgb,var(--nexo-primary) 14%,transparent)}
+.stepLink:hover .label{color:var(--nexo-primary);text-decoration:underline;text-underline-offset:3px}
+.stepLink:focus-visible{outline:3px solid var(--nexo-primary)}
+.backLink{display:inline-flex;align-items:center;gap:8px;min-height:40px;margin:0 0 6px;padding:6px 14px 6px 10px;border:1.5px solid var(--store-line);border-radius:999px;background:white;color:var(--nexo-primary);font-size:.875rem;font-weight:600;text-decoration:none;transition:background-color .25s,border-color .25s,transform .3s var(--nexo-ease,ease)}
+.backLink span{display:inline-block;transition:transform .3s var(--nexo-ease,ease)}
+.backLink:hover{background:var(--store-soft,#f0eafa);border-color:color-mix(in srgb,var(--nexo-primary) 40%,var(--store-line))}
+.backLink:hover span{transform:translateX(-4px)}
+.backLink:focus-visible{outline:3px solid var(--nexo-primary);outline-offset:2px}
+
+/* ── Cambios de texto e importes sin saltos ─────────────────────── */
+.swap{display:inline-block;transition:opacity .16s ease,transform .16s ease}
+.swap[data-out=true]{opacity:0;transform:translateY(-4px)}
+.swapIn{display:inline-block;animation:swapIn .34s var(--nexo-ease,cubic-bezier(.23,1,.32,1)) both}
+@keyframes swapIn{from{opacity:0;transform:translateY(5px)}}
+.collapse{display:grid;grid-template-rows:0fr;opacity:0;transition:grid-template-rows .5s var(--nexo-ease,cubic-bezier(.23,1,.32,1)),opacity .35s ease}
+.collapse[data-open=true]{grid-template-rows:1fr;opacity:1}
+.collapse>div{overflow:hidden;min-height:0}
+
+/* ── Esqueleto mientras carga el pedido ─────────────────────────── */
+.skeleton{display:grid;gap:14px;margin-top:22px}
+.skeleton i{display:block;height:18px;border-radius:9px;background:linear-gradient(90deg,var(--store-soft,#f0eafa) 25%,color-mix(in srgb,var(--store-soft,#f0eafa) 55%,white) 50%,var(--store-soft,#f0eafa) 75%);background-size:200% 100%;animation:shimmer 1.4s ease-in-out infinite}
+.skeleton i:nth-child(1){width:42%;height:34px}
+.skeleton i:nth-child(2){width:100%;height:150px;border-radius:18px}
+.skeleton i:nth-child(3){width:70%}
+@keyframes shimmer{to{background-position:-200% 0}}
+@media(prefers-reduced-motion:reduce){.skeleton i{animation:none}.swap,.collapse,.backLink,.backLink span{transition:none}.swapIn{animation:none}}
+
+/* ── Forma de pago: filas amplias en vez de dos cajas estrechas ─── */
+.methods{grid-template-columns:minmax(0,1fr);gap:10px}
+.method{grid-template-columns:auto minmax(0,1fr) auto;gap:14px;padding:16px 18px}
+.methodIcon{width:44px;height:44px;border-radius:13px}
+.method b{font-size:1rem}
+.method small{margin-top:2px;font-size:.8125rem;line-height:1.35}
+.method::after{content:"";width:20px;height:20px;border-radius:50%;border:2px solid var(--store-line);background:white;transition:border-color .25s,background-color .25s,box-shadow .25s}
+.method:has(input:checked)::after{border-color:var(--nexo-primary);background:radial-gradient(circle,var(--nexo-primary) 0 42%,white 46%)}
+.cardOption{padding:14px 18px;gap:14px}
+.cardOption span{font-size:.9375rem}
+.cardOption span small{font-size:.8125rem}
+.cards legend,.methods legend{margin-bottom:10px;font-size:.875rem}
+.expand[data-open=true]{margin-top:18px}
+
+/* ── Confirmación: dos columnas en pantallas anchas para verla completa sin deslizar ── */
+.confirmSide .next{margin:22px 0 0;padding:20px 22px;background:white;border:1px solid var(--store-line);border-radius:18px}
+@media(min-width:900px){
+ .confirmGrid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:clamp(24px,3vw,44px);align-items:start}
+ .confirmSide .next{margin-top:0}
+ .confirmSide>div:last-child{justify-content:flex-start;margin-top:18px}
+ .success{padding:0 0 18px}
+ .successMark{width:68px;height:68px;margin-bottom:8px}
+ .successMark svg{width:32px;height:32px}
+ .success h2{font-size:clamp(1.6rem,2.4vw,2.1rem)}
+}

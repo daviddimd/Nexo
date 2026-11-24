@@ -213,7 +213,7 @@
 .purchasePage .reviewSummary { padding: 18px; border: 1px solid var(--store-line); border-radius: 14px; background: white; }
 .purchasePage .reviewPayment select { min-height: 44px; border: 1px solid var(--store-line); background: var(--nexo-surface); }
 .purchasePage:has(.confirmationHero) { max-width: 520px; }
-.purchasePage:has(.confirmationHero) > h1 { text-align: center; font-size: 1rem; color: var(--nexo-accent); letter-spacing: 0; margin-bottom: 20px; }
+.purchasePage:has(.confirmationHero) > h1 { text-align: center; font-size: 1rem; color: var(--store-chip-ink, var(--nexo-ink)); letter-spacing: 0; margin-bottom: 20px; }
 
 .purchaseHistory { max-width: 1040px; margin: 32px auto 56px; scroll-margin-top: 130px; }
 .purchaseHistory .heading { margin-bottom: 24px; }
@@ -221,3 +221,44 @@
 .historyBack { display: inline-block; font-size: .875rem; color: var(--nexo-primary); text-decoration: none; }
 .historyBack:hover { text-decoration: underline; }
 .purchaseHistory .purchaseRow { background: white; }
+
+.confirmationReceipt b { text-align: right; font-weight: 600; }
+.confirmationItems { list-style: none; margin: 14px 0 0; padding: 4px 16px; background: white; border: 1px solid var(--store-line); border-radius: 12px; }
+.confirmationItems li { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; font-size: .875rem; }
+.confirmationItems li + li { border-top: 1px solid var(--store-line); }
+.confirmationItems b { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.reservation { margin: 0; font-size: .875rem; color: var(--store-muted); }
+.reservation strong { color: var(--nexo-ink); font-variant-numeric: tabular-nums; }
+.arrivalNote { margin: 10px 0 0; font-size: .875rem; color: var(--store-muted); }
+.arrivalNote strong { color: var(--nexo-ink); }
+
+/* ── Revisión del pedido y confirmación: rediseño ────────────────── */
+.purchasePage { padding: clamp(18px, 3vw, 34px); border-radius: 28px; box-shadow: 0 1px 2px rgb(36 28 50 / .04), 0 22px 52px -32px rgb(36 28 50 / .28); }
+.confirmationPage { width: min(100%, 580px); }
+.purchasePage > h1 { letter-spacing: -.045em; }
+.purchasePage .reviewReference { margin-bottom: 4px; font-size: .875rem; }
+.purchasePage .reviewGrid { grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: clamp(18px, 3vw, 32px); margin-top: 22px; align-items: start; }
+.purchasePage .reviewSummary { padding: 24px; border-radius: 20px; }
+.purchasePage .reviewGrid h3 { font-size: 1.1875rem; margin-bottom: 14px; }
+.purchasePage .reviewItems li { font-size: .9375rem; padding: 12px 0; }
+.purchasePage .reviewDelivery { padding: 14px 0; }
+.purchasePage .reviewDelivery h4 { font-size: .9375rem; }
+.purchasePage .reviewDelivery p { font-size: .875rem; }
+.purchasePage .reviewTotals > div { font-size: .9375rem; padding: 5px 0; }
+.purchasePage .reviewTotals > div:last-child dd { font-size: 1.9rem; font-weight: 700; letter-spacing: -.045em; }
+.purchasePage .reviewPayment { padding: 22px; border-radius: 20px; box-shadow: 0 22px 44px -32px rgb(36 28 50 / .4); }
+.purchasePage .reviewPayment .primary { min-height: 56px; margin-top: 18px; border-radius: 14px; font-size: 1rem; font-weight: 600; padding: 14px 18px; transition: transform .25s var(--nexo-ease, ease), box-shadow .25s, background-color .25s; }
+.purchasePage .reviewPayment .primary > span { transition: transform .25s var(--nexo-ease, ease); }
+.purchasePage .reviewPayment .primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 14px 28px -14px color-mix(in srgb, var(--nexo-primary) 75%, black); }
+.purchasePage .reviewPayment .primary:hover:not(:disabled) > span { transform: translateX(4px); }
+.purchasePage .reviewPayment .primary:active:not(:disabled) { transform: scale(.99); }
+.purchasePage .reviewPayment .primary:disabled { opacity: .55; }
+.purchasePage .reviewPayment label { margin-block: 0; }
+.purchasePage .reviewPayment .cancel { margin-top: 14px; }
+@media(min-width: 851px) { .purchasePage .reviewPayment { position: sticky; top: 110px; } }
+@media(max-width: 850px) { .purchasePage .reviewGrid { grid-template-columns: minmax(0, 1fr); } }
+@media(max-width: 600px) { .purchasePage { padding: 18px 16px; border-radius: 22px; } .purchasePage .reviewSummary { padding: 18px; } }
+@media(prefers-reduced-motion: reduce) { .purchasePage .reviewPayment .primary, .purchasePage .reviewPayment .primary > span { transition: none; } }
+@media(min-width: 851px) { .purchasePage .reviewGrid { grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); } }
+.purchasePage .reviewPayment { padding: 24px; }
+@media(min-width: 900px) { .confirmationPage { width: min(100%, 1040px); } }

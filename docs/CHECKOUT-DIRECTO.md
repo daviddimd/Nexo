@@ -69,3 +69,17 @@ Una instalación nueva usa `npm run dev`, aplica las migraciones y configura sus
 `tests/direct-checkout.test.ts` cubre cálculo sin reservas, cobertura y permisos, creación sin cotización, idempotencia, snapshot, cambios de total, dirección incompatible, stock insuficiente, origen tienda, perfiles privados, persistencia enmascarada, pagos repetidos, despacho, historial y recorrido HTTP. Las pruebas requieren TEST_DATABASE_URL separado de la base de desarrollo. El resto de la suite conserva los contratos de cotizaciones históricas.
 
 Las pruebas customer-wallet.test.ts verifican múltiples direcciones, predeterminadas y privacidad entre cuentas/empresas, validación de tarjetas, ausencia de número completo y CVV en almacenamiento, revelado con contraseña, límites de intentos y las rutas HTTP de edición y borrado.
+
+## Recorrido visual de la compra
+
+Carrito, revisión con pago y confirmación comparten un indicador de tres pasos (`src/app/tienda/checkout-steps.tsx`) y se animan al entrar. Entre pantallas usan transiciones de vista (`<ViewTransition>` de React 19.3, estilos en `src/app/styles.css`) con respaldo de animaciones CSS; todo se desactiva con `prefers-reduced-motion`.
+
+- **Carrito:** entrega con selector deslizante, quitar un producto lo retira con animación, el total destella al cambiar y el resumen queda fijo en escritorio.
+- **Pago:** la reserva muestra una barra de tiempo que pasa a ámbar cuando quedan dos minutos; la forma de pago y la tarjeta se eligen con tarjetas seleccionables en vez de listas desplegables.
+- **Confirmación:** marca animada, comprobante, productos y una línea de tiempo "Qué sigue" (preparación, despacho y llegada, o retiro).
+
+### Navegar entre pasos
+
+Avanzar (carrito → pago → confirmación) y retroceder usan una transición de vista propia (`src/app/tienda/checkout-nav.tsx`): la pantalla actual sale hacia un lado y la nueva entra desde el otro; el indicador de pasos se mantiene. Mientras la nueva ruta carga se muestra un esqueleto. Si el navegador no soporta la API o se pidió menos movimiento, se navega de inmediato.
+
+Se puede retroceder desde el pago con "Volver al carrito" o tocando el paso 1 del indicador. La reserva sigue vigente: al volver a revisar el mismo carrito se reabre el mismo pedido, y si el carrito cambió, la reserva anterior se cancela. Después de pagar ya no hay paso atrás.

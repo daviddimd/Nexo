@@ -100,3 +100,18 @@ input[type=checkbox],input[type=radio]{accent-color:var(--field-accent,var(--nex
 .local-recovery fieldset{margin-top:18px}
 .local-recovery .secondary{margin-left:10px}
 
+/* Transiciones entre los pasos de la compra: avanzar sale hacia la izquierda y entra por la derecha; retroceder, al revés.
+   Los nombres solo existen mientras dura la transición, para no afectar el diseño el resto del tiempo. */
+:root[data-checkout-dir] #carrito{view-transition-name:checkout-cart}
+:root[data-checkout-dir] #pedido{view-transition-name:checkout-order}
+:root[data-checkout-dir] [aria-label="Progreso de la compra"]{view-transition-name:checkout-progress}
+::view-transition-group(checkout-progress){animation-duration:.6s;animation-timing-function:cubic-bezier(.23,1,.32,1)}
+:root[data-checkout-dir=forward]::view-transition-old(checkout-cart),:root[data-checkout-dir=forward]::view-transition-old(checkout-order){--offset:-56px;animation:240ms cubic-bezier(.4,0,1,1) both checkoutFade reverse,640ms cubic-bezier(.45,0,.2,1) both checkoutSlide reverse}
+:root[data-checkout-dir=forward]::view-transition-new(checkout-cart),:root[data-checkout-dir=forward]::view-transition-new(checkout-order){--offset:56px;animation:380ms cubic-bezier(.2,.7,.2,1) 200ms both checkoutFade,700ms cubic-bezier(.23,1,.32,1) both checkoutSlide}
+:root[data-checkout-dir=back]::view-transition-old(checkout-cart),:root[data-checkout-dir=back]::view-transition-old(checkout-order){--offset:56px;animation:240ms cubic-bezier(.4,0,1,1) both checkoutFade reverse,640ms cubic-bezier(.45,0,.2,1) both checkoutSlide reverse}
+:root[data-checkout-dir=back]::view-transition-new(checkout-cart),:root[data-checkout-dir=back]::view-transition-new(checkout-order){--offset:-56px;animation:380ms cubic-bezier(.2,.7,.2,1) 200ms both checkoutFade,700ms cubic-bezier(.23,1,.32,1) both checkoutSlide}
+@keyframes checkoutFade{from{opacity:0}}
+@keyframes checkoutSlide{from{translate:var(--offset,0)}to{translate:0}}
+@media(prefers-reduced-motion:reduce){
+ ::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}
+}
