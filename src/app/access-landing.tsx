@@ -44,7 +44,7 @@ export default function Home(){
   <div className={styles.wrap}>
   <LandingStory/>
   {setup&&<div className={styles.setup}><a href="/configurar">Configurar mi empresa</a></div>}
-  <section className={styles.closing} aria-labelledby="closing-title"><div><h2 id="closing-title">¿Listo para ordenar tu stock?</h2><p>Desde <strong>{clp(startingPrice)} al mes</strong> · IVA incluido</p></div><div className={styles.conversionActions}><ConversionActions/></div></section>
+  <section className={styles.closing} aria-labelledby="closing-title"><div><h2 id="closing-title">¿Listo para ordenar tu stock?</h2><p>Desde <strong>{clp(startingPrice)} al mes</strong></p></div><div className={styles.conversionActions}><ConversionActions/></div></section>
   <NexoFooter className={styles.footer} extra={<div className={styles.footerContact}><Link href="/preguntas#contacto">Contacto</Link><span>© {new Date().getFullYear()} Nexo</span></div>}/>
  </div>
  </main>;

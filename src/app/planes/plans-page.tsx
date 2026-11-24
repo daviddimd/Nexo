@@ -9,7 +9,6 @@ import styles from './plans-page.module.css';
 
 import DemoRequestForm, {type Interest} from '../demo-request-form';
 const questions = [
- ['¿Cómo se muestran los precios?', 'Los precios se muestran en pesos chilenos por mes, con IVA incluido.'],
  ['¿Qué cuenta como sucursal?', 'Cada local físico con inventario propio cuenta como una sucursal. La bodega web es independiente y no ocupa un cupo.'],
  ['¿Qué es un acceso de equipo?', 'Es el acceso de una persona del equipo, con permisos y ubicaciones asignados. Cada plan incluye además una cuenta de propietario.'],
  ['¿Qué costos quedan fuera?', 'El dominio, los servicios de terceros y las comisiones de una futura pasarela se pagan por separado. Migraciones y desarrollos especiales se cotizan según su alcance.'],
@@ -42,7 +41,7 @@ export default function PlansPage({initialDemoOpen}: {initialDemoOpen:boolean}){
      {plans.map(plan=><article key={plan.id} className={styles.card} data-featured={plan.featured} data-selected={selected===plan.id}>
       <div className={styles.cardTop}><h2 id={`plan-${plan.id}`}>{plan.name}</h2>{plan.featured&&<span className={styles.badge}>Recomendado</span>}</div>
       <p className={styles.description}>{plan.description}</p>
-      <div className={styles.price}><strong>{clp(plan.price)}</strong><span>/ mes · IVA incluido</span></div>
+      <div className={styles.price}><strong>{clp(plan.price)}</strong><span>/ mes</span></div>
       <ul className={styles.limits}>
        <li><a href="#cuenta-como-sucursal" onClick={()=>{const detail=document.querySelector<HTMLDetailsElement>('#cuenta-como-sucursal');if(detail)detail.open=true;}}>{plan.branches} {plan.branches===1?'sucursal física':'sucursales físicas'}</a></li>
        <li>{plan.agents} accesos de equipo</li>
@@ -52,7 +51,7 @@ export default function PlansPage({initialDemoOpen}: {initialDemoOpen:boolean}){
      </article>)}
     </div>
     <div className={styles.selection}>
-     <p role="status">Plan seleccionado <strong>{current.name}</strong> · {clp(current.price)} al mes · IVA incluido</p>
+     <p role="status">Plan seleccionado <strong>{current.name}</strong> · {clp(current.price)} al mes</p>
      <button type="button" className={styles.primary} aria-controls="pedir-demo" aria-expanded={demoOpen} onClick={()=>{setInterest(selected);setDemoOpen(!demoOpen);}}>Pedir demo</button>
     </div>
    <div id="pedir-demo" ref={demoForm} data-open={demoOpen} inert={!demoOpen} tabIndex={-1} className={styles.demoDisclosure}>
@@ -68,7 +67,7 @@ export default function PlansPage({initialDemoOpen}: {initialDemoOpen:boolean}){
      <div className={styles.tableScroll} tabIndex={0} role="region" aria-label="Comparación de planes">
       <table><thead><tr><th scope="col">Capacidad</th>{plans.map(plan=><th key={plan.id} scope="col" data-featured={plan.featured}>{plan.name}</th>)}</tr></thead>
        <tbody>{([
-        ['Precio mensual (IVA incluido)',(plan: typeof plans[number])=>clp(plan.price)],
+        ['Precio mensual',(plan: typeof plans[number])=>clp(plan.price)],
         ['Sucursales físicas',(plan: typeof plans[number])=>plan.branches],
         ['Accesos de equipo',(plan: typeof plans[number])=>plan.agents],
         ['Productos en catálogo',(plan: typeof plans[number])=>count(plan.products)],

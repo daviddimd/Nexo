@@ -66,7 +66,7 @@ export default function ProductCarousel({products,slug,disabled,onAdd,added}:{pr
     <div className={styles.copy}>
      {label.brand&&<span className={styles.category}>{label.brand}</span>}
      {slide===0&&!clone?<h1>{label.title}</h1>:<h2>{label.title}</h2>}
-     <div className={styles.priceRow}><strong className={styles.price}>{money(product.price_minor)}</strong><span>IVA incluido</span></div>
+     <div className={styles.priceRow}><strong className={styles.price}>{money(product.price_minor)}</strong></div>
      <p className={styles.stock}>{stockLabel}</p>
      <div className={styles.actions}>
       <button className={styles.add} type="button" disabled={disabled||!hasStock} onClick={event=>onAdd(product,event.currentTarget)}>{added===product.id?'Agregado al carrito':'Agregar al carrito'}</button>
