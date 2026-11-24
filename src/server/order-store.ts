@@ -16,6 +16,7 @@ export type Order = {
   paid_by: string | null; paid_at: Date | null; fulfilled_at: Date | null;
   cancellation_reason: string | null; sale_operation_id: string | null;
   created_at: Date; updated_at: Date;
+  delivery_days_min: number | null; delivery_days_max: number | null;
 };
 export type OrderItem = {
   product_id: string; sku: string; name: string; quantity: number;
@@ -37,7 +38,8 @@ export async function findOrder(db: PoolClient, companyId: string, id: string): 
   const { rows } = await db.query<Order>(`SELECT id,company_id,customer_id,created_by,channel,fulfillment,
     location_id,status,currency,total_minor::text,expires_at,payment_method,payment_reference,paid_by,
     paid_at,fulfilled_at,cancellation_reason,sale_operation_id,created_at,updated_at,
-    goods_minor::text,shipping_minor::text,shipping_quote_id,shipping_address,shipping_rate_id,payment_source
+    goods_minor::text,shipping_minor::text,shipping_quote_id,shipping_address,shipping_rate_id,payment_source,
+    delivery_days_min,delivery_days_max
     FROM orders WHERE company_id=$1 AND id=$2`, [companyId, id]);
   ensure(rows[0], 404, 'ORDER_NOT_FOUND', 'Pedido inexistente');
   return rows[0];
@@ -65,7 +67,9 @@ export async function orderResult(db: PoolClient, order: Order) {
   const { rows: events } = await db.query<OrderEvent>(`SELECT id,type,actor_id,reason,created_at FROM order_events
     WHERE company_id=$1 AND order_id=$2 ORDER BY created_at,id`, [order.company_id, order.id]);
   const payment=(await db.query(`SELECT c.method,c.card_id,c.card_label,c.card_brand,c.card_last_four FROM test_payment_choices c JOIN payment_intents i ON i.company_id=c.company_id AND i.id=c.intent_id WHERE i.company_id=$1 AND i.order_id=$2`,[order.company_id,order.id])).rows[0]??null;
-  return { ...order, items, events, testPayment:payment };
+  const shipment=(await db.query(`SELECT status,carrier,tracking_code,estimated_delivery::text,prepared_at,dispatched_at,delivered_at FROM shipments
+    WHERE company_id=$1 AND order_id=$2`,[order.company_id,order.id])).rows[0]??null;
+  return { ...order, items, events, testPayment:payment, shipment };
 }
 
 export async function event(db: PoolClient, order: Order, type: OrderEvent['type'], actorId: string | null, reason: string) {

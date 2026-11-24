@@ -4,7 +4,7 @@ import {resolve} from 'node:path';
 import {transaction} from '../src/server/db';
 
 const tables=['demo_requests','customer_addresses','test_payment_cards','test_payment_choices','shipping_rates','customer_profiles','categories','companies','users','sessions','login_attempts','locations','agent_locations','products','stock','inventory_operations','stock_movements',
-  'orders','order_items','order_events','shipping_quotes','shipping_quote_items','payment_intents','payment_captures','payment_events',
+  'orders','order_items','order_events','shipments','shipping_quotes','shipping_quote_items','payment_intents','payment_captures','payment_events',
   'refunds','capture_resolutions','return_receipts','return_items','administrative_events','account_tokens','local_mail','account_rate_limits',
   'staff_invitations','commercial_revisions','installation_identity','license_imports','schema_migrations'];
 const protectedTables=['commercial_revisions','installation_identity','license_imports','schema_migrations'];

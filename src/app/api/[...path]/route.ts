@@ -1,4 +1,5 @@
 import {requestDemo} from '../../../server/demo-requests';
+import {listDispatches,prepareShipment,dispatchShipment,updateShipment,deliverShipment} from '../../../server/dispatch';
 import {listTestCards,saveTestCard,removeTestCard,revealTestCard,setDefaultTestCard} from '../../../server/test-payment-methods';
 import {listShippingRates,saveShippingRate,publicDeliveryRates,deliveryEstimate} from '../../../server/shipping-rates';
 import {customerProfile,saveCustomerAddress,removeCustomerAddress} from '../../../server/customer-profile';
@@ -155,6 +156,14 @@ async function handle(request:Request,context:Context) {
     }
     if(path[0]==='orders'&&path.length===2&&method==='GET')return json(await getOrder(pool,actor,uuid.parse(path[1])));
     if(path[0]==='orders'&&path.length===3&&path[2]==='aftersales'&&method==='GET')return json(await aftersalesSummary(pool,actor,uuid.parse(path[1])));
+    if(route==='dispatches'&&method==='GET'){const url=new URL(request.url),p=pagination(url);return json(await listDispatches(pool,actor,p.limit,p.offset,{stage:url.searchParams.get('stage')??'all',q:url.searchParams.get('q')??''}));}
+    if(path[0]==='orders'&&path[2]==='shipment'&&path.length===4&&method==='POST'){
+      const id=uuid.parse(path[1]);
+      if(path[3]==='prepare')return json(await prepareShipment(pool,actor,id));
+      if(path[3]==='dispatch')return json(await dispatchShipment(pool,actor,id,await body(request)));
+      if(path[3]==='deliver')return json(await deliverShipment(pool,actor,id));
+    }
+    if(path[0]==='orders'&&path[2]==='shipment'&&path.length===3&&method==='PATCH')return json(await updateShipment(pool,actor,uuid.parse(path[1]),await body(request)));
     if(path[0]==='orders'&&path.length===3&&method==='POST') {
       const id=uuid.parse(path[1]);
       if(path[2]==='refunds')return json(await refundPayment(pool,actor,request.headers.get('idempotency-key')??'',{orderId:id},await body(request)));

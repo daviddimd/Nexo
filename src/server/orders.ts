@@ -40,15 +40,15 @@ async function storeLocation(db: PoolClient, companyId: string, id: string) {
 
 async function reserveDraft(db: PoolClient, actor: Actor, key: string, hash: string,
   channel: Order['channel'], fulfillment: Order['fulfillment'], locationId: string, cart: PricedCart,
-  shipping?: { quoteId?:string; rateId?:string; address:ShippingAddress; fee:string }) {
+  shipping?: { quoteId?:string; rateId?:string; address:ShippingAddress; fee:string; days?:[number|null,number|null] }) {
   const company = await db.query<{ reservation_minutes: number }>('SELECT reservation_minutes FROM companies WHERE id=$1', [actor.company_id]);
   const id = randomUUID();
   await db.query(`INSERT INTO orders(id,company_id,customer_id,created_by,channel,fulfillment,
-    location_id,total_minor,idempotency_key,request_hash,expires_at,goods_minor,shipping_minor,shipping_quote_id,shipping_address,shipping_rate_id)
-    VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,clock_timestamp()+$11*interval '1 minute',$12,$13,$14,$15,$16)`,
+    location_id,total_minor,idempotency_key,request_hash,expires_at,goods_minor,shipping_minor,shipping_quote_id,shipping_address,shipping_rate_id,delivery_days_min,delivery_days_max)
+    VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,clock_timestamp()+$11*interval '1 minute',$12,$13,$14,$15,$16,$17,$18)`,
     [id, actor.company_id, channel === 'ONLINE' ? actor.id : null, actor.id, channel, fulfillment,
       locationId, (BigInt(cart.total)+BigInt(shipping?.fee??'0')).toString(), key, hash, company.rows[0].reservation_minutes,
-      cart.total,shipping?.fee??'0',shipping?.quoteId??null,shipping?JSON.stringify(shipping.address):null,shipping?.rateId??null]);
+      cart.total,shipping?.fee??'0',shipping?.quoteId??null,shipping?JSON.stringify(shipping.address):null,shipping?.rateId??null,shipping?.days?.[0]??null,shipping?.days?.[1]??null]);
   for (const item of cart.items) {
     const reserved = await db.query(`UPDATE stock SET reserved=reserved+$4,updated_at=clock_timestamp()
       WHERE company_id=$1 AND product_id=$2 AND location_id=$3 AND on_hand-reserved >= $4`,
@@ -78,7 +78,7 @@ export async function createOnlineOrder(pool: Pool, actor: Actor, key: string, r
     if(input.fulfillment==='SHIP'&&input.shippingRateId){
       const delivery=await automaticDelivery(db,actor.company_id,input.shippingRateId,input.items,input.address!);
       ensure(delivery.total===input.expectedTotalMinor,409,'CHECKOUT_TOTAL_CHANGED','El precio o el envío cambió. Actualiza el resumen antes de confirmar');
-      const order=await reserveDraft(db,actor,key,hash,'ONLINE','SHIP',delivery.locationId,delivery.cart,{rateId:delivery.rate.id,address:input.address!,fee:delivery.rate.fee_minor});
+      const order=await reserveDraft(db,actor,key,hash,'ONLINE','SHIP',delivery.locationId,delivery.cart,{rateId:delivery.rate.id,address:input.address!,fee:delivery.rate.fee_minor,days:[delivery.rate.delivery_days_min,delivery.rate.delivery_days_max]});
       return {...await orderResult(db,order),replayed:false};
     }
     const quote = input.fulfillment==='SHIP' ? await approvedShippingQuote(db,actor,input.shippingQuoteId!,input.items) : null;
@@ -137,14 +137,19 @@ export async function cancelOrder(pool: Pool, actor: Actor, id: string, raw: unk
   });
 }
 
-async function completeOrder(db: PoolClient, actor: Actor, order: Order) {
-  if (order.status === 'FULFILLED') return true;
+// Reglas de posventa que impiden preparar o despachar un pedido pagado.
+export async function assertFulfillable(db: PoolClient, order: Order) {
   ensure(order.status === 'PAID', 409, 'PAYMENT_REQUIRED', 'El pedido debe estar pagado antes de entregar o despachar');
   const refunds=await db.query(`SELECT 1 FROM refunds r LEFT JOIN payment_captures c ON c.company_id=r.company_id AND c.id=r.capture_id
     WHERE r.company_id=$1 AND r.order_id=$2 AND (r.capture_id IS NULL OR c.disposition='APPLIED') LIMIT 1`,[order.company_id,order.id]);
   ensure(!refunds.rowCount,409,'REFUNDED_ORDER','El pago del pedido tiene reembolsos; requiere resolver la entrega');
   const withdrawn=await db.query("SELECT 1 FROM return_receipts WHERE company_id=$1 AND order_id=$2 AND kind='WITHDRAWAL' LIMIT 1",[order.company_id,order.id]);
   ensure(!withdrawn.rowCount,409,'WITHDRAWN_ORDER','El stock del pedido ya fue revertido');
+}
+
+export async function completeOrder(db: PoolClient, actor: Actor, order: Order) {
+  if (order.status === 'FULFILLED') return true;
+  await assertFulfillable(db, order);
   await db.query(`UPDATE orders SET status='FULFILLED',fulfilled_at=clock_timestamp(),updated_at=clock_timestamp()
     WHERE company_id=$1 AND id=$2`, [order.company_id, order.id]);
   const reason = order.fulfillment === 'SHIP' ? 'Pedido despachado' : 'Pedido entregado al cliente';
@@ -192,7 +197,8 @@ export async function listOrders(pool: Pool, actor: Actor, limit = 50, offset = 
   ensure(!fulfillment||['SHIP','PICKUP','LOCAL'].includes(fulfillment),400,'INVALID_FULFILLMENT','Método de entrega inválido');
   return orderTransaction(pool, actor, async db => {
     const { rows } = await db.query(`SELECT o.id,o.channel,o.fulfillment,o.location_id,o.status,o.currency,
-      o.total_minor::text,o.expires_at,o.created_at,o.paid_at,o.fulfilled_at
+      o.total_minor::text,o.expires_at,o.created_at,o.paid_at,o.fulfilled_at,
+      (SELECT s.status FROM shipments s WHERE s.company_id=o.company_id AND s.order_id=o.id) AS shipment_status
       FROM orders o WHERE o.company_id=$1 AND ($6::text IS NULL OR o.fulfillment=$6) AND (
         $2='OWNER' OR ($2='CUSTOMER' AND o.customer_id=$3) OR ($2='AGENT' AND EXISTS (
           SELECT 1 FROM agent_locations a WHERE a.company_id=o.company_id AND a.user_id=$3 AND a.location_id=o.location_id
